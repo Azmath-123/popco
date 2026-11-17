@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" class="h-full antialiased">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=popco-1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>PopCo Makhana - Premium Bihar Makhana Store & Admin</title>
+    <meta name="description" content="Authentic replication and full-featured e-commerce platform for PopCo Makhana, featuring direct-from-Bihar fox nuts, instant checkout, orders, and admin dashboard." />
+    <meta property="og:title" content="PopCo Makhana - Premium Bihar Makhana Store & Admin" />
+    <meta property="og:description" content="Authentic replication and full-featured e-commerce platform for PopCo Makhana, featuring direct-from-Bihar fox nuts, instant checkout, orders, and admin dashboard." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Google Fonts: Elegant Luxury typography (Poppins, Libre Baskerville, IBM Plex Mono) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Preload Hero & Product Assets -->
+    <link rel="preload" href="/banner.webp" as="image" media="(min-width: 1024px)">
+    <link rel="preload" href="/phone_banner.webp" as="image" media="(max-width: 1023px)">
+    <link rel="preload" href="/product_1.webp" as="image">
+    <link rel="preload" href="/product_2.webp" as="image">
+  </head>
+  <body class="min-h-full flex flex-col font-sans uppercase tracking-wide bg-[var(--background)] text-[var(--foreground)] selection:bg-[var(--primary)] selection:text-[var(--background)]">
+    <div id="root" class="min-h-screen flex flex-col"></div>
+    <script src="https://checkout.razorpay.com/v1/checkout.js" async data-razorpay-checkout="true"></script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
