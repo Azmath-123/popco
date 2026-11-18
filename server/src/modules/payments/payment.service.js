@@ -50,11 +50,6 @@ export async function verifyAndCaptureOrder(client, orderId, payment) {
   await client.query("UPDATE payments SET gateway_payment_id = $1, amount = $2, currency = 'INR', status = 'captured', signature_verified = TRUE, raw_event = $3::jsonb, paid_at = NOW(), updated_at = NOW() WHERE order_id = $4", [payment.id, rupees(payment.amount), JSON.stringify(payment), orderId]);
   await client.query("UPDATE orders SET payment_status = 'paid', order_status = 'Confirmed', reservation_released_at = NULL, updated_at = NOW() WHERE id = $1", [orderId]);
   if (order.coupon_code) await client.query('UPDATE coupons SET usage_count=usage_count+1,updated_at=NOW() WHERE code=$1', [order.coupon_code]);
-  if (order.customer_id && !order.m_coins_awarded) {
-    const reward = Math.round(Number(order.total) * 0.05);
-    if (reward > 0) await client.query('UPDATE customers SET m_coins = m_coins + $1, updated_at = NOW() WHERE id = $2', [reward, order.customer_id]);
-    await client.query('UPDATE orders SET m_coins_awarded=TRUE WHERE id=$1',[orderId]);
-  }
   if (order.customer_email) {
     await client.query('INSERT INTO notification_outbox (recipient, event_type, order_id, payload) VALUES ($1, $2, $3, $4::jsonb)', [order.customer_email, 'order_confirmation', orderId, JSON.stringify({ orderNumber: order.order_number, amount: Number(order.total) })]);
   }

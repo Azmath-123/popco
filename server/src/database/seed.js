@@ -98,22 +98,30 @@ export async function seedDefaults() {
     await client.query(`
       INSERT INTO store_settings (key, value) VALUES ($1, $2::jsonb)
       ON CONFLICT (key) DO UPDATE SET
-        value = jsonb_set(store_settings.value, '{storeName}', to_jsonb('PopCo'::text), true),
+        value = $2::jsonb,
         updated_at = NOW()
     `, ['store', JSON.stringify(defaults)]);
   });
 
   if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
     const email = process.env.ADMIN_EMAIL.trim().toLowerCase();
-    const existing = await pool.query('SELECT id FROM customers WHERE email = $1', [email]);
-    if (!existing.rowCount) {
-      await pool.query(
-        `INSERT INTO customers (full_name, email, phone, password_hash, role)
-         VALUES ($1, $2, $3, $4, 'admin')`,
-      [process.env.ADMIN_NAME || 'Store Administrator', email, process.env.ADMIN_PHONE || '', await hashPassword(process.env.ADMIN_PASSWORD)],
-      );
-      console.log(`Created initial administrator ${email}.`);
-    }
+    const adminName = process.env.ADMIN_NAME || 'POP CO Admin';
+    const adminPhone = process.env.ADMIN_PHONE || '+918080808447';
+    const passwordHash = await hashPassword(process.env.ADMIN_PASSWORD);
+    await pool.query(
+      `INSERT INTO customers (full_name, email, phone, password_hash, role, status)
+       VALUES ($1, $2, $3, $4, 'admin', 'active')
+       ON CONFLICT (email) DO UPDATE SET
+         full_name = EXCLUDED.full_name,
+         phone = EXCLUDED.phone,
+         password_hash = EXCLUDED.password_hash,
+         role = 'admin',
+         status = 'active',
+         updated_at = NOW()`,
+      [adminName, email, adminPhone, passwordHash],
+    );
+    await pool.query("DELETE FROM customers WHERE email = 'admin@mukejamakhana.com'");
+    console.log(`Synchronized administrator credentials for ${email}.`);
   }
 }
 

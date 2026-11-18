@@ -187,3 +187,8 @@
 .ticker-track:hover { animation-play-state: paused; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@keyframes heroProgress {
+  from { width: 0%; }
+  to { width: 100%; }
+}

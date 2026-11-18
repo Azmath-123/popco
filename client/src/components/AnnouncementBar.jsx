@@ -20,10 +20,12 @@ export const AnnouncementBar = () => {
             <MessageCircle size={13}/>
             <span>Support</span>
           </a>
-          <Link to="/admin" className="bg-[var(--secondary-foreground)] hover:bg-[var(--secondary-foreground)]/90 text-white px-2 py-0.5 rounded text-[10px] tracking-wider transition-all flex items-center gap-1 font-semibold">
-            <ShieldCheck size={11}/>
-            <span>Admin</span>
-          </Link>
+          {currentUser && (currentUser.role === 'super_admin' || currentUser.role === 'admin') && (
+            <Link to="/admin" className="bg-[var(--secondary-foreground)] hover:bg-[var(--secondary-foreground)]/90 text-white px-2.5 py-0.5 rounded text-[10px] tracking-wider transition-all flex items-center gap-1 font-semibold">
+              <ShieldCheck size={11}/>
+              <span>Admin</span>
+            </Link>
+          )}
         </div>
       </div>
     </div>);

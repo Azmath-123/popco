@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { User, Package, MapPin, Coins, ShieldCheck, Plus, Trash2, Truck, LogOut } from 'lucide-react';
+import { User, Package, MapPin, ShieldCheck, Plus, Trash2, Truck, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 export const ProfilePage = () => {
-    const { currentUser, orders, logout, addAddress, deleteAddress, setDefaultAddress, switchRole, setIsAuthModalOpen } = useStore();
+    const { currentUser, orders, logout, addAddress, deleteAddress, setDefaultAddress, setIsAuthModalOpen } = useStore();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('orders');
     // New address form state
@@ -22,7 +22,7 @@ export const ProfilePage = () => {
         </div>
         <h2 className="text-xl font-black uppercase text-[var(--foreground)]">Please Sign In</h2>
         <p className="text-xs text-[var(--foreground)]/70 font-sans">
-          Sign in to view your orders, live shipment tracking, and mCoins rewards.
+          Sign in to view your orders and live shipment tracking.
         </p>
         <button onClick={() => setIsAuthModalOpen(true)} className="px-8 py-3 rounded-full bg-[var(--primary)] text-white text-xs font-black uppercase tracking-wider shadow-md hover:bg-[var(--primary)]/90">
           Sign In / Register
@@ -76,16 +76,9 @@ export const ProfilePage = () => {
 
           {/* Balance & Actions */}
           <div className="flex items-center gap-3">
-            <div className="bg-white/10 backdrop-blur-xs p-3 px-5 rounded-2xl border border-white/15 text-left">
-              <span className="text-[10px] uppercase font-bold text-white/70 block">Available mCoins</span>
-              <div className="flex items-center gap-1.5 text-xl font-black text-amber-300">
-                <Coins size={18}/>
-                <span>{currentUser.mCoins}</span>
-              </div>
-            </div>
-
-            <button onClick={logout} className="p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white transition-colors" title="Sign Out">
+            <button onClick={logout} className="p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-wider" title="Sign Out">
               <LogOut size={18}/>
+              <span className="hidden sm:inline">Sign Out</span>
             </button>
           </div>
         </div>
@@ -104,13 +97,6 @@ export const ProfilePage = () => {
             : 'text-[var(--foreground)]/70 hover:text-[var(--foreground)]'}`}>
             <MapPin size={15}/>
             <span>Saved Addresses ({currentUser.addresses.length})</span>
-          </button>
-
-          <button onClick={() => setActiveTab('rewards')} className={`flex-1 py-3 text-center rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 ${activeTab === 'rewards'
-            ? 'bg-[var(--primary)] text-white shadow-md'
-            : 'text-[var(--foreground)]/70 hover:text-[var(--foreground)]'}`}>
-            <Coins size={15}/>
-            <span>mCoins & Perks</span>
           </button>
         </div>
 
@@ -308,73 +294,22 @@ export const ProfilePage = () => {
             </div>
           </div>)}
 
-        {/* Rewards Tab */}
-        {activeTab === 'rewards' && (<div className="bg-white p-8 rounded-3xl border border-[var(--border)]/15 shadow-sm space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center">
-                <Coins size={24}/>
-              </div>
+        {/* Admin Shortcut (Only visible for genuine administrators) */}
+        {currentUser && (currentUser.role === 'super_admin' || currentUser.role === 'admin') && (
+          <div className="p-4 bg-white rounded-2xl border border-[var(--border)]/15 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-xs">
+            <div className="flex items-center gap-2 text-[var(--foreground)]/80">
+              <ShieldCheck size={18} className="text-[var(--secondary-foreground)]"/>
               <div>
-                <h3 className="text-lg font-black uppercase text-[var(--foreground)]">
-                  PopCo mCoins Loyalty Program
-                </h3>
-                <p className="text-xs text-[var(--foreground)]/70 font-sans">
-                  Every 1 mCoin equals ₹1 Indian Rupee discount on your next checkout!
-                </p>
+                <span className="font-extrabold uppercase tracking-wide block">Administrator Management Suite</span>
+                <span className="text-[11px] text-[var(--foreground)]/60">You have authorized admin credentials for POP CO store management.</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="p-4 bg-[var(--background)] rounded-2xl border border-[var(--border)]/10">
-                <span className="text-xs font-extrabold text-[var(--secondary-foreground)] uppercase block">Current Balance</span>
-                <span className="text-3xl font-black text-[var(--foreground)]">{currentUser.mCoins} Coins</span>
-                <span className="text-[10px] text-[var(--foreground)]/60 font-semibold block mt-1">
-                  Worth ₹{currentUser.mCoins} Cash Discount
-                </span>
-              </div>
-
-              <div className="p-4 bg-[var(--background)] rounded-2xl border border-[var(--border)]/10">
-                <span className="text-xs font-extrabold text-[var(--secondary-foreground)] uppercase block">Earning Rate</span>
-                <span className="text-3xl font-black text-[var(--foreground)]">5% Back</span>
-                <span className="text-[10px] text-[var(--foreground)]/60 font-semibold block mt-1">
-                  Credited immediately on every order
-                </span>
-              </div>
-
-              <div className="p-4 bg-[var(--background)] rounded-2xl border border-[var(--border)]/10">
-                <span className="text-xs font-extrabold text-[var(--secondary-foreground)] uppercase block">Welcome Bonus</span>
-                <span className="text-3xl font-black text-emerald-800">100 Coins</span>
-                <span className="text-[10px] text-[var(--foreground)]/60 font-semibold block mt-1">
-                  Instant reward for new accounts
-                </span>
-              </div>
-            </div>
-          </div>)}
-
-        {/* Demo Role Switcher Bar */}
-        <div className="p-4 bg-white rounded-2xl border border-[var(--border)]/15 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-[var(--foreground)]/80">
-            <ShieldCheck size={16} className="text-[var(--secondary-foreground)]"/>
-            <span className="font-bold">Role Simulator:</span>
-            <span>Switch active view mode to test role-based access:</span>
-          </div>
-
-          <div className="flex items-center gap-2 font-bold">
-            <button onClick={() => switchRole('customer')} className={`px-3 py-1 rounded-full border text-[11px] ${currentUser.role === 'customer'
-            ? 'bg-[var(--primary)] text-white'
-            : 'bg-[var(--background)] text-[var(--foreground)]'}`}>
-              Customer
-            </button>
-            <button onClick={() => switchRole('super_admin')} className={`px-3 py-1 rounded-full border text-[11px] ${currentUser.role === 'super_admin'
-            ? 'bg-[var(--secondary-foreground)] text-white'
-            : 'bg-[var(--background)] text-[var(--secondary-foreground)]'}`}>
-              Super Admin
-            </button>
-            <Link to="/admin" className="px-3 py-1 bg-[var(--primary)] text-white rounded-full text-[11px] hover:bg-[var(--secondary-foreground)] transition-colors">
-              Go to Admin Panel →
+            <Link to="/admin" className="px-4 py-2 bg-[var(--primary)] text-white font-bold uppercase tracking-wider rounded-full text-[11px] hover:bg-[var(--primary)]/90 transition-all shadow-sm">
+              Open Admin Dashboard →
             </Link>
           </div>
-        </div>
+        )}
       </div>
     </div>);
 };

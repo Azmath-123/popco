@@ -22,7 +22,6 @@ export const StoreProvider = ({ children }) => {
   const [isBulkOrderOpen, setIsBulkOrderOpen] = useState(false);
   const [coupons, setCoupons] = useState([]);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
-  const [useMCoins, setUseMCoins] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -116,13 +115,10 @@ export const StoreProvider = ({ children }) => {
       : Number(appliedCoupon.discountValue);
     return Math.min(cartSubtotal, appliedCoupon.maxDiscount ? Math.min(amount, appliedCoupon.maxDiscount) : amount);
   }, [appliedCoupon, cartSubtotal]);
-  const availableMCoins = Number(currentUser?.mCoins || 0);
-  const mCoinsDiscount = useMCoins ? Math.min(availableMCoins, Math.max(0, cartSubtotal - couponDiscount)) : 0;
-  const mCoinsUsed = mCoinsDiscount;
   const shippingFee = cartSubtotal === 0 || cartSubtotal >= Number(settings.freeShippingThreshold || 0)
     ? 0
     : Number(settings.standardShippingFee || 0);
-  const cartTotal = Math.max(0, cartSubtotal - couponDiscount - mCoinsDiscount + shippingFee);
+  const cartTotal = Math.max(0, cartSubtotal - couponDiscount + shippingFee);
 
   const applyCart = (result) => {
     setCart(result.items || []);
@@ -165,7 +161,6 @@ export const StoreProvider = ({ children }) => {
       setCart([]);
       idempotencyAttempt.current = null;
       setAppliedCoupon(null);
-      setUseMCoins(false);
     } catch (error) { showToast(error.message, 'error'); }
   };
 
@@ -188,7 +183,6 @@ export const StoreProvider = ({ children }) => {
       items: cart.map((item) => ({ productId: item.productId, selectedPack: { count: item.selectedPack.count, label: item.selectedPack.label }, quantity: item.quantity })),
       paymentMethod,
       couponCode: appliedCoupon?.code || null,
-      mCoinsUsed,
       notes,
       gstin,
     };
@@ -322,7 +316,6 @@ export const StoreProvider = ({ children }) => {
     setOrders([]);
     showToast('Logged out successfully.', 'info');
   };
-  const switchRole = () => showToast('Account roles are managed by the store administrator.', 'info');
 
   const addAddress = async (address) => {
     try {
@@ -363,10 +356,10 @@ export const StoreProvider = ({ children }) => {
       selectedCategory, setSelectedCategory, searchQuery, setSearchQuery, sortBy, setSortBy,
       cart, addToCart, removeFromCart, updateQuantity, clearCart, isCartOpen, setIsCartOpen,
       isBulkOrderOpen, setIsBulkOrderOpen,
-      cartCount, cartSubtotal, cartGrossSubtotal, comboDiscount, couponDiscount, mCoinsUsed, mCoinsDiscount, shippingFee, cartTotal,
-      coupons, appliedCoupon, applyCoupon, removeCoupon, addCoupon, deleteCoupon, useMCoins, setUseMCoins,
+      cartCount, cartSubtotal, cartGrossSubtotal, comboDiscount, couponDiscount, shippingFee, cartTotal,
+      coupons, appliedCoupon, applyCoupon, removeCoupon, addCoupon, deleteCoupon,
       orders, createOrder, completePayment, updateOrderStatus, reviews, addReview,
-      currentUser, login, signup, logout, switchRole, addAddress, deleteAddress, setDefaultAddress,
+      currentUser, login, signup, logout, addAddress, deleteAddress, setDefaultAddress,
       isAuthModalOpen, setIsAuthModalOpen, authModalMode, setAuthModalMode,
       activePolicy, openPolicy, closePolicy, toasts, showToast, dismissToast,
       settings, updateSettings, isBootstrapping,

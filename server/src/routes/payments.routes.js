@@ -74,8 +74,7 @@ api.post('/webhooks/razorpay', asyncRoute(async (req, res) => {
         const refundRow = await client.query("UPDATE refunds SET status='processed',updated_at=NOW() WHERE gateway_refund_id=$1 RETURNING order_id,payment_id", [refund.id]);
         if (!refundRow.rows[0]) return;
         await client.query("UPDATE payments SET status='refunded',updated_at=NOW() WHERE id=$1", [refundRow.rows[0].payment_id]);
-        const order = await client.query("UPDATE orders SET payment_status='refunded',updated_at=NOW() WHERE id=$1 AND payment_status <> 'refunded' RETURNING id,customer_id,m_coins_used,customer_email,order_number,total", [refundRow.rows[0].order_id]);
-        if (order.rows[0]?.customer_id && Number(order.rows[0].m_coins_used) > 0) await client.query('UPDATE customers SET m_coins=m_coins+$1 WHERE id=$2', [order.rows[0].m_coins_used,order.rows[0].customer_id]);
+        const order = await client.query("UPDATE orders SET payment_status='refunded',updated_at=NOW() WHERE id=$1 AND payment_status <> 'refunded' RETURNING id,customer_id,customer_email,order_number,total", [refundRow.rows[0].order_id]);
         if (order.rows[0]) await enqueueNotification(client, order.rows[0], 'refunded', { refundId: refund.id, refundAmount: Number(refund.amount || 0) / 100 });
       });
     }

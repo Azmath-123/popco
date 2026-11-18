@@ -19,7 +19,6 @@ api.post('/checkout/validate', checkoutLimiter, asyncRoute(async (req, res) => {
     subtotal: fromCents(validation.subtotalCents),
     comboDiscount: fromCents(validation.comboDiscountCents),
     couponDiscount: fromCents(validation.couponDiscountCents),
-    mCoinsDiscount: fromCents(validation.coinsCents),
     shipping: fromCents(validation.shippingCents),
     tax: '0.00',
     total: fromCents(validation.totalCents),
@@ -86,12 +85,10 @@ async function validateOrder(body, user, query = pool, lockProducts = false) {
     if (coupon.max_discount != null) couponDiscountCents = Math.min(couponDiscountCents, moneyCents(coupon.max_discount));
     couponDiscountCents = Math.min(couponDiscountCents, discountableSubtotalCents);
   }
-  const userCoins = user ? Number(user.m_coins) : 0;
-  const coinsCents = Math.min(body.mCoinsUsed * 100, userCoins * 100, Math.max(0, discountableSubtotalCents - couponDiscountCents));
   const setting = await getStoreSettings(query);
   const shippingCents = discountableSubtotalCents === 0 || discountableSubtotalCents >= moneyCents(setting.freeShippingThreshold ?? 599) ? 0 : moneyCents(setting.standardShippingFee ?? 60);
-  const totalCents = Math.max(0, discountableSubtotalCents - couponDiscountCents - coinsCents + shippingCents);
-  return { lines, coupon, subtotalCents, comboDiscountCents, couponDiscountCents, coinsCents, shippingCents, totalCents };
+  const totalCents = Math.max(0, discountableSubtotalCents - couponDiscountCents + shippingCents);
+  return { lines, coupon, subtotalCents, comboDiscountCents, couponDiscountCents, shippingCents, totalCents };
 }
 
 api.post('/orders', checkoutLimiter, asyncRoute(async (req, res) => {
@@ -107,7 +104,7 @@ api.post('/orders', checkoutLimiter, asyncRoute(async (req, res) => {
   const result = await transaction(async (client) => {
     const idempotency = await client.query('INSERT INTO idempotency_keys (key,request_hash) VALUES ($1,$2) ON CONFLICT DO NOTHING RETURNING key', [key, requestHash]);
     if (!idempotency.rowCount) fail(409, 'IDEMPOTENCY_CONFLICT', 'This checkout is already being processed.');
-    const userResult = req.user ? await client.query('SELECT id, m_coins FROM customers WHERE id=$1 FOR UPDATE', [req.user.id]) : { rows: [] };
+    const userResult = req.user ? await client.query('SELECT id FROM customers WHERE id=$1 FOR UPDATE', [req.user.id]) : { rows: [] };
     const user = userResult.rows[0] || null;
     const priced = await validateOrder(body, user, client, true);
     const orderId = crypto.randomUUID();
@@ -115,15 +112,14 @@ api.post('/orders', checkoutLimiter, asyncRoute(async (req, res) => {
     const orderNumber = `MMK-${date.toISOString().slice(0,10).replaceAll('-', '')}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
     const reservationExpiry = new Date(Date.now() + 15 * 60 * 1000);
     const subtotal = fromCents(priced.subtotalCents);
-    const discount = fromCents(priced.comboDiscountCents + priced.couponDiscountCents + priced.coinsCents);
+    const discount = fromCents(priced.comboDiscountCents + priced.couponDiscountCents);
     const shipping = fromCents(priced.shippingCents);
     const total = fromCents(priced.totalCents);
-    const coinsUsed = Math.floor(priced.coinsCents / 100);
     const bulk = priced.lines.some(({ item, product }) => item.quantity >= product.min_order_qty && item.quantity > 1);
     const orderInsert = await client.query(
-      `INSERT INTO orders (id,order_number,customer_id,customer_name,customer_email,customer_phone,address_line_1,address_line_2,city,state,postal_code,gstin,currency,subtotal,discount,coupon_code,m_coins_used,m_coins_discount,shipping,tax,total,payment_method,payment_status,order_status,notes,bulk_order,reservation_expires_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'INR',$13,$14,$15,$16,$17,$18,0,$19,$20,'pending',$21,$22,$23,$24) RETURNING *`,
-      [orderId, orderNumber, user?.id || null, body.customer.name, cleanEmail(body.customer.email), body.customer.phone, body.customer.address, body.customer.addressLine2 || null, body.customer.city, body.customer.state, body.customer.pincode, body.gstin || null, subtotal, discount, priced.coupon?.code || null, coinsUsed, fromCents(priced.coinsCents), shipping, total, body.paymentMethod, body.paymentMethod === 'cod' ? 'Confirmed' : 'Pending', body.notes || null, bulk, body.paymentMethod === 'razorpay' ? reservationExpiry : null],
+      `INSERT INTO orders (id,order_number,customer_id,customer_name,customer_email,customer_phone,address_line_1,address_line_2,city,state,postal_code,gstin,currency,subtotal,discount,coupon_code,shipping,tax,total,payment_method,payment_status,order_status,notes,bulk_order,reservation_expires_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'INR',$13,$14,$15,$16,0,$17,$18,'pending',$19,$20,$21,$22) RETURNING *`,
+      [orderId, orderNumber, user?.id || null, body.customer.name, cleanEmail(body.customer.email), body.customer.phone, body.customer.address, body.customer.addressLine2 || null, body.customer.city, body.customer.state, body.customer.pincode, body.gstin || null, subtotal, discount, priced.coupon?.code || null, shipping, total, body.paymentMethod, body.paymentMethod === 'cod' ? 'Confirmed' : 'Pending', body.notes || null, bulk, body.paymentMethod === 'razorpay' ? reservationExpiry : null],
     );
     for (const line of priced.lines) {
       const productRow = await client.query('SELECT * FROM products WHERE id=$1 FOR UPDATE', [line.product.id]);
@@ -149,7 +145,6 @@ api.post('/orders', checkoutLimiter, asyncRoute(async (req, res) => {
         await client.query('INSERT INTO stock_reservations (order_id,product_id,quantity,expires_at) VALUES ($1,$2,$3,$4)', [orderId, product.id, line.requiredStock, reservationExpiry]);
       }
     }
-    if (coinsUsed && user) await client.query('UPDATE customers SET m_coins=m_coins-$1,updated_at=NOW() WHERE id=$2', [coinsUsed, user.id]);
     if (priced.coupon && body.paymentMethod === 'cod') await client.query('UPDATE coupons SET usage_count=usage_count+1,updated_at=NOW() WHERE code=$1', [priced.coupon.code]);
     await client.query('INSERT INTO audit_logs (actor_id,action,entity,entity_id,after_state) VALUES ($1,$2,$3,$4,$5::jsonb)', [user?.id || null, 'order.created', 'order', orderId, JSON.stringify({ orderNumber, paymentMethod: body.paymentMethod, total })]);
     if (body.paymentMethod === 'cod') await enqueueNotification(client, orderInsert.rows[0], 'order_confirmation', { amount: Number(total) });

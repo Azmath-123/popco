@@ -1,56 +1,3 @@
-export const INITIAL_BLOGS = [
-    {
-        id: 1,
-        slug: 'why-bihar-makhana-is-the-global-gold-standard',
-        title: 'Why Mithilanchal, Bihar Produces 90% of the World Best Makhana',
-        excerpt: 'Explore the centuries-old tradition, GI tag recognition, and wetland ecology that makes Meerut fox nuts unmatched in size and purity.',
-        content: [
-            'In the serene, lotus-laden ponds of Mithilanchal, Bihar, a centuries-old agricultural miracle unfolds every year. Here, indigenous Mallah community farmers wade deep into pristine fresh waters to harvest the spiny seeds of Euryale ferox, known worldwide as Phool Makhana or Fox Nuts.',
-            'Bihar climate, rich alluvial wetlands, and traditional wood-fire popping method give Meerut makhana its distinct snowy white appearance, delicate spherical shape, and crisp mouthfeel that cannot be duplicated industrially.',
-            'Awarded the prestigious Geographical Indication (GI) tag, Mithila Makhana is not just food—it is sacred prasadam, an ancient Ayurvedic superfood, and India gift to global wellness nutrition.'
-        ],
-        image: '/big_banner.webp',
-        date: '02 Nov 2026',
-        readTime: '4 min read',
-        author: 'PopCo Heritage Team',
-        tags: ['Origin', 'Mithilanchal', 'Superfood', 'Heritage']
-    },
-    {
-        id: 2,
-        slug: 'healthy-makhana-roasting-recipes-desi-ghee',
-        title: 'The Art of Roasting Makhana: 3 Quick Gourmet Recipes with Desi Ghee',
-        excerpt: 'Transform raw PopCo 6+ Suta makhana into golden, crunchy snacking masterpieces in under 7 minutes using traditional spices.',
-        content: [
-            'Raw makhana is a blank canvas of natural crunch and protein. When gently toasted in pure A2 Desi Cow Ghee over a slow flame, each kernel develops a rich, nutty fragrance and an ethereal crispness.',
-            'Recipe 1: Himalayan Pink Salt & Crushed Black Pepper - Simple, timeless, and perfect for fasting (vrat). Toast 100g PopCo makhana in 1 tsp ghee for 5-6 minutes on low heat until crisp when pressed. Dust with fresh ground pepper and rock salt.',
-            'Recipe 2: Smoky Turmeric & Chaat Masala - Add 1/4 tsp turmeric, roasted cumin powder, and amchur for an authentic street-style tang.',
-            'Recipe 3: Caramelized Jaggery & Sesame Glaze - For sweet cravings, melt organic jaggery with a pinch of cardamom, toss in roasted makhana, and coat thoroughly.'
-        ],
-        image: '/big_banner_2.webp',
-        date: '25 Oct 2026',
-        readTime: '5 min read',
-        author: 'Chef Ankit Jha',
-        tags: ['Recipes', 'Healthy Snacking', 'Ayurveda']
-    },
-    {
-        id: 3,
-        slug: 'makhana-vs-popcorn-ultimate-superfood-showdown',
-        title: 'Makhana vs Popcorn: The Ultimate Superfood Showdown for Weight Loss',
-        excerpt: 'Compare calories, glycemic index, fiber, anti-aging flavonoids, and gut health benefits between lotus seeds and corn.',
-        content: [
-            'While popcorn has long dominated movie nights, modern nutritional science places roasted makhana far ahead in functional wellness and metabolic health.',
-            '1. Calorie & Fat Density: A 50g serving of air-popped makhana has virtually zero trans fats, negligible sodium in raw form, and significantly fewer calories than buttered popcorn.',
-            '2. Glycemic Index (GI): Makhana possesses a low glycemic index, preventing sudden blood sugar spikes and offering sustained satiety for people managing diabetes and weight goals.',
-            '3. Youth & Skin Health: Lotus seeds contain kaempferol, a rare natural flavonoid known for combating cellular oxidative stress and slowing premature aging.',
-            '4. Allergen-Friendly: Naturally 100% gluten-free, corn-free, and gentler on sensitive digestive tracts.'
-        ],
-        image: '/banner.webp',
-        date: '15 Oct 2026',
-        readTime: '6 min read',
-        author: 'Nutrition Desk',
-        tags: ['Nutrition', 'Weight Loss', 'Fitness']
-    }
-];
 export const POLICY_CONTENT = {
     about: {
         title: 'About POP CO',
@@ -185,7 +132,6 @@ export const POLICY_CONTENT = {
             { label: 'Mint Pudina Makhana', path: '/product/mukeja-makhana-mint-pudina' },
             { label: 'Chilli Garlic Makhana', path: '/product/mukeja-makhana-chilli-garlic' },
             { label: 'Cream and Onion Makhana', path: '/product/mukeja-makhana-cream-and-onion' },
-            { label: 'Blogs & Heritage', path: '/blogs' },
             { label: 'Shopping Cart', path: '/cart' },
             { label: 'My Account / Profile', path: '/profile' },
             { label: 'Admin Dashboard', path: '/admin' }

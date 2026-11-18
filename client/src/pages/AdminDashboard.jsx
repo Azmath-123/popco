@@ -9,7 +9,10 @@ import { InventoryTab } from '../features/admin/tabs/InventoryTab.jsx';
 import { CouponsTab } from '../features/admin/tabs/CouponsTab.jsx';
 import { StoreSettingsTab } from '../features/admin/tabs/StoreSettingsTab.jsx';
 export const AdminDashboard = () => {
-    const { products, addProduct, updateProduct, deleteProduct, resetProducts, orders, updateOrderStatus, coupons, addCoupon, deleteCoupon, currentUser, switchRole, settings, updateSettings, showToast, } = useStore();
+    const { products, addProduct, updateProduct, deleteProduct, resetProducts, orders, updateOrderStatus, coupons, addCoupon, deleteCoupon, currentUser, settings, updateSettings, showToast, } = useStore();
+    if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'admin')) {
+        return null;
+    }
     const [activeTab, setActiveTab] = useState('analytics');
     // Order Filters
     const [orderStatusFilter, setOrderStatusFilter] = useState('all');
@@ -431,10 +434,6 @@ export const AdminDashboard = () => {
               {selectedOrderForInvoice.discount > 0 && (<div className="flex justify-between text-emerald-700">
                   <span>Coupon Discount:</span>
                   <span>-₹{selectedOrderForInvoice.discount}</span>
-                </div>)}
-              {selectedOrderForInvoice.mCoinsDiscount > 0 && (<div className="flex justify-between text-[var(--secondary-foreground)]">
-                  <span>mCoins Discount:</span>
-                  <span>-₹{selectedOrderForInvoice.mCoinsDiscount}</span>
                 </div>)}
               <div className="flex justify-between">
                 <span>Shipping:</span>

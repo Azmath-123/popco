@@ -50,7 +50,6 @@ const cancelOrderHandler = asyncRoute(async (req, res) => {
         await client.query('INSERT INTO inventory_movements (product_id,quantity_delta,reason,reference_type,reference_id) VALUES ($1,$2,$3,$4,$5)', [line.product_id,line.quantity,'Cancelled unpaid COD order restock','order',order.id]);
       }
     }
-    if (order.customer_id && Number(order.m_coins_used) > 0 && order.payment_status !== 'paid') await client.query('UPDATE customers SET m_coins=m_coins+$1 WHERE id=$2', [order.m_coins_used, order.customer_id]);
     if (order.coupon_code && order.payment_method === 'cod' && order.payment_status !== 'paid') await client.query('UPDATE coupons SET usage_count=GREATEST(0,usage_count-1),updated_at=NOW() WHERE code=$1', [order.coupon_code]);
     const updated = await client.query("UPDATE orders SET order_status='Cancelled',updated_at=NOW() WHERE id=$1 RETURNING *", [order.id]);
     await enqueueNotification(client, updated.rows[0], 'cancelled', { reason: body.reason, refundStatus: order.payment_status === 'paid' ? 'refund required' : 'not applicable' });

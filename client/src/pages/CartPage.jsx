@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { Trash2, Plus, Minus, ArrowRight, Tag, Coins, ShieldCheck, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Trash2, Plus, Minus, ArrowRight, Tag, ShieldCheck, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 export const CartPage = ({ onOpenCheckout }) => {
-    const { cart, cartCount, cartSubtotal, cartGrossSubtotal, comboDiscount, couponDiscount, mCoinsUsed, mCoinsDiscount, shippingFee, cartTotal, removeFromCart, updateQuantity, appliedCoupon, applyCoupon, removeCoupon, useMCoins, setUseMCoins, currentUser, settings, } = useStore();
+    const { cart, cartCount, cartSubtotal, cartGrossSubtotal, comboDiscount, couponDiscount, shippingFee, cartTotal, removeFromCart, updateQuantity, appliedCoupon, applyCoupon, removeCoupon, currentUser, settings, } = useStore();
     const [couponInput, setCouponInput] = useState('');
     const [couponError, setCouponError] = useState('');
     const navigate = useNavigate();
@@ -168,22 +168,6 @@ export const CartPage = ({ onOpenCheckout }) => {
               </div>
             </div>
 
-            {/* mCoins Rewards Card */}
-            {currentUser && currentUser.mCoins > 0 && (<div className="bg-[var(--secondary)] p-4 rounded-2xl border border-[var(--secondary-foreground)]/30 flex items-center justify-between shadow-xs">
-                <div className="flex items-center gap-2.5">
-                  <Coins size={20} className="text-[var(--secondary-foreground)]"/>
-                  <div>
-                    <h5 className="text-xs font-black uppercase text-[var(--foreground)]">
-                      Redeem mCoins Balance ({currentUser.mCoins})
-                    </h5>
-                    <p className="text-[10px] text-[var(--foreground)]/70 font-semibold">
-                      Save flat ₹{Math.min(currentUser.mCoins, cartSubtotal)} on this order
-                    </p>
-                  </div>
-                </div>
-                <input type="checkbox" checked={useMCoins} onChange={(e) => setUseMCoins(e.target.checked)} className="w-5 h-5 accent-[var(--primary)] cursor-pointer"/>
-              </div>)}
-
             {/* Price Breakdown Card */}
             <div className="bg-white p-6 rounded-3xl border border-[var(--border)]/15 shadow-sm space-y-4">
               <h4 className="text-xs font-black uppercase text-[var(--foreground)] tracking-wider border-b border-[var(--border)]/10 pb-2">
@@ -199,10 +183,6 @@ export const CartPage = ({ onOpenCheckout }) => {
                 {couponDiscount > 0 && (<div className="flex justify-between text-emerald-700 font-bold">
                     <span>Coupon Discount</span>
                     <span>-₹{couponDiscount}</span>
-                  </div>)}
-                {mCoinsDiscount > 0 && (<div className="flex justify-between text-[var(--secondary-foreground)] font-bold">
-                    <span>mCoins Discount</span>
-                    <span>-₹{mCoinsDiscount}</span>
                   </div>)}
                 <div className="flex justify-between">
                   <span>Standard Delivery</span>

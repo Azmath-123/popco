@@ -45,7 +45,7 @@ export function requireAuth(roles = []) {
       if (!token || !process.env.JWT_SECRET) return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Please sign in to continue.' } });
       const payload = jwt.verify(token, process.env.JWT_SECRET);
       const result = await pool.query(
-        'SELECT id, full_name, email, phone, role, m_coins, created_at FROM customers WHERE id = $1 AND status = $2',
+        'SELECT id, full_name, email, phone, role, created_at FROM customers WHERE id = $1 AND status = $2',
         [payload.sub, 'active'],
       );
       const user = result.rows[0];
@@ -69,7 +69,7 @@ export function optionalAuth() {
       if (!token || !process.env.JWT_SECRET) return next();
       const payload = jwt.verify(token, process.env.JWT_SECRET);
       const result = await pool.query(
-        'SELECT id, full_name, email, phone, role, m_coins, created_at FROM customers WHERE id = $1 AND status = $2',
+        'SELECT id, full_name, email, phone, role, created_at FROM customers WHERE id = $1 AND status = $2',
         [payload.sub, 'active'],
       );
       req.user = result.rows[0] || null;

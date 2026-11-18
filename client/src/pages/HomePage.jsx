@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useStore } from '../context/StoreContext';
-// import { ReviewTicker } from '../components/ReviewTicker';
+import { HeroSlider } from '../components/HeroSlider';
 import { Star, ShoppingBag, Eye, Sparkles, ArrowRight, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 export const HomePage = ({ onOpenCheckout }) => {
@@ -45,36 +45,8 @@ export const HomePage = ({ onOpenCheckout }) => {
         addToCart(product, defaultPack, 1);
     };
     return (<div className="flex-1 flex flex-col">
-      {/* 1. Hero Section */}
-      <section className="relative w-full bg-[var(--background)] overflow-hidden">
-        <div className="w-full relative">
-          <img src="/banner.webp" alt="PopCo Makhana - Pure Mithilanchal Fox Nuts" className="hidden lg:block w-full h-auto object-cover max-h-[640px]" fetchPriority="high"/>
-          <img src="/phone_banner.webp" alt="PopCo Makhana - Pure Mithilanchal Fox Nuts" className="block lg:hidden w-full h-auto object-cover" fetchPriority="high"/>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 flex flex-col justify-end p-6 sm:p-12 lg:p-16">
-            <div className="max-w-2xl text-white space-y-4">
-              <span className="inline-block bg-[var(--secondary-foreground)] text-white text-[11px] font-extrabold uppercase px-3 py-1 rounded-full tracking-widest shadow-md">
-                POP CO – Bringing Quality, Taste & Goodness to Everyday Living
-              </span>
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-none text-[var(--background)] drop-shadow-md">
-                NATURE'S CRUNCHIEST SUPERFOOD
-              </h1>
-              <p className="text-xs sm:text-base text-white/90 font-sans font-medium max-w-lg leading-relaxed drop-shadow-sm">
-                Direct from Bihar. Sun-dried, traditionally popped Jumbo 6+ Suta makhana, rich in protein, antioxidants, and pure goodness. Naturally Good, Simply Delicious!
-              </p>
-              <div className="pt-2 flex flex-wrap gap-3">
-                <a href="#shop" className="px-8 py-3.5 rounded-full bg-[var(--background)] text-[var(--foreground)] text-xs font-black uppercase tracking-widest shadow-xl hover:bg-white hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
-                  <span>Shop Fresh Harvest</span>
-                  <ArrowRight size={16}/>
-                </a>
-                <a href={`https://wa.me/${settings.whatsappNumber}?text=Hello%20PopCo%20Team%2C%20I%20want%20to%20order%20Makhana`} target="_blank" rel="noopener noreferrer" className="px-6 py-3.5 rounded-full bg-[var(--primary)]/90 backdrop-blur-sm text-white text-xs font-black uppercase tracking-widest border border-white/20 hover:bg-[var(--primary)] shadow-lg transition-all flex items-center gap-2">
-                  <MessageCircle size={16} className="text-[var(--secondary-foreground)]"/>
-                  <span>Order on WhatsApp</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 1. Hero Section Slider */}
+      <HeroSlider />
 
       {/* 2. Brand Trust Badges Bar */}
       <section className="bg-white py-6 border-b border-[var(--border)]/10">

@@ -27,7 +27,7 @@ api.get('/store/bootstrap', asyncRoute(async (req, res) => {
     if (token && process.env.JWT_SECRET) {
       const jwt = await import('jsonwebtoken');
       const payload = jwt.default.verify(token, process.env.JWT_SECRET);
-      const result = await pool.query('SELECT id, full_name, email, phone, role, m_coins, created_at FROM customers WHERE id = $1 AND status = $2', [payload.sub, 'active']);
+      const result = await pool.query('SELECT id, full_name, email, phone, role, created_at FROM customers WHERE id = $1 AND status = $2', [payload.sub, 'active']);
       if (result.rows[0]) {
         const addressRows = await pool.query('SELECT * FROM customer_addresses WHERE customer_id = $1 ORDER BY is_default DESC, created_at', [payload.sub]);
         user = userDto(result.rows[0], addressRows.rows.map(addressDto));

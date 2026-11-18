@@ -19,7 +19,7 @@ const loadRazorpay = () => new Promise((resolve, reject) => {
 });
 
 export const CheckoutModal = ({ isOpen, onClose }) => {
-    const { cart, cartSubtotal, cartGrossSubtotal, comboDiscount, couponDiscount, mCoinsUsed, mCoinsDiscount, shippingFee, cartTotal, appliedCoupon, currentUser, createOrder, completePayment, showToast } = useStore();
+    const { cart, cartSubtotal, cartGrossSubtotal, comboDiscount, couponDiscount, shippingFee, cartTotal, appliedCoupon, currentUser, createOrder, completePayment, showToast } = useStore();
     const navigate = useNavigate();
     // Form State
     const defaultAddr = currentUser?.addresses.find((a) => a.isDefault) || currentUser?.addresses[0];
@@ -290,10 +290,6 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
                 {couponDiscount > 0 && (<div className="flex justify-between text-emerald-700 font-bold">
                     <span>Coupon ({appliedCoupon?.code})</span>
                     <span>-₹{couponDiscount}</span>
-                  </div>)}
-                {mCoinsDiscount > 0 && (<div className="flex justify-between text-[var(--secondary-foreground)] font-bold">
-                    <span>mCoins Discount</span>
-                    <span>-₹{mCoinsDiscount}</span>
                   </div>)}
                 <div className="flex justify-between text-[var(--foreground)]/80">
                   <span>Shipping</span>

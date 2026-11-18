@@ -14,8 +14,8 @@ import { HomePage } from './pages/HomePage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
 import { CartPage } from './pages/CartPage';
 import { ProfilePage } from './pages/ProfilePage';
-import { BlogsPage } from './pages/BlogsPage';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { AdminRoute } from './components/AdminRoute';
 // Scroll to top helper & policy route synchronizer
 const RouteWatcher = () => {
     const location = useLocation();
@@ -70,8 +70,7 @@ const AppContent = () => {
           <Route path="/profile" element={<ProfilePage />}/>
           <Route path="/login" element={<ProfilePage />}/>
           <Route path="/signup" element={<ProfilePage />}/>
-          <Route path="/blogs" element={<BlogsPage />}/>
-          <Route path="/admin" element={<AdminDashboard />}/>
+          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>}/>
 
           {/* Reference Site Policy Routes */}
           <Route path="/product/faq-and-support" element={<HomePage onOpenCheckout={() => setIsCheckoutOpen(true)}/>}/>

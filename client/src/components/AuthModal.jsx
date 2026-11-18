@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { X, Coins, Phone, Mail, User } from 'lucide-react';
+import { X, Phone, Mail, User } from 'lucide-react';
 export const AuthModal = () => {
     const { isAuthModalOpen, setIsAuthModalOpen, authModalMode, setAuthModalMode, login, signup } = useStore();
     const [emailOrPhone, setEmailOrPhone] = useState('');
@@ -38,9 +38,8 @@ export const AuthModal = () => {
           <h3 className="text-xl font-black uppercase tracking-wide">
             {authModalMode === 'login' ? 'Welcome Back!' : 'Join PopCo Makhana'}
           </h3>
-          <p className="text-xs text-white/80 font-sans mt-1 flex items-center gap-1.5">
-            <Coins size={14} className="text-[var(--secondary-foreground)]"/>
-            <span>Earn 100 Free mCoins on your first order!</span>
+          <p className="text-xs text-white/80 font-sans mt-1">
+            Enjoy premium superfoods delivered directly to your doorstep.
           </p>
         </div>
 
@@ -54,7 +53,7 @@ export const AuthModal = () => {
           <button onClick={() => setAuthModalMode('signup')} className={`flex-1 py-3 text-center border-b-2 transition-all cursor-pointer ${authModalMode === 'signup'
             ? 'border-[var(--border)] text-[var(--foreground)] bg-[var(--primary)]/5 font-black'
             : 'border-transparent text-[var(--foreground)]/50 hover:text-[var(--foreground)]'}`}>
-            Register (+100 mCoins)
+            Register
           </button>
         </div>
 
@@ -116,7 +115,7 @@ export const AuthModal = () => {
               </div>
 
               <button type="submit" className="w-full py-3.5 rounded-full bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-98 cursor-pointer">
-                Create Account (+100 mCoins)
+                Create Account
               </button>
             </div>)}
 

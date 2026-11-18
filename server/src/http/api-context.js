@@ -64,7 +64,6 @@ const checkoutSchema = z.object({
   })).min(1).max(100),
   paymentMethod: z.enum(['razorpay', 'cod']),
   couponCode: z.string().trim().max(64).optional().nullable(),
-  mCoinsUsed: z.number().int().nonnegative().optional().default(0),
   notes: z.string().trim().max(1000).optional().or(z.literal('')),
   gstin: z.string().trim().max(20).optional().or(z.literal('')),
 });
@@ -78,7 +77,6 @@ function userDto(row, addresses = []) {
     email: row.email,
     phone: row.phone,
     role: row.role === 'admin' ? 'super_admin' : 'customer',
-    mCoins: row.m_coins,
     joinedDate: new Date(row.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
     addresses,
   };
@@ -184,8 +182,6 @@ function orderDto(order, items = []) {
     subtotal: Number(order.subtotal),
     discount: Number(order.discount),
     couponCode: order.coupon_code || undefined,
-    mCoinsUsed: Number(order.m_coins_used),
-    mCoinsDiscount: Number(order.m_coins_discount),
     shipping: Number(order.shipping),
     tax: Number(order.tax),
     total: Number(order.total),
@@ -292,8 +288,7 @@ async function requestRefund(orderId, payment, amount, reason, actorId) {
   if (refund.status === 'processed') {
     await transaction(async (client) => {
       await client.query("UPDATE payments SET status='refunded',updated_at=NOW() WHERE id=$1", [payment.id]);
-      const completed = await client.query("UPDATE orders SET payment_status='refunded',updated_at=NOW() WHERE id=$1 AND payment_status <> 'refunded' RETURNING id,customer_id,m_coins_used,customer_email,order_number,total", [orderId]);
-      if (completed.rows[0]?.customer_id && Number(completed.rows[0].m_coins_used) > 0) await client.query('UPDATE customers SET m_coins=m_coins+$1 WHERE id=$2', [completed.rows[0].m_coins_used,completed.rows[0].customer_id]);
+      const completed = await client.query("UPDATE orders SET payment_status='refunded',updated_at=NOW() WHERE id=$1 AND payment_status <> 'refunded' RETURNING id,customer_id,customer_email,order_number,total", [orderId]);
       if (completed.rows[0]) {
         await enqueueNotification(client, completed.rows[0], 'refunded', { refundId: refund.id, refundAmount: amount });
         await client.query("UPDATE refunds SET status='processed',updated_at=NOW() WHERE id=$1", [row.rows[0].id]);

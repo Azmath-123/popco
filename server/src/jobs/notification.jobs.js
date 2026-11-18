@@ -65,7 +65,7 @@ export async function processNotifications() {
 
 async function releaseReservation(reservationId) {
   await transaction(async (client) => {
-    const result = await client.query('SELECT sr.*,o.customer_id,o.m_coins_used,o.order_status,o.payment_status,o.id AS order_id FROM stock_reservations sr JOIN orders o ON o.id=sr.order_id WHERE sr.id=$1 FOR UPDATE OF sr,o', [reservationId]);
+    const result = await client.query('SELECT sr.*,o.customer_id,o.order_status,o.payment_status,o.id AS order_id FROM stock_reservations sr JOIN orders o ON o.id=sr.order_id WHERE sr.id=$1 FOR UPDATE OF sr,o', [reservationId]);
     const reservation = result.rows[0];
     if (!reservation || reservation.status !== 'active' || new Date(reservation.expires_at) > new Date()) return;
     const payment = await client.query("SELECT status FROM payments WHERE order_id=$1 ORDER BY created_at DESC LIMIT 1", [reservation.order_id]);
@@ -74,7 +74,6 @@ async function releaseReservation(reservationId) {
     await client.query("UPDATE stock_reservations SET status='expired',released_at=NOW() WHERE id=$1 AND status='active'", [reservation.id]);
     await client.query('INSERT INTO inventory_movements (product_id,quantity_delta,reason,reference_type,reference_id) VALUES ($1,$2,$3,$4,$5)', [reservation.product_id,reservation.quantity,'Expired payment reservation','order',reservation.order_id]);
     await client.query("UPDATE orders SET order_status='Expired',reservation_released_at=NOW(),updated_at=NOW() WHERE id=$1", [reservation.order_id]);
-    if (reservation.customer_id && Number(reservation.m_coins_used) > 0 && reservation.payment_status !== 'paid') await client.query('UPDATE customers SET m_coins=m_coins+$1 WHERE id=$2', [reservation.m_coins_used,reservation.customer_id]);
   });
 }
 

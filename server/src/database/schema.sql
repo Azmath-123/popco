@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS customers (
   password_hash TEXT NOT NULL,
   role TEXT NOT NULL DEFAULT 'customer' CHECK (role IN ('customer', 'admin')),
   status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'disabled')),
-  m_coins INTEGER NOT NULL DEFAULT 0 CHECK (m_coins >= 0),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -130,9 +129,6 @@ CREATE TABLE IF NOT EXISTS orders (
   subtotal NUMERIC(12,2) NOT NULL,
   discount NUMERIC(12,2) NOT NULL DEFAULT 0,
   coupon_code TEXT,
-  m_coins_used INTEGER NOT NULL DEFAULT 0 CHECK (m_coins_used >= 0),
-  m_coins_discount NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (m_coins_discount >= 0),
-  m_coins_awarded BOOLEAN NOT NULL DEFAULT FALSE,
   shipping NUMERIC(12,2) NOT NULL DEFAULT 0,
   tax NUMERIC(12,2) NOT NULL DEFAULT 0,
   total NUMERIC(12,2) NOT NULL,
@@ -151,9 +147,6 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 CREATE INDEX IF NOT EXISTS orders_customer_created_idx ON orders(customer_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS orders_status_created_idx ON orders(order_status, created_at DESC);
-ALTER TABLE orders ADD COLUMN IF NOT EXISTS m_coins_used INTEGER NOT NULL DEFAULT 0;
-ALTER TABLE orders ADD COLUMN IF NOT EXISTS m_coins_discount NUMERIC(12,2) NOT NULL DEFAULT 0;
-ALTER TABLE orders ADD COLUMN IF NOT EXISTS m_coins_awarded BOOLEAN NOT NULL DEFAULT FALSE;
 
 CREATE TABLE IF NOT EXISTS order_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

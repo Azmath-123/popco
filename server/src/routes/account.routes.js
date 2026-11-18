@@ -16,8 +16,8 @@ export function registerRoutes() {
 api.post('/auth/register', authLimiter, asyncRoute(async (req, res) => {
   const body = parse(z.object({ name: z.string().trim().min(2).max(160), email: z.string().trim().email().max(254), phone: z.string().trim().min(7).max(30), password: z.string().min(10).max(128) }), req.body);
   const result = await pool.query(
-    `INSERT INTO customers (full_name, email, phone, password_hash, m_coins) VALUES ($1, $2, $3, $4, 100)
-     RETURNING id, full_name, email, phone, role, m_coins, created_at`,
+    `INSERT INTO customers (full_name, email, phone, password_hash, role) VALUES ($1, $2, $3, $4, 'customer')
+     RETURNING id, full_name, email, phone, role, created_at`,
     [body.name, cleanEmail(body.email), body.phone, await hashPassword(body.password)],
   ).catch((error) => {
     if (error.code === '23505') fail(409, 'ACCOUNT_EXISTS', 'An account with this email already exists.');
@@ -44,7 +44,7 @@ api.get('/me', requireAuth(), asyncRoute(async (req, res) => {
 }));
 api.patch('/me', requireAuth(), asyncRoute(async (req, res) => {
   const body = parse(z.object({ name: z.string().trim().min(2).max(160).optional(), phone: z.string().trim().min(7).max(30).optional() }).refine((value) => Object.keys(value).length > 0), req.body);
-  const result = await pool.query('UPDATE customers SET full_name = COALESCE($1, full_name), phone = COALESCE($2, phone), updated_at = NOW() WHERE id = $3 RETURNING id, full_name, email, phone, role, m_coins, created_at', [body.name || null, body.phone || null, req.user.id]);
+  const result = await pool.query('UPDATE customers SET full_name = COALESCE($1, full_name), phone = COALESCE($2, phone), updated_at = NOW() WHERE id = $3 RETURNING id, full_name, email, phone, role, created_at', [body.name || null, body.phone || null, req.user.id]);
   res.json(userDto(result.rows[0]));
 }));
 

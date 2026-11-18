@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { X, Trash2, Plus, Minus, ArrowRight, Tag, ShieldCheck, ShoppingBag, Coins } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ArrowRight, Tag, ShieldCheck, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 export const CartDrawer = ({ onProceedToCheckout }) => {
-    const { cart, isCartOpen, setIsCartOpen, cartCount, cartSubtotal, cartGrossSubtotal, comboDiscount, couponDiscount, mCoinsUsed, mCoinsDiscount, shippingFee, cartTotal, removeFromCart, updateQuantity, appliedCoupon, applyCoupon, removeCoupon, useMCoins, setUseMCoins, currentUser, settings, } = useStore();
+    const { cart, isCartOpen, setIsCartOpen, cartCount, cartSubtotal, cartGrossSubtotal, comboDiscount, couponDiscount, shippingFee, cartTotal, removeFromCart, updateQuantity, appliedCoupon, applyCoupon, removeCoupon, currentUser, settings, } = useStore();
     const [couponInput, setCouponInput] = useState('');
     const [couponError, setCouponError] = useState('');
     const navigate = useNavigate();
@@ -159,22 +159,6 @@ export const CartDrawer = ({ onProceedToCheckout }) => {
                   </div>)}
               </div>
 
-              {/* mCoins Redemption */}
-              {currentUser && currentUser.mCoins > 0 && (<div className="p-2.5 bg-[var(--secondary)] border border-[var(--secondary-foreground)]/30 rounded-lg flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Coins size={16} className="text-[var(--secondary-foreground)]"/>
-                    <div>
-                      <p className="text-xs font-bold text-[var(--foreground)]">
-                        Redeem mCoins ({currentUser.mCoins} available)
-                      </p>
-                      <p className="text-[10px] text-[var(--foreground)]/70 font-semibold">
-                        Get flat ₹{Math.min(currentUser.mCoins, cartSubtotal)} discount
-                      </p>
-                    </div>
-                  </div>
-                  <input type="checkbox" checked={useMCoins} onChange={(e) => setUseMCoins(e.target.checked)} className="w-4 h-4 accent-[var(--primary)] cursor-pointer"/>
-                </div>)}
-
               {/* Price Calculation Summary */}
               <div className="space-y-1.5 text-xs text-[var(--foreground)]/80 border-t border-[var(--border)]/10 pt-3">
                 <div className="flex justify-between">
@@ -185,10 +169,6 @@ export const CartDrawer = ({ onProceedToCheckout }) => {
                 {couponDiscount > 0 && (<div className="flex justify-between text-emerald-700 font-bold">
                     <span>Coupon Discount</span>
                     <span>-₹{couponDiscount}</span>
-                  </div>)}
-                {mCoinsDiscount > 0 && (<div className="flex justify-between text-[var(--secondary-foreground)] font-bold">
-                    <span>mCoins Redeemed</span>
-                    <span>-₹{mCoinsDiscount}</span>
                   </div>)}
                 <div className="flex justify-between">
                   <span>Delivery Charges</span>

@@ -42,11 +42,7 @@ api.patch('/admin/orders/:id/status', adminOnly, asyncRoute(async (req, res) => 
     if (body.status === 'Cancelled') fail(422, 'USE_CANCEL_ENDPOINT', 'Use the cancellation endpoint so stock and refunds are handled safely.');
     if (current.order_status !== body.status && !allowed[current.order_status]?.includes(body.status)) fail(422, 'INVALID_STATUS_TRANSITION', `Cannot move order from ${current.order_status} to ${body.status}.`);
     if (body.status === 'Shipped' && current.payment_method === 'razorpay' && current.payment_status !== 'paid') fail(422, 'PAYMENT_REQUIRED', 'Only a verified paid order can be shipped.');
-    const updated = await client.query("UPDATE orders SET order_status=$1,tracking_number=COALESCE($2,tracking_number),payment_status=CASE WHEN $1='Delivered' AND payment_method='cod' THEN 'paid' ELSE payment_status END,m_coins_awarded=CASE WHEN $1='Delivered' AND payment_method='cod' AND customer_id IS NOT NULL THEN TRUE ELSE m_coins_awarded END,updated_at=NOW() WHERE id=$3 RETURNING *", [body.status,body.trackingNumber || null,req.params.id]);
-    if (body.status === 'Delivered' && current.payment_method === 'cod' && current.customer_id && !current.m_coins_awarded) {
-      const reward = Math.round(Number(current.total) * 0.05);
-      if (reward > 0) await client.query('UPDATE customers SET m_coins=m_coins+$1 WHERE id=$2',[reward,current.customer_id]);
-    }
+    const updated = await client.query("UPDATE orders SET order_status=$1,tracking_number=COALESCE($2,tracking_number),payment_status=CASE WHEN $1='Delivered' AND payment_method='cod' THEN 'paid' ELSE payment_status END,updated_at=NOW() WHERE id=$3 RETURNING *", [body.status,body.trackingNumber || null,req.params.id]);
     await client.query('INSERT INTO audit_logs (actor_id,action,entity,entity_id,before_state,after_state) VALUES ($1,$2,$3,$4,$5::jsonb,$6::jsonb)', [req.user.id,'order.status_changed','order',req.params.id,JSON.stringify({ status: current.order_status }),JSON.stringify({ status: body.status })]);
     if (body.status === 'Shipped' || body.status === 'Delivered') await enqueueNotification(client, updated.rows[0], body.status.toLowerCase(), { carrier: current.tracking_carrier, trackingNumber: current.tracking_number });
     return updated.rows[0];
