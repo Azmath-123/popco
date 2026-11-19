@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useStore } from '../context/StoreContext';
 import { HeroSlider } from '../components/HeroSlider';
+import { HomepageComboSection } from '../components/HomepageComboSection';
 import { Star, ShoppingBag, Eye, Sparkles, ArrowRight, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 export const HomePage = ({ onOpenCheckout }) => {
@@ -68,7 +69,7 @@ export const HomePage = ({ onOpenCheckout }) => {
               </div>
               <div>
                 <h4 className="text-xs font-extrabold uppercase text-[var(--foreground)]">Direct From Source</h4>
-                <p className="text-[10px] text-[var(--foreground)]/70 font-sans font-medium">Bihar Harvest & Meerut Distribution</p>
+                <p className="text-[10px] text-[var(--foreground)]/70 font-sans font-medium">Direct Meerut Origin & Distribution</p>
               </div>
             </div>
 
@@ -107,7 +108,7 @@ export const HomePage = ({ onOpenCheckout }) => {
             Explore POP CO Superfoods
           </h2>
           <p className="text-xs sm:text-sm text-[var(--foreground)]/75 font-sans uppercase tracking-wider">
-            From raw Bihar Makhana pearls to protein-rich roasted Edamame beans.
+            From raw Meerut Makhana pearls to protein-rich roasted Edamame beans.
           </p>
         </div>
 
@@ -218,29 +219,8 @@ export const HomePage = ({ onOpenCheckout }) => {
           </div>)}
       </section>
 
-      {/* 4. Promotional Banner 1 - White Gold of Mithila */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-[var(--border)]/20 group">
-          <img src="/big_banner.webp" alt="Authentic Mithila Makhana" className="w-full h-auto object-cover max-h-[480px] group-hover:scale-102 transition-transform duration-700" loading="lazy"/>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-transparent flex flex-col justify-center p-8 sm:p-14 text-white max-w-xl space-y-4">
-            <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-[var(--secondary-foreground)] bg-white/10 px-3 py-1 rounded-full w-max">
-              CENTURIES-OLD HERITAGE
-            </span>
-            <h3 className="text-2xl sm:text-4xl font-black uppercase leading-tight tracking-tight text-[var(--background)]">
-              THE WHITE GOLD OF MITHILANCHAL
-            </h3>
-            <p className="text-xs sm:text-sm text-white/80 font-sans leading-relaxed">
-              Every kernel of PopCo makhana is harvested by generational Mallah artisan farmers in Bihar. Double-screened to ensure large, uniform 6+ Suta pearls with immaculate crunch.
-            </p>
-            <div className="pt-2">
-              <a href="#shop" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[var(--secondary-foreground)] hover:bg-[var(--secondary-foreground)]/90 text-white text-xs font-extrabold uppercase tracking-widest shadow-lg transition-all">
-                <span>Sample The Trial Pack (₹229)</span>
-                <ArrowRight size={15}/>
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 4. Interactive 10-Pack Custom Combo Builder (₹1,799) */}
+      <HomepageComboSection />
 
       {/* 5. Brand Story & Nutrition Breakdown - About POP CO & Vision */}
       <section id="about" className="bg-white py-16 border-y border-[var(--border)]/10">
@@ -262,7 +242,7 @@ export const HomePage = ({ onOpenCheckout }) => {
                 We are beginning our journey with three carefully selected products: <strong className="text-[var(--foreground)]">Makhana</strong>, <strong className="text-[var(--foreground)]">Roasted Edamame</strong>, and <strong className="text-[var(--foreground)]">Masala Tea</strong>, with a long-term vision of establishing POP CO as a trusted name in the dry fruits, healthy snacks, tea, and food essentials industry.
               </p>
               <p className="text-xs sm:text-sm text-[var(--foreground)]/80 font-sans leading-relaxed">
-                Our makhana is directly sourced from Bihar, one of India's most renowned regions for makhana cultivation, helping us build a closer connection with the source of this traditional Indian superfood.
+                Our makhana is crafted and packed in Meerut, ensuring uncompromised purity and bringing the goodness of traditional Indian superfoods to your table.
               </p>
 
               {/* Initial Product Range Cards */}
@@ -275,7 +255,7 @@ export const HomePage = ({ onOpenCheckout }) => {
                   <div className="p-3.5 bg-[var(--background)] rounded-2xl border border-[var(--border)]/10 space-y-1.5 shadow-xs">
                     <span className="text-[10px] font-black uppercase tracking-widest text-[var(--secondary-foreground)] bg-white px-2 py-0.5 rounded-full inline-block">01</span>
                     <h5 className="text-xs font-black uppercase text-[var(--foreground)]">Makhana</h5>
-                    <p className="text-[11px] text-[var(--foreground)]/75 font-sans leading-snug">Directly sourced from Bihar, bringing the goodness of a traditional Indian snack.</p>
+                    <p className="text-[11px] text-[var(--foreground)]/75 font-sans leading-snug">Processed and packed in Meerut, bringing the goodness of a traditional Indian snack.</p>
                   </div>
                   <div className="p-3.5 bg-[var(--background)] rounded-2xl border border-[var(--border)]/10 space-y-1.5 shadow-xs">
                     <span className="text-[10px] font-black uppercase tracking-widest text-[var(--secondary-foreground)] bg-white px-2 py-0.5 rounded-full inline-block">02</span>
@@ -352,7 +332,7 @@ export const HomePage = ({ onOpenCheckout }) => {
             Need Bulk Makhana Or Wholesale Sacks?
           </h2>
           <p className="text-xs sm:text-sm text-white/80 font-sans max-w-xl mx-auto leading-relaxed">
-            We supply 1KG, 5KG and 10KG bulk bags direct from our Bihar processing facility with guaranteed GI-grade consistency and tiered wholesale pricing.
+            We supply 50KG master sacks direct from our Meerut processing facility with guaranteed premium-grade consistency and factory wholesale pricing.
           </p>
           <div className="pt-3 flex flex-wrap justify-center gap-4">
             <button 

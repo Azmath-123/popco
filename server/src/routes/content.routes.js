@@ -30,9 +30,59 @@ api.post('/contact-enquiries', publicFormLimiter, asyncRoute(async (req, res) =>
 }));
 
 api.post('/bulk-quotes', publicFormLimiter, asyncRoute(async (req, res) => {
-  const body = parse(z.object({ name: z.string().trim().min(2).max(160), email: z.string().trim().email().max(254), phone: z.string().trim().min(7).max(30), gstin: z.string().trim().max(20).optional(), items: z.array(z.object({ productId: z.string().uuid(), quantity: quantitySchema })).min(1).max(100), message: z.string().trim().max(2000).optional().default('') }), req.body);
-  const result = await pool.query('INSERT INTO bulk_quotes (customer_id,contact_name,email,phone,gstin,requested_items,message) VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7) RETURNING id,status,created_at', [req.user?.id || null,body.name,cleanEmail(body.email),body.phone,body.gstin || null,JSON.stringify(body.items),body.message]);
-  res.status(201).json(result.rows[0]);
+  const schema = z.object({
+    name: z.string().trim().min(2).max(160),
+    email: z.string().trim().max(254).optional(),
+    phone: z.string().trim().min(7).max(30),
+    gstin: z.string().trim().max(20).optional(),
+    productName: z.string().trim().max(200).optional(),
+    quantityKg: z.number().int().min(1).max(100000).optional(),
+    items: z.array(z.object({ productId: z.string().optional(), productName: z.string().optional(), quantity: z.any().optional() })).optional(),
+    message: z.string().trim().max(2000).optional().default(''),
+  });
+  const body = parse(schema, req.body);
+  const emailToStore = body.email && body.email.includes('@')
+    ? cleanEmail(body.email)
+    : `${body.phone.replace(/\D/g, '') || 'wholesale'}@lead.popcoindia.com`;
+
+  const itemsToStore = body.items && body.items.length > 0
+    ? body.items
+    : [{ productName: body.productName || 'Wholesale Order', quantityKg: body.quantityKg || 50 }];
+
+  const messageToStore = body.message
+    ? body.message
+    : `Wholesale quote request for ${body.quantityKg || 50} KG of ${body.productName || 'Wholesale Products'}.`;
+
+  const result = await pool.query(
+    'INSERT INTO bulk_quotes (customer_id,contact_name,email,phone,gstin,requested_items,message) VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7) RETURNING id,status,created_at',
+    [req.user?.id || null, body.name, emailToStore, body.phone, body.gstin || null, JSON.stringify(itemsToStore), messageToStore]
+  );
+
+  const quoteId = result.rows[0].id;
+  if (process.env.ADMIN_NOTIFICATION_EMAIL) {
+    try {
+      await pool.query(
+        'INSERT INTO notification_outbox (recipient,event_type,payload) VALUES ($1,$2,$3::jsonb)',
+        [
+          process.env.ADMIN_NOTIFICATION_EMAIL,
+          'bulk_quote',
+          JSON.stringify({
+            quoteId,
+            name: body.name,
+            phone: body.phone,
+            email: emailToStore,
+            productName: body.productName || (itemsToStore[0]?.productName) || 'Bulk Makhana / Edamame',
+            quantityKg: body.quantityKg || 50,
+            notes: messageToStore,
+          })
+        ]
+      );
+    } catch (nErr) {
+      console.warn('Failed to enqueue bulk quote notification outbox:', nErr.message);
+    }
+  }
+
+  res.status(201).json({ ...result.rows[0], productName: body.productName, quantityKg: body.quantityKg });
 }));
 
 api.get('/admin/quotes', adminOnly, asyncRoute(async (req, res) => {

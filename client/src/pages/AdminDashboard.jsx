@@ -1,15 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { useStore } from '../context/StoreContext';
-import { BarChart3, Package, ShoppingBag, Tag, Settings, ShieldCheck, Plus, Trash2, Edit3, TrendingUp, AlertTriangle, Printer, RotateCcw, Save, X } from 'lucide-react';
+import { BarChart3, Package, ShoppingBag, Settings, ShieldCheck, Plus, Trash2, Edit3, TrendingUp, AlertTriangle, Printer, RotateCcw, Save, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AnalyticsTab } from '../features/admin/tabs/AnalyticsTab.jsx';
 import { OrdersTab } from '../features/admin/tabs/OrdersTab.jsx';
 import { ProductsTab } from '../features/admin/tabs/ProductsTab.jsx';
 import { InventoryTab } from '../features/admin/tabs/InventoryTab.jsx';
-import { CouponsTab } from '../features/admin/tabs/CouponsTab.jsx';
 import { StoreSettingsTab } from '../features/admin/tabs/StoreSettingsTab.jsx';
 export const AdminDashboard = () => {
-    const { products, addProduct, updateProduct, deleteProduct, resetProducts, orders, updateOrderStatus, coupons, addCoupon, deleteCoupon, currentUser, settings, updateSettings, showToast, } = useStore();
+    const { products, addProduct, updateProduct, deleteProduct, resetProducts, orders, updateOrderStatus, currentUser, settings, updateSettings, showToast, } = useStore();
     if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'admin')) {
         return null;
     }
@@ -29,13 +28,6 @@ export const AdminDashboard = () => {
     const [prodImage, setProdImage] = useState('/product_1.webp');
     const [prodStock, setProdStock] = useState('50');
     const [prodDescription, setProdDescription] = useState('');
-    // Coupon Form Modal
-    const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
-    const [coupCode, setCoupCode] = useState('');
-    const [coupType, setCoupType] = useState('percentage');
-    const [coupVal, setCoupVal] = useState('10');
-    const [coupMin, setCoupMin] = useState('499');
-    const [coupDesc, setCoupDesc] = useState('');
     // Store Settings Form
     const [settAnnouncement, setSettAnnouncement] = useState(settings.announcementText);
     const [settWhatsapp, setSettWhatsapp] = useState(settings.whatsappNumber);
@@ -136,22 +128,6 @@ export const AdminDashboard = () => {
         }
         setIsProductModalOpen(false);
     };
-    const handleSaveCoupon = (e) => {
-        e.preventDefault();
-        if (!coupCode.trim())
-            return;
-        addCoupon({
-            code: coupCode.trim().toUpperCase(),
-            discountType: coupType,
-            discountValue: parseInt(coupVal) || 10,
-            minOrder: parseInt(coupMin) || 0,
-            description: coupDesc || `${coupVal}${coupType === 'percentage' ? '%' : '₹'} discount`,
-            active: true,
-            usageCount: 0,
-        });
-        setCoupCode('');
-        setIsCouponModalOpen(false);
-    };
     const handleSaveSettings = (e) => {
         e.preventDefault();
         updateSettings({
@@ -199,7 +175,6 @@ export const AdminDashboard = () => {
             { id: 'orders', label: `Orders (${orders.length})`, icon: ShoppingBag },
             { id: 'products', label: `Products (${products.length})`, icon: Package },
             { id: 'inventory', label: `Inventory Matrix`, icon: TrendingUp },
-            { id: 'coupons', label: `Coupons (${coupons.length})`, icon: Tag },
             { id: 'settings', label: 'Store Settings', icon: Settings },
         ].map((tab) => {
             const Icon = tab.icon;
@@ -216,7 +191,6 @@ export const AdminDashboard = () => {
         {activeTab === 'orders' && <OrdersTab filteredOrders={filteredOrders} orderSearch={orderSearch} setOrderSearch={setOrderSearch} orderStatusFilter={orderStatusFilter} setOrderStatusFilter={setOrderStatusFilter} updateOrderStatus={updateOrderStatus} setSelectedOrderForInvoice={setSelectedOrderForInvoice} />}
         {activeTab === 'products' && <ProductsTab products={products} handleOpenNewProduct={handleOpenNewProduct} handleOpenEditProduct={handleOpenEditProduct} deleteProduct={deleteProduct} />}
         {activeTab === 'inventory' && <InventoryTab products={products} updateProduct={updateProduct} />}
-        {activeTab === 'coupons' && <CouponsTab coupons={coupons} setIsCouponModalOpen={setIsCouponModalOpen} deleteCoupon={deleteCoupon} />}
         {activeTab === 'settings' && <StoreSettingsTab settAnnouncement={settAnnouncement} setSettAnnouncement={setSettAnnouncement} settWhatsapp={settWhatsapp} setSettWhatsapp={setSettWhatsapp} settEmail={settEmail} setSettEmail={setSettEmail} settThreshold={settThreshold} setSettThreshold={setSettThreshold} handleSaveSettings={handleSaveSettings} />}
       </div>
 
@@ -285,7 +259,7 @@ export const AdminDashboard = () => {
                   <option value="/product_2.webp">product_2.webp (200g Family)</option>
                   <option value="/periperi_front.webp">periperi_front.webp (Peri Peri)</option>
                   <option value="/tangytomato_front.webp">tangytomato_front.webp (Tomato Tangy)</option>
-                  <option value="/biharichaat_front.webp">biharichaat_front.webp (Bihari Chaat)</option>
+                  <option value="/chaat_front.webp">chaat_front.webp (Chatpata Chaat)</option>
                   <option value="/mintypudina_front.webp">mintypudina_front.webp (Mint Pudina)</option>
                   <option value="/chilligarlic_front.webp">chilligarlic_front.webp (Chilli Garlic)</option>
                   <option value="/creamandonion_front.webp">creamandonion_front.webp (Cream & Onion)</option>
@@ -307,69 +281,6 @@ export const AdminDashboard = () => {
                 </button>
                 <button type="submit" className="px-6 py-2 bg-[var(--primary)] text-white font-black uppercase rounded-lg hover:bg-[var(--primary)]/90">
                   Save Product
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>)}
-
-      {/* Coupon Modal */}
-      {isCouponModalOpen && (<div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[var(--background)] rounded-3xl shadow-2xl max-w-md w-full border border-[var(--border)]/20 p-6 space-y-4">
-            <div className="flex justify-between items-center border-b border-[var(--border)]/10 pb-3">
-              <h3 className="text-base font-black uppercase text-[var(--foreground)]">Create New Voucher</h3>
-              <button onClick={() => setIsCouponModalOpen(false)}>
-                <X size={18}/>
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveCoupon} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">
-                  Coupon Code *
-                </label>
-                <input type="text" required value={coupCode} onChange={(e) => setCoupCode(e.target.value.toUpperCase())} placeholder="e.g. SPECIAL20" className="w-full px-3 py-2 bg-white border border-[var(--border)]/20 rounded-lg font-mono font-bold uppercase"/>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">
-                    Discount Type
-                  </label>
-                  <select value={coupType} onChange={(e) => setCoupType(e.target.value)} className="w-full px-3 py-2 bg-white border border-[var(--border)]/20 rounded-lg font-bold">
-                    <option value="percentage">Percentage (%)</option>
-                    <option value="fixed">Flat Amount (₹)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">
-                    Discount Value *
-                  </label>
-                  <input type="number" required value={coupVal} onChange={(e) => setCoupVal(e.target.value)} className="w-full px-3 py-2 bg-white border border-[var(--border)]/20 rounded-lg font-bold"/>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">
-                  Minimum Order (₹)
-                </label>
-                <input type="number" value={coupMin} onChange={(e) => setCoupMin(e.target.value)} className="w-full px-3 py-2 bg-white border border-[var(--border)]/20 rounded-lg font-bold"/>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">
-                  Description
-                </label>
-                <input type="text" value={coupDesc} onChange={(e) => setCoupDesc(e.target.value)} placeholder="e.g. 20% off on all trial packs" className="w-full px-3 py-2 bg-white border border-[var(--border)]/20 rounded-lg font-medium"/>
-              </div>
-
-              <div className="pt-2 flex justify-end gap-2">
-                <button type="button" onClick={() => setIsCouponModalOpen(false)} className="px-4 py-2 bg-white border border-[var(--border)]/20 rounded-lg font-bold">
-                  Cancel
-                </button>
-                <button type="submit" className="px-6 py-2 bg-[var(--primary)] text-white font-black uppercase rounded-lg hover:bg-[var(--primary)]/90">
-                  Create
                 </button>
               </div>
             </form>
@@ -432,7 +343,7 @@ export const AdminDashboard = () => {
                 <span>₹{selectedOrderForInvoice.subtotal}</span>
               </div>
               {selectedOrderForInvoice.discount > 0 && (<div className="flex justify-between text-emerald-700">
-                  <span>Coupon Discount:</span>
+                  <span>Discount:</span>
                   <span>-₹{selectedOrderForInvoice.discount}</span>
                 </div>)}
               <div className="flex justify-between">

@@ -3,11 +3,11 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const clientDirectory = path.join(root, 'client');
+const clientDirectory = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(path.join(clientDirectory, 'package.json'));
 const vitePackage = require.resolve('vite/package.json');
 const vite = path.join(path.dirname(vitePackage), 'bin', 'vite.js');
+
 const child = spawn(process.execPath, [vite, '--config', 'vite.config.js'], {
   cwd: clientDirectory,
   stdio: 'inherit',

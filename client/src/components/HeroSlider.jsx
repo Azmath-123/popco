@@ -10,7 +10,7 @@ const HERO_SLIDES = [
     alt: 'POP CO Premium Raw Makhana 200gm',
     tag: '100% RAW & NATURAL • 200GM',
     title: "NATURE'S CRUNCHIEST SUPERFOOD",
-    subtitle: 'Direct from Bihar. Sun-dried, traditionally popped Jumbo 6+ Suta makhana, rich in protein, antioxidants, and pure goodness.',
+    subtitle: 'Crafted in Meerut. Sun-dried, traditionally popped Jumbo 6+ Suta makhana, rich in protein, antioxidants, and pure goodness.',
     priceBadge: '₹399 (200gm)',
     ctaText: 'Shop Raw Makhana',
   },

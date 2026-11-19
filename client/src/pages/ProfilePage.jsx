@@ -39,7 +39,7 @@ export const ProfilePage = () => {
             phone: newPhone || currentUser.phone,
             addressLine1: newAddressLine,
             city: newCity,
-            state: newState || 'Bihar',
+            state: newState || 'Uttar Pradesh',
             pincode: newPincode,
             isDefault: currentUser.addresses.length === 0,
         });

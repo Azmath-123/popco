@@ -5,7 +5,7 @@ import { AnnouncementBar } from './components/AnnouncementBar';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
-import { CustomComboBuilder } from './components/CustomComboBuilder';
+import { WholesaleBulkModal } from './components/WholesaleBulkModal';
 import { CheckoutModal } from './components/CheckoutModal';
 import { AuthModal } from './components/AuthModal';
 import { PolicyModal } from './components/PolicyModal';
@@ -24,8 +24,14 @@ const RouteWatcher = () => {
         window.scrollTo(0, 0);
         // Sync policy & modal URL paths
         const path = location.pathname;
-        if (path === '/combo' || path === '/bulk-order' || path === '/custom-combo') {
+        if (path === '/bulk-order') {
             setIsBulkOrderOpen(true);
+        }
+        else if (path === '/combo' || path === '/custom-combo') {
+            const comboEl = document.getElementById('custom-combo-section');
+            if (comboEl) {
+                comboEl.scrollIntoView({ behavior: 'smooth' });
+            }
         }
         else if (path === '/product/faq-and-support') {
             openPolicy('faq');
@@ -35,12 +41,6 @@ const RouteWatcher = () => {
         }
         else if (path === '/product/terms-of-service') {
             openPolicy('terms');
-        }
-        else if (path === '/product/cancellation-policy') {
-            openPolicy('cancellation');
-        }
-        else if (path === '/product/sitemap') {
-            openPolicy('sitemap');
         }
     }, [location.pathname]);
     return null;
@@ -76,8 +76,6 @@ const AppContent = () => {
           <Route path="/product/faq-and-support" element={<HomePage onOpenCheckout={() => setIsCheckoutOpen(true)}/>}/>
           <Route path="/product/privacy-policy" element={<HomePage onOpenCheckout={() => setIsCheckoutOpen(true)}/>}/>
           <Route path="/product/terms-of-service" element={<HomePage onOpenCheckout={() => setIsCheckoutOpen(true)}/>}/>
-          <Route path="/product/cancellation-policy" element={<HomePage onOpenCheckout={() => setIsCheckoutOpen(true)}/>}/>
-          <Route path="/product/sitemap" element={<HomePage onOpenCheckout={() => setIsCheckoutOpen(true)}/>}/>
 
           {/* Catch-all fallback to HomePage */}
           <Route path="*" element={<HomePage onOpenCheckout={() => setIsCheckoutOpen(true)}/>}/>
@@ -88,7 +86,7 @@ const AppContent = () => {
       {!isAdmin && <Footer />}
 
       {/* Overlays, Drawers & Modals */}
-      <CustomComboBuilder />
+      <WholesaleBulkModal />
       <CartDrawer onProceedToCheckout={() => setIsCheckoutOpen(true)}/>
       <CheckoutModal isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)}/>
       <AuthModal />

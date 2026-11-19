@@ -1,8 +1,7 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
 import { POLICY_CONTENT } from '../data/siteContent.js';
-import { X, ChevronDown, FileText, HelpCircle, Shield, RefreshCw, Compass, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { X, ChevronDown, FileText, HelpCircle, Shield, Sparkles } from 'lucide-react';
 export const PolicyModal = () => {
     const { activePolicy, closePolicy, openPolicy } = useStore();
     const [openFaqIndex, setOpenFaqIndex] = React.useState(0);
@@ -20,8 +19,6 @@ export const PolicyModal = () => {
             {activePolicy === 'faq' && <HelpCircle size={20} className="text-[var(--foreground)]"/>}
             {activePolicy === 'privacy' && <Shield size={20} className="text-[var(--foreground)]"/>}
             {activePolicy === 'terms' && <FileText size={20} className="text-[var(--foreground)]"/>}
-            {activePolicy === 'cancellation' && <RefreshCw size={20} className="text-[var(--foreground)]"/>}
-            {activePolicy === 'sitemap' && <Compass size={20} className="text-[var(--foreground)]"/>}
             <h2 className="text-base sm:text-lg font-black uppercase tracking-wider text-[var(--foreground)]">
               {POLICY_CONTENT[activePolicy]?.title}
             </h2>
@@ -33,7 +30,7 @@ export const PolicyModal = () => {
 
         {/* Policy Tab Bar */}
         <div className="flex overflow-x-auto border-b border-[var(--border)]/15 bg-[var(--background)] text-[11px] font-bold uppercase tracking-wider no-scrollbar">
-          {['about', 'faq', 'privacy', 'terms', 'cancellation', 'sitemap'].map((key) => (<button key={key} onClick={() => openPolicy(key)} className={`px-4 py-2.5 whitespace-nowrap transition-all border-b-2 cursor-pointer ${activePolicy === key
+          {['about', 'faq', 'privacy', 'terms'].map((key) => (<button key={key} onClick={() => openPolicy(key)} className={`px-4 py-2.5 whitespace-nowrap transition-all border-b-2 cursor-pointer ${activePolicy === key
                 ? 'border-[var(--border)] text-[var(--foreground)] bg-white font-black'
                 : 'border-transparent text-[var(--foreground)]/60 hover:text-[var(--foreground)]'}`}>
               {key === 'about' ? 'About POP CO' : key === 'faq' ? 'FAQs' : key.replace('-', ' ')}
@@ -58,7 +55,7 @@ export const PolicyModal = () => {
                     We are beginning our journey with three carefully selected products: <strong className="text-[var(--foreground)]">Makhana</strong>, <strong className="text-[var(--foreground)]">Roasted Edamame</strong>, and <strong className="text-[var(--foreground)]">Masala Tea</strong>, with a long-term vision of establishing POP CO as a trusted name in the dry fruits, healthy snacks, tea, and food essentials industry.
                   </p>
                   <p>
-                    Our makhana is directly sourced from Bihar, one of India's most renowned regions for makhana cultivation, helping us build a closer connection with the source of this traditional Indian superfood.
+                    Our makhana is carefully processed in Meerut, ensuring premium quality and building a closer connection with pure, wholesome traditional Indian snacks.
                   </p>
                 </div>
               </div>
@@ -135,26 +132,6 @@ export const PolicyModal = () => {
                   <h4 className="font-extrabold text-[var(--foreground)] uppercase text-xs">{sec.heading}</h4>
                   <p className="text-xs text-[var(--foreground)]/75">{sec.body}</p>
                 </div>))}
-            </div>)}
-
-          {activePolicy === 'cancellation' && (<div className="space-y-4">
-              <p className="font-semibold text-xs text-[var(--secondary-foreground)]">{POLICY_CONTENT.cancellation.intro}</p>
-              {POLICY_CONTENT.cancellation.sections.map((sec, idx) => (<div key={idx} className="bg-white p-4 rounded-xl border border-[var(--border)]/10 space-y-1">
-                  <h4 className="font-extrabold text-[var(--foreground)] uppercase text-xs">{sec.heading}</h4>
-                  <p className="text-xs text-[var(--foreground)]/75">{sec.body}</p>
-                </div>))}
-            </div>)}
-
-          {activePolicy === 'sitemap' && (<div className="bg-white p-6 rounded-xl border border-[var(--border)]/10">
-              <p className="text-xs text-[var(--secondary-foreground)] font-bold mb-4">
-                Explore all routes and product sections available across PopCo Makhana:
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                {POLICY_CONTENT.sitemap.links.map((link, idx) => (<Link key={idx} to={link.path} onClick={closePolicy} className="p-2 rounded-lg hover:bg-[var(--primary)]/5 text-[var(--foreground)] font-bold flex items-center justify-between border border-[var(--border)]/5 transition-colors">
-                    <span>{link.label}</span>
-                    <span className="text-[var(--secondary-foreground)] font-mono text-[10px]">{link.path}</span>
-                  </Link>))}
-              </div>
             </div>)}
         </div>
 

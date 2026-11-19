@@ -1,10 +1,5 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import pg from 'pg';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-dotenv.config({ path: path.join(root, 'server', '.env') });
 
 const { Pool } = pg;
 if (!process.env.DATABASE_URL) throw new Error('Set DATABASE_URL in server/.env before creating the database.');

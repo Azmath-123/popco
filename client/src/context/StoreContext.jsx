@@ -20,8 +20,6 @@ export const StoreProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isBulkOrderOpen, setIsBulkOrderOpen] = useState(false);
-  const [coupons, setCoupons] = useState([]);
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -46,7 +44,6 @@ export const StoreProvider = ({ children }) => {
       apiRequest('/cart'),
     ]);
     setProducts(bootstrap.products || []);
-    setCoupons(bootstrap.coupons || []);
     setReviews(bootstrap.reviews || []);
     setSettings({ ...DEFAULT_SETTINGS, ...(bootstrap.settings || {}) });
     setCurrentUser(bootstrap.user || null);
@@ -60,7 +57,6 @@ export const StoreProvider = ({ children }) => {
       .then(([bootstrap, cartResponse]) => {
         if (!active) return;
         setProducts(bootstrap.products || []);
-        setCoupons(bootstrap.coupons || []);
         setReviews(bootstrap.reviews || []);
         setSettings({ ...DEFAULT_SETTINGS, ...(bootstrap.settings || {}) });
         setCurrentUser(bootstrap.user || null);
@@ -108,21 +104,13 @@ export const StoreProvider = ({ children }) => {
   }, [cart]);
 
   const cartSubtotal = Math.max(0, cartGrossSubtotal - comboDiscount);
-  const couponDiscount = useMemo(() => {
-    if (!appliedCoupon || cartSubtotal < Number(appliedCoupon.minOrder || 0)) return 0;
-    const amount = appliedCoupon.discountType === 'percentage'
-      ? Math.round((cartSubtotal * Number(appliedCoupon.discountValue)) / 100)
-      : Number(appliedCoupon.discountValue);
-    return Math.min(cartSubtotal, appliedCoupon.maxDiscount ? Math.min(amount, appliedCoupon.maxDiscount) : amount);
-  }, [appliedCoupon, cartSubtotal]);
   const shippingFee = cartSubtotal === 0 || cartSubtotal >= Number(settings.freeShippingThreshold || 0)
     ? 0
     : Number(settings.standardShippingFee || 0);
-  const cartTotal = Math.max(0, cartSubtotal - couponDiscount + shippingFee);
+  const cartTotal = Math.max(0, cartSubtotal + shippingFee);
 
   const applyCart = (result) => {
     setCart(result.items || []);
-    if (appliedCoupon && (result.subtotal || 0) < Number(appliedCoupon.minOrder || 0)) setAppliedCoupon(null);
   };
 
   const addToCart = async (product, pack, quantity = 1) => {
@@ -160,21 +148,8 @@ export const StoreProvider = ({ children }) => {
       await apiRequest('/cart', { method: 'DELETE' });
       setCart([]);
       idempotencyAttempt.current = null;
-      setAppliedCoupon(null);
     } catch (error) { showToast(error.message, 'error'); }
   };
-
-  const applyCoupon = (code) => {
-    const cleanCode = code.trim().toUpperCase();
-    const found = coupons.find((coupon) => coupon.code === cleanCode && coupon.active);
-    if (!found) return { success: false, message: 'Invalid or expired coupon code.' };
-    if (cartSubtotal < found.minOrder) return { success: false, message: `This coupon requires a minimum cart value of ₹${found.minOrder}.` };
-    setAppliedCoupon(found);
-    showToast(`Coupon ${found.code} applied successfully!`, 'success');
-    return { success: true, message: `Coupon ${found.code} applied!` };
-  };
-
-  const removeCoupon = () => { setAppliedCoupon(null); showToast('Coupon removed.', 'info'); };
 
   const createOrder = async ({ customer, paymentMethod, notes, gstin }) => {
     setPendingGuestPhone(customer.phone);
@@ -182,7 +157,7 @@ export const StoreProvider = ({ children }) => {
       customer,
       items: cart.map((item) => ({ productId: item.productId, selectedPack: { count: item.selectedPack.count, label: item.selectedPack.label }, quantity: item.quantity })),
       paymentMethod,
-      couponCode: appliedCoupon?.code || null,
+      couponCode: null,
       notes,
       gstin,
     };
@@ -269,22 +244,6 @@ export const StoreProvider = ({ children }) => {
     } catch (error) { showToast(error.message, 'error'); }
   };
 
-  const addCoupon = async (coupon) => {
-    try {
-      const saved = await apiRequest('/admin/coupons', { method: 'POST', body: coupon });
-      setCoupons((previous) => [saved, ...previous.filter((item) => item.code !== saved.code)]);
-      showToast(`Coupon ${saved.code} created!`, 'success');
-    } catch (error) { showToast(error.message, 'error'); }
-  };
-  const deleteCoupon = async (code) => {
-    try {
-      await apiRequest(`/admin/coupons/${encodeURIComponent(code)}`, { method: 'DELETE' });
-      setCoupons((previous) => previous.filter((coupon) => coupon.code !== code));
-      if (appliedCoupon?.code === code) setAppliedCoupon(null);
-      showToast(`Coupon ${code} removed.`, 'info');
-    } catch (error) { showToast(error.message, 'error'); }
-  };
-
   const addReview = async (review) => {
     try {
       const saved = await apiRequest('/reviews', { method: 'POST', body: review });
@@ -356,8 +315,7 @@ export const StoreProvider = ({ children }) => {
       selectedCategory, setSelectedCategory, searchQuery, setSearchQuery, sortBy, setSortBy,
       cart, addToCart, removeFromCart, updateQuantity, clearCart, isCartOpen, setIsCartOpen,
       isBulkOrderOpen, setIsBulkOrderOpen,
-      cartCount, cartSubtotal, cartGrossSubtotal, comboDiscount, couponDiscount, shippingFee, cartTotal,
-      coupons, appliedCoupon, applyCoupon, removeCoupon, addCoupon, deleteCoupon,
+      cartCount, cartSubtotal, cartGrossSubtotal, comboDiscount, shippingFee, cartTotal,
       orders, createOrder, completePayment, updateOrderStatus, reviews, addReview,
       currentUser, login, signup, logout, addAddress, deleteAddress, setDefaultAddress,
       isAuthModalOpen, setIsAuthModalOpen, authModalMode, setAuthModalMode,

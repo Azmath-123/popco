@@ -4,12 +4,13 @@ import { pool, transaction } from '../config/database.js';
 import { verifyAndCaptureOrder } from '../modules/payments/payment.service.js';
 
 function mailer() {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASSWORD || !process.env.MAIL_FROM) return null;
+  const pass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD;
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !pass || !process.env.MAIL_FROM) return null;
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT || 587),
     secure: process.env.SMTP_SECURE === 'true',
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD },
+    auth: { user: process.env.SMTP_USER, pass },
   });
 }
 
@@ -22,8 +23,15 @@ function notificationMessage(row) {
     delivered: `Your order was delivered: ${reference}`,
     cancelled: `Order update: ${reference}`,
     contact_enquiry: 'New contact enquiry for PopCo Makhana',
+    bulk_quote: `New Bulk Wholesale Quote Request: ${data.productName || 'Wholesale Products'} (${data.quantityKg || '50'} KG)`,
     refunded: `Refund update: ${reference}`,
   };
+  if (row.event_type === 'bulk_quote') {
+    return {
+      subject: subjects.bulk_quote,
+      text: `BULK WHOLESALE QUOTE REQUEST\n\nProduct: ${data.productName || 'Wholesale Products'}\nRequired Quantity: ${data.quantityKg || '50'} KG\nCustomer Name: ${data.name || 'Not provided'}\nPhone Number: ${data.phone || 'Not provided'}\nEmail: ${data.email || 'Not provided'}\n\nNotes / Requirement:\n${data.notes || 'Direct Wholesale Quote Enquiry'}`
+    };
+  }
   const body = row.event_type === 'contact_enquiry'
     ? `Enquiry ${data.enquiryId || ''}\nName: ${data.name || ''}\nEmail: ${data.email || ''}\nPhone: ${data.phone || ''}\n\n${data.message || ''}`
     : `${reference}\nEvent: ${row.event_type.replaceAll('_', ' ')}\n${data.amount != null ? `Total: INR ${data.amount}\n` : ''}${data.carrier ? `Courier: ${data.carrier}\n` : ''}${data.trackingNumber ? `Tracking: ${data.trackingNumber}\n` : ''}${data.reason ? `Reason: ${data.reason}\n` : ''}${data.refundStatus ? `Refund status: ${data.refundStatus}\n` : ''}`;

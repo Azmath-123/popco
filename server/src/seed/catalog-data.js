@@ -189,7 +189,7 @@ export const INITIAL_COUPONS = [
         usageCount: 142
     },
     {
-        code: 'BIHAR50',
+        code: 'MEERUT50',
         discountType: 'fixed',
         discountValue: 50,
         minOrder: 599,
@@ -222,11 +222,11 @@ export const INITIAL_REVIEWS = [
         productId: 2,
         author: 'Pooja Bharti',
         rating: 5,
-        title: 'Authentic Premium Bihar Crunch!',
-        comment: 'Best quality makhana I have ever tasted! Sourced directly from Bihar, the crunch is unmatched. My whole family is hooked.',
+        title: 'Authentic Premium Meerut Crunch!',
+        comment: 'Best quality makhana I have ever tasted! Crafted directly in Meerut, the crunch is unmatched. My whole family is hooked.',
         date: '10 Nov 2026',
         verified: true,
-        location: 'Patna, Bihar'
+        location: 'Meerut, Uttar Pradesh'
     },
     {
         id: 'rev-2',

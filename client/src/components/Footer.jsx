@@ -16,13 +16,13 @@ export const Footer = () => {
                   POPCO
                 </span>
                 <span className="block text-[10px] tracking-widest text-[var(--secondary-foreground)] font-bold">
-                  PREMIUM BIHAR MAKHANA
+                  PREMIUM MEERUT MAKHANA
                 </span>
               </div>
             </Link>
 
             <p className="text-xs text-white/75 leading-relaxed max-w-sm">
-              POP CO – Bringing Quality, Taste & Goodness to Everyday Living. An emerging brand crafting delicious, better snacking choices with directly sourced Bihar Makhana, Roasted Edamame, and Masala Tea. Naturally Good, Simply Delicious!
+              POP CO – Bringing Quality, Taste & Goodness to Everyday Living. An emerging brand crafting delicious, better snacking choices with premium Meerut Makhana, Roasted Edamame, and Masala Tea. Naturally Good, Simply Delicious!
             </p>
 
             <div className="pt-2 flex flex-wrap gap-2 text-[10px] font-extrabold tracking-widest uppercase text-white/90">
@@ -106,16 +106,6 @@ export const Footer = () => {
                   Terms of Service
                 </button>
               </li>
-              <li>
-                <button onClick={() => openPolicy('cancellation')} className="hover:text-white transition-colors text-left cursor-pointer">
-                  Cancellation & Refund
-                </button>
-              </li>
-              <li>
-                <button onClick={() => openPolicy('sitemap')} className="hover:text-white transition-colors text-left cursor-pointer">
-                  Sitemap
-                </button>
-              </li>
             </ul>
           </div>
 
@@ -156,7 +146,7 @@ export const Footer = () => {
           <p className="flex items-center gap-1">
             <span>© {new Date().getFullYear()} PopCo Makhana. Crafted with</span>
             <Heart size={13} className="text-red-400 fill-red-400"/>
-            <span>in Mithilanchal, Bihar.</span>
+            <span>in Meerut.</span>
           </p>
           <div className="flex items-center gap-4 text-[11px] font-bold tracking-wider uppercase">
             <span>Razorpay Verified</span>

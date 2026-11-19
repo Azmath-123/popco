@@ -19,7 +19,7 @@ const loadRazorpay = () => new Promise((resolve, reject) => {
 });
 
 export const CheckoutModal = ({ isOpen, onClose }) => {
-    const { cart, cartSubtotal, cartGrossSubtotal, comboDiscount, couponDiscount, shippingFee, cartTotal, appliedCoupon, currentUser, createOrder, completePayment, showToast } = useStore();
+    const { cart, cartSubtotal, cartGrossSubtotal, comboDiscount, shippingFee, cartTotal, currentUser, createOrder, completePayment, showToast } = useStore();
     const navigate = useNavigate();
     // Form State
     const defaultAddr = currentUser?.addresses.find((a) => a.isDefault) || currentUser?.addresses[0];
@@ -28,7 +28,7 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
     const [phone, setPhone] = useState(currentUser?.phone || '');
     const [address, setAddress] = useState(defaultAddr?.addressLine1 || '');
     const [city, setCity] = useState(defaultAddr?.city || 'Patna');
-    const [state, setState] = useState(defaultAddr?.state || 'Bihar');
+    const [state, setState] = useState(defaultAddr?.state || 'Uttar Pradesh');
     const [pincode, setPincode] = useState(defaultAddr?.pincode || '800001');
     const [paymentMethod, setPaymentMethod] = useState('razorpay');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -227,7 +227,7 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
                       <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">
                         State *
                       </label>
-                      <input type="text" required value={state} onChange={(e) => setState(e.target.value)} placeholder="Bihar" className="w-full px-3 py-2 text-xs bg-white border border-[var(--border)]/20 rounded-lg focus:outline-none focus:border-[var(--border)] font-bold"/>
+                      <input type="text" required value={state} onChange={(e) => setState(e.target.value)} placeholder="Uttar Pradesh" className="w-full px-3 py-2 text-xs bg-white border border-[var(--border)]/20 rounded-lg focus:outline-none focus:border-[var(--border)] font-bold"/>
                     </div>
                     <div>
                       <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">
@@ -287,10 +287,6 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
                   <span className="font-bold text-[var(--foreground)]">₹{cartGrossSubtotal}</span>
                 </div>
                 {comboDiscount > 0 && (<div className="flex justify-between text-emerald-700 font-bold"><span>10-pack combo offer</span><span>-₹{comboDiscount}</span></div>)}
-                {couponDiscount > 0 && (<div className="flex justify-between text-emerald-700 font-bold">
-                    <span>Coupon ({appliedCoupon?.code})</span>
-                    <span>-₹{couponDiscount}</span>
-                  </div>)}
                 <div className="flex justify-between text-[var(--foreground)]/80">
                   <span>Shipping</span>
                   <span className="font-bold text-[var(--foreground)]">

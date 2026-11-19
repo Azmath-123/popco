@@ -1,35 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { Trash2, Plus, Minus, ArrowRight, Tag, ShieldCheck, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Trash2, Plus, Minus, ArrowRight, ShieldCheck, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 export const CartPage = ({ onOpenCheckout }) => {
-    const { cart, cartCount, cartSubtotal, cartGrossSubtotal, comboDiscount, couponDiscount, shippingFee, cartTotal, removeFromCart, updateQuantity, appliedCoupon, applyCoupon, removeCoupon, currentUser, settings, } = useStore();
-    const [couponInput, setCouponInput] = useState('');
-    const [couponError, setCouponError] = useState('');
+    const { cart, cartCount, cartSubtotal, cartGrossSubtotal, comboDiscount, shippingFee, cartTotal, removeFromCart, updateQuantity, currentUser, settings, } = useStore();
     const navigate = useNavigate();
     const freeShippingThreshold = settings.freeShippingThreshold;
     const remainingForFreeShipping = Math.max(0, freeShippingThreshold - cartSubtotal);
     const shippingProgress = Math.min(100, Math.round((cartSubtotal / freeShippingThreshold) * 100));
-    const handleApplyCoupon = (e) => {
-        e.preventDefault();
-        if (!couponInput.trim())
-            return;
-        const res = applyCoupon(couponInput);
-        if (!res.success) {
-            setCouponError(res.message);
-        }
-        else {
-            setCouponError('');
-            setCouponInput('');
-        }
-    };
-    const handleQuickCoupon = (code) => {
-        const res = applyCoupon(code);
-        if (!res.success)
-            setCouponError(res.message);
-        else
-            setCouponError('');
-    };
     if (cart.length === 0) {
         return (<div className="flex-1 max-w-4xl mx-auto px-4 py-20 text-center space-y-4">
         <div className="w-24 h-24 bg-[var(--background)] border border-[var(--border)]/20 rounded-full flex items-center justify-center mx-auto text-[var(--foreground)]">
@@ -129,45 +107,6 @@ export const CartPage = ({ onOpenCheckout }) => {
 
           {/* Right: Summary & Checkout */}
           <div className="space-y-4">
-            {/* Coupon Card */}
-            <div className="bg-white p-5 rounded-2xl border border-[var(--border)]/15 shadow-sm space-y-3">
-              <h4 className="text-xs font-black uppercase text-[var(--foreground)] tracking-wider">
-                Discount Coupon
-              </h4>
-
-              {appliedCoupon ? (<div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-300 rounded-xl text-xs font-bold text-emerald-900">
-                  <div className="flex items-center gap-1.5">
-                    <Tag size={16} className="text-emerald-700"/>
-                    <span>{appliedCoupon.code} Applied</span>
-                    <span className="text-emerald-700">(-₹{couponDiscount})</span>
-                  </div>
-                  <button onClick={removeCoupon} className="text-emerald-700 hover:text-red-600 underline font-bold">
-                    Remove
-                  </button>
-                </div>) : (<form onSubmit={handleApplyCoupon} className="space-y-2">
-                  <div className="flex gap-2">
-                    <input type="text" placeholder="ENTER COUPON CODE" value={couponInput} onChange={(e) => {
-                setCouponInput(e.target.value);
-                setCouponError('');
-            }} className="flex-1 px-3 py-2 text-xs border border-[var(--border)]/20 rounded-xl uppercase font-bold focus:outline-none focus:border-[var(--border)]"/>
-                    <button type="submit" className="px-4 py-2 bg-[var(--primary)] text-white text-xs font-black uppercase rounded-xl hover:bg-[var(--primary)]/90">
-                      Apply
-                    </button>
-                  </div>
-                  {couponError && <p className="text-[11px] text-red-600 font-bold">{couponError}</p>}
-                </form>)}
-
-              {/* Quick coupons */}
-              <div className="pt-1 flex flex-wrap gap-2 text-[10px]">
-                <button type="button" onClick={() => handleQuickCoupon('POPCO10')} className="bg-[var(--background)] border border-[var(--border)]/20 px-2.5 py-1 rounded-lg text-[var(--foreground)] font-bold hover:bg-[var(--primary)] hover:text-white transition-colors">
-                  POPCO10 (10% OFF)
-                </button>
-                <button type="button" onClick={() => handleQuickCoupon('BIHAR50')} className="bg-[var(--background)] border border-[var(--border)]/20 px-2.5 py-1 rounded-lg text-[var(--foreground)] font-bold hover:bg-[var(--primary)] hover:text-white transition-colors">
-                  BIHAR50 (₹50 OFF)
-                </button>
-              </div>
-            </div>
-
             {/* Price Breakdown Card */}
             <div className="bg-white p-6 rounded-3xl border border-[var(--border)]/15 shadow-sm space-y-4">
               <h4 className="text-xs font-black uppercase text-[var(--foreground)] tracking-wider border-b border-[var(--border)]/10 pb-2">
@@ -180,10 +119,6 @@ export const CartPage = ({ onOpenCheckout }) => {
                   <span className="font-bold text-[var(--foreground)]">₹{cartGrossSubtotal}</span>
                 </div>
                 {comboDiscount > 0 && (<div className="flex justify-between text-emerald-700 font-bold"><span>10-pack combo offer</span><span>-₹{comboDiscount}</span></div>)}
-                {couponDiscount > 0 && (<div className="flex justify-between text-emerald-700 font-bold">
-                    <span>Coupon Discount</span>
-                    <span>-₹{couponDiscount}</span>
-                  </div>)}
                 <div className="flex justify-between">
                   <span>Standard Delivery</span>
                   <span className="font-bold text-[var(--foreground)]">

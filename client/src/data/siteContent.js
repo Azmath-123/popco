@@ -2,11 +2,11 @@ export const POLICY_CONTENT = {
     about: {
         title: 'About POP CO',
         tagline: 'POP CO – Bringing Quality, Taste & Goodness to Everyday Living.',
-        intro: 'POP CO is an emerging food brand built with a vision to bring quality food products, delicious flavours, and better snacking choices to everyday consumers.\n\nWe are beginning our journey with three carefully selected products: Makhana, Roasted Edamame, and Masala Tea, with a long-term vision of establishing POP CO as a trusted name in the dry fruits, healthy snacks, tea, and food essentials industry.\n\nOur makhana is directly sourced from Bihar, one of India\'s most renowned regions for makhana cultivation, helping us build a closer connection with the source of this traditional Indian superfood.',
+        intro: 'POP CO is an emerging food brand built with a vision to bring quality food products, delicious flavours, and better snacking choices to everyday consumers.\n\nWe are beginning our journey with three carefully selected products: Makhana, Roasted Edamame, and Masala Tea, with a long-term vision of establishing POP CO as a trusted name in the dry fruits, healthy snacks, tea, and food essentials industry.\n\nOur makhana is processed and packed in Meerut, ensuring premium quality and bringing wholesome traditional Indian superfoods to your home.',
         initialProducts: [
             {
                 name: 'Makhana',
-                description: 'Directly sourced from Bihar, bringing the goodness of a traditional Indian snack.'
+                description: 'Processed and packed in Meerut, bringing the goodness of a traditional Indian snack.'
             },
             {
                 name: 'Roasted Edamame',
@@ -34,11 +34,11 @@ export const POLICY_CONTENT = {
         sections: [
             {
                 q: 'What makes PopCo Makhana different from regular market brands?',
-                a: 'PopCo Makhana is 100% sourced directly from wetlands in Meerut, Mithilanchal (Bihar), the GI-tagged heartland of lotus seeds. We only pack Jumbo 6+ Suta grade seeds, hand-graded and double-cleaned without chemical bleaching, ensuring zero hard hulls and maximum crunch.'
+                a: 'PopCo Makhana is processed directly in Meerut. We only pack Jumbo 6+ Suta grade seeds, hand-graded and double-cleaned without chemical bleaching, ensuring zero hard hulls and maximum crunch.'
             },
             {
                 q: 'What is 6+ Suta Grade?',
-                a: 'Suta is the traditional metric used by Bihar makhana artisans to measure kernel size. 6+ Suta signifies large, uniform, fully bloomed kernels that roast evenly and provide a tender, melt-in-the-mouth texture.'
+                a: 'Suta is the traditional metric used by makhana artisans to measure kernel size. 6+ Suta signifies large, uniform, fully bloomed kernels that roast evenly and provide a tender, melt-in-the-mouth texture.'
             },
             {
                 q: 'How should I store raw makhana after opening?',
@@ -96,45 +96,6 @@ export const POLICY_CONTENT = {
                 heading: '3. Intellectual Property',
                 body: 'All trademarks, logos, photography, packaging designs, and text on thepopcoindia.com are the exclusive property of PopCo Foods.'
             }
-        ]
-    },
-    cancellation: {
-        title: 'Cancellation & Return Policy',
-        intro: 'We take immense pride in the freshness and purity of our Meerut makhana. Our cancellation and return policy is fair and transparent.',
-        sections: [
-            {
-                heading: '1. Order Cancellations',
-                body: 'Orders can be cancelled before they are dispatched from our warehouse (typically within 4-6 hours of placing the order). Contact Support@thepopcoindia.com or WhatsApp +91 8080808447 with your Order ID.'
-            },
-            {
-                heading: '2. Damaged or Incorrect Shipments',
-                body: 'Because makhana is a consumable food item, opened packets cannot be returned for hygiene reasons. However, if you receive a damaged package, broken seal, or incorrect item, notify us within 48 hours of delivery with photos, and we will issue an immediate replacement or full refund.'
-            },
-            {
-                heading: '3. Refund Timelines',
-                body: 'Approved refunds are initiated within 24 hours back to your original payment method (Cards/UPI/Netbanking usually take 3-5 business days).'
-            }
-        ]
-    },
-    sitemap: {
-        title: 'Website Sitemap',
-        links: [
-            { label: 'Home', path: '/' },
-            { label: 'About POP CO', path: '/#about' },
-            { label: 'All Products & Shop', path: '/#shop' },
-            { label: 'Pocket Delight (100g)', path: '/product/mukeja-makhana-100g' },
-            { label: 'Family Delight (200g)', path: '/product/mukeja-makhana-200g' },
-            { label: 'Loose Makhana (1KG)', path: '/product/mukeja-makhana-1kg' },
-            { label: 'Bulk Wholesale Makhana', path: '/product/mukeja-makhana-loose' },
-            { label: 'Peri Peri Makhana', path: '/product/mukeja-makhana-peri-peri' },
-            { label: 'Tomato Tangy Makhana', path: '/product/mukeja-makhana-tomato-tangy' },
-            { label: 'Bihari Chaat Makhana', path: '/product/mukeja-makhana-bihari-chaat' },
-            { label: 'Mint Pudina Makhana', path: '/product/mukeja-makhana-mint-pudina' },
-            { label: 'Chilli Garlic Makhana', path: '/product/mukeja-makhana-chilli-garlic' },
-            { label: 'Cream and Onion Makhana', path: '/product/mukeja-makhana-cream-and-onion' },
-            { label: 'Shopping Cart', path: '/cart' },
-            { label: 'My Account / Profile', path: '/profile' },
-            { label: 'Admin Dashboard', path: '/admin' }
         ]
     }
 };
