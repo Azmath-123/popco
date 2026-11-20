@@ -5,10 +5,12 @@ const { Pool } = pg;
 
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: true } : undefined,
+  ssl: process.env.DATABASE_SSL === 'true'
+    ? { rejectUnauthorized: process.env.DATABASE_REJECT_UNAUTHORIZED === 'true' }
+    : undefined,
   max: Number(process.env.DB_POOL_SIZE || 10),
   idleTimeoutMillis: 30_000,
-  connectionTimeoutMillis: 5_000,
+  connectionTimeoutMillis: 10_000,
 });
 
 export async function transaction(callback) {

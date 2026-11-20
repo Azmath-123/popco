@@ -9,7 +9,7 @@
   --card-foreground: oklch(0.2178 0 0);
   --popover: oklch(0.9779 0.0042 56.3756);
   --popover-foreground: oklch(0.2178 0 0);
-  --primary: oklch(0.4650 0.1470 24.9381);
+  --primary: oklch(0.4354 0.1779 27.9223);
   --primary-foreground: oklch(1.0000 0 0);
   --secondary: oklch(0.9625 0.0385 89.0943);
   --secondary-foreground: oklch(0.4847 0.1022 75.1153);
@@ -21,20 +21,20 @@
   --destructive-foreground: oklch(1.0000 0 0);
   --border: oklch(0.9355 0.0324 80.9937);
   --input: oklch(0.9355 0.0324 80.9937);
-  --ring: oklch(0.4650 0.1470 24.9381);
+  --ring: oklch(0.4354 0.1779 27.9223);
   --chart-1: oklch(0.5054 0.1905 27.5181);
-  --chart-2: oklch(0.4650 0.1470 24.9381);
+  --chart-2: oklch(0.4354 0.1779 27.9223);
   --chart-3: oklch(0.3958 0.1331 25.7230);
   --chart-4: oklch(0.5553 0.1455 48.9975);
   --chart-5: oklch(0.4732 0.1247 46.2007);
   --sidebar: oklch(0.9431 0.0068 53.4442);
   --sidebar-foreground: oklch(0.2178 0 0);
-  --sidebar-primary: oklch(0.4650 0.1470 24.9381);
+  --sidebar-primary: oklch(0.4354 0.1779 27.9223);
   --sidebar-primary-foreground: oklch(1.0000 0 0);
   --sidebar-accent: oklch(0.9619 0.0580 95.6174);
   --sidebar-accent-foreground: oklch(0.3958 0.1331 25.7230);
   --sidebar-border: oklch(0.9355 0.0324 80.9937);
-  --sidebar-ring: oklch(0.4650 0.1470 24.9381);
+  --sidebar-ring: oklch(0.4354 0.1779 27.9223);
   --font-sans: Poppins, sans-serif;
   --font-serif: Libre Baskerville, serif;
   --font-mono: IBM Plex Mono, monospace;
@@ -167,6 +167,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -174,8 +175,13 @@
 
 /* Store-specific motion and scrollbar helpers */
 @keyframes ticker {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-50%, 0, 0); }
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
 }
 
 .ticker-track {
@@ -184,11 +190,25 @@
   animation: ticker 32s linear infinite;
 }
 
-.ticker-track:hover { animation-play-state: paused; }
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
 @keyframes heroProgress {
-  from { width: 0%; }
-  to { width: 100%; }
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 100%;
+  }
 }
