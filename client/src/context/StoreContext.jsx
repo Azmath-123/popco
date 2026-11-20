@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { apiRequest } from '../lib/api';
+import { INITIAL_PRODUCTS, INITIAL_REVIEWS } from '../data/fallbackCatalog';
 
 const StoreContext = createContext(undefined);
 
@@ -13,14 +14,14 @@ const DEFAULT_SETTINGS = {
 };
 
 export const StoreProvider = ({ children }) => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(INITIAL_PRODUCTS);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('featured');
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isBulkOrderOpen, setIsBulkOrderOpen] = useState(false);
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState(INITIAL_REVIEWS);
   const [currentUser, setCurrentUser] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('login');
@@ -56,15 +57,18 @@ export const StoreProvider = ({ children }) => {
     Promise.all([apiRequest('/store/bootstrap'), apiRequest('/cart')])
       .then(([bootstrap, cartResponse]) => {
         if (!active) return;
-        setProducts(bootstrap.products || []);
-        setReviews(bootstrap.reviews || []);
-        setSettings({ ...DEFAULT_SETTINGS, ...(bootstrap.settings || {}) });
-        setCurrentUser(bootstrap.user || null);
-        setOrders(bootstrap.orders || []);
-        setCart(cartResponse.items || []);
+        setProducts(bootstrap?.products?.length ? bootstrap.products : INITIAL_PRODUCTS);
+        setReviews(bootstrap?.reviews?.length ? bootstrap.reviews : INITIAL_REVIEWS);
+        setSettings({ ...DEFAULT_SETTINGS, ...(bootstrap?.settings || {}) });
+        setCurrentUser(bootstrap?.user || null);
+        setOrders(bootstrap?.orders || []);
+        setCart(cartResponse?.items || []);
       })
       .catch((error) => {
-        if (active) showToast(error.message || 'Could not connect to the store API.', 'error');
+        if (active) {
+          setProducts(INITIAL_PRODUCTS);
+          setReviews(INITIAL_REVIEWS);
+        }
       })
       .finally(() => { if (active) setIsBootstrapping(false); });
     return () => { active = false; };
