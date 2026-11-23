@@ -48,54 +48,54 @@ export const ProfilePage = () => {
         setNewPincode('');
         setShowAddAddress(false);
     };
-    return (<div className="flex-1 bg-[var(--background)] py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    return (<div className="flex-1 bg-[var(--background)] py-6 sm:py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
         {/* Profile Header Banner */}
-        <div className="bg-[var(--primary)] text-white p-6 sm:p-8 rounded-3xl shadow-xl border border-[var(--border)]/20 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-white text-[var(--foreground)] text-2xl font-black flex items-center justify-center shadow-md">
+        <div className="bg-[var(--primary)] text-white p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl border border-[var(--border)]/20 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white text-[var(--foreground)] text-xl sm:text-2xl font-black flex items-center justify-center shadow-md shrink-0">
               {currentUser.name.charAt(0)}
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black uppercase tracking-wide">
+                <h1 className="text-lg sm:text-2xl font-black uppercase tracking-wide truncate">
                   {currentUser.name}
                 </h1>
-                <span className="text-[9px] font-extrabold uppercase bg-white/20 px-2 py-0.5 rounded text-white">
+                <span className="text-[9px] font-extrabold uppercase bg-white/20 px-2 py-0.5 rounded text-white shrink-0">
                   {currentUser.role.replace('_', ' ')}
                 </span>
               </div>
-              <p className="text-xs text-white/80 font-sans mt-0.5">
+              <p className="text-xs text-white/80 font-sans mt-0.5 truncate">
                 {currentUser.email} • {currentUser.phone}
               </p>
-              <p className="text-[10px] text-white/60 font-semibold mt-1">
+              <p className="text-[10px] text-white/60 font-semibold mt-0.5">
                 Member since {currentUser.joinedDate}
               </p>
             </div>
           </div>
 
           {/* Balance & Actions */}
-          <div className="flex items-center gap-3">
-            <button onClick={logout} className="p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-wider" title="Sign Out">
-              <LogOut size={18}/>
-              <span className="hidden sm:inline">Sign Out</span>
+          <div className="flex items-center gap-3 self-end md:self-auto">
+            <button onClick={logout} className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-wider" title="Sign Out">
+              <LogOut size={16}/>
+              <span>Sign Out</span>
             </button>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-[var(--border)]/15 bg-white rounded-2xl p-1.5 text-xs font-black uppercase tracking-wider shadow-xs">
-          <button onClick={() => setActiveTab('orders')} className={`flex-1 py-3 text-center rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 ${activeTab === 'orders'
+        <div className="flex border-b border-[var(--border)]/15 bg-white rounded-xl sm:rounded-2xl p-1 sm:p-1.5 text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-xs">
+          <button onClick={() => setActiveTab('orders')} className={`flex-1 py-2.5 sm:py-3 text-center rounded-lg sm:rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 ${activeTab === 'orders'
             ? 'bg-[var(--primary)] text-white shadow-md'
             : 'text-[var(--foreground)]/70 hover:text-[var(--foreground)]'}`}>
-            <Package size={15}/>
+            <Package size={14}/>
             <span>Order History ({orders.length})</span>
           </button>
 
-          <button onClick={() => setActiveTab('addresses')} className={`flex-1 py-3 text-center rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 ${activeTab === 'addresses'
+          <button onClick={() => setActiveTab('addresses')} className={`flex-1 py-2.5 sm:py-3 text-center rounded-lg sm:rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 ${activeTab === 'addresses'
             ? 'bg-[var(--primary)] text-white shadow-md'
             : 'text-[var(--foreground)]/70 hover:text-[var(--foreground)]'}`}>
-            <MapPin size={15}/>
+            <MapPin size={14}/>
             <span>Saved Addresses ({currentUser.addresses.length})</span>
           </button>
         </div>

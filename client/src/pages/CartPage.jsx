@@ -9,11 +9,11 @@ export const CartPage = ({ onOpenCheckout }) => {
     const remainingForFreeShipping = Math.max(0, freeShippingThreshold - cartSubtotal);
     const shippingProgress = Math.min(100, Math.round((cartSubtotal / freeShippingThreshold) * 100));
     if (cart.length === 0) {
-        return (<div className="flex-1 max-w-4xl mx-auto px-4 py-20 text-center space-y-4">
-        <div className="w-24 h-24 bg-[var(--background)] border border-[var(--border)]/20 rounded-full flex items-center justify-center mx-auto text-[var(--foreground)]">
-          <ShoppingBag size={44}/>
+        return (<div className="flex-1 max-w-4xl mx-auto px-4 py-16 sm:py-20 text-center space-y-4">
+        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[var(--background)] border border-[var(--border)]/20 rounded-full flex items-center justify-center mx-auto text-[var(--foreground)]">
+          <ShoppingBag size={40}/>
         </div>
-        <h2 className="text-2xl font-black uppercase text-[var(--foreground)]">Your Cart is Empty</h2>
+        <h2 className="text-xl sm:text-2xl font-black uppercase text-[var(--foreground)]">Your Cart is Empty</h2>
         <p className="text-xs sm:text-sm text-[var(--foreground)]/70 font-sans max-w-md mx-auto">
           Explore our authentic Mithilanchal 6+ Suta fox nuts, fresh trial packs, and flavoured roasted makhana.
         </p>
@@ -25,11 +25,11 @@ export const CartPage = ({ onOpenCheckout }) => {
         </div>
       </div>);
     }
-    return (<div className="flex-1 bg-[var(--background)] py-10">
+    return (<div className="flex-1 bg-[var(--background)] py-6 sm:py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black uppercase text-[var(--foreground)] tracking-tight">
+            <h1 className="text-xl sm:text-3xl font-black uppercase text-[var(--foreground)] tracking-tight">
               Shopping Cart ({cartCount} Items)
             </h1>
             <p className="text-xs text-[var(--foreground)]/70 font-sans mt-0.5">
@@ -42,11 +42,11 @@ export const CartPage = ({ onOpenCheckout }) => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
           {/* Left: Cart Items List */}
           <div className="lg:col-span-2 space-y-4">
             {/* Free Shipping Alert Banner */}
-            <div className="bg-white p-4 rounded-2xl border border-[var(--border)]/15 shadow-xs space-y-2">
+            <div className="bg-white p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-[var(--border)]/15 shadow-xs space-y-2">
               {remainingForFreeShipping > 0 ? (<p className="text-xs font-bold text-[var(--foreground)]">
                   Add <span className="text-[var(--secondary-foreground)]">₹{remainingForFreeShipping}</span> more to unlock <span className="underline decoration-[var(--secondary-foreground)]">FREE NATIONWIDE DELIVERY</span>!
                 </p>) : (<p className="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
@@ -58,24 +58,24 @@ export const CartPage = ({ onOpenCheckout }) => {
             </div>
 
             {/* Items Cards */}
-            <div className="bg-white rounded-3xl border border-[var(--border)]/15 p-6 shadow-sm space-y-6">
-              {cart.map((item) => (<div key={item.id} className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between pb-6 border-b border-[var(--border)]/10 last:border-0 last:pb-0">
-                  <div className="flex gap-4 items-center">
-                    <img src={item.product.image} alt={item.product.name} className="w-20 h-20 object-contain bg-[var(--background)] rounded-xl p-1.5 border border-[var(--border)]/10 shrink-0"/>
-                    <div>
-                      <h3 className="text-sm font-black text-[var(--foreground)] uppercase leading-tight">
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-[var(--border)]/15 p-4 sm:p-6 shadow-sm space-y-5 sm:space-y-6">
+              {cart.map((item) => (<div key={item.id} className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center justify-between pb-5 sm:pb-6 border-b border-[var(--border)]/10 last:border-0 last:pb-0">
+                  <div className="flex gap-3 sm:gap-4 items-center min-w-0">
+                    <img src={item.product.image} alt={item.product.name} className="w-16 h-16 sm:w-20 sm:h-20 object-contain bg-[var(--background)] rounded-xl p-1.5 border border-[var(--border)]/10 shrink-0"/>
+                    <div className="min-w-0">
+                      <h3 className="text-xs sm:text-sm font-black text-[var(--foreground)] uppercase leading-tight truncate">
                         {item.product.name}
                       </h3>
-                      <p className="text-xs font-bold text-[var(--secondary-foreground)] mt-0.5">
+                      <p className="text-[11px] sm:text-xs font-bold text-[var(--secondary-foreground)] mt-0.5">
                         {item.selectedPack.label} • {item.product.weight}
                       </p>
-                      <span className="text-xs text-[var(--foreground)]/70 font-semibold block mt-1">
+                      <span className="text-[11px] sm:text-xs text-[var(--foreground)]/70 font-semibold block mt-1">
                         Unit Price: ₹{item.selectedPack.price || item.product.numericPrice}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between sm:justify-end gap-6 pt-2 sm:pt-0">
+                  <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-3 sm:pt-0 border-t sm:border-t-0 border-[var(--border)]/10">
                     {/* Stepper */}
                     <div className="flex items-center border border-[var(--border)]/20 rounded-xl overflow-hidden bg-[var(--background)]">
                       <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center hover:bg-[var(--primary)]/10 text-[var(--foreground)]">
@@ -91,7 +91,7 @@ export const CartPage = ({ onOpenCheckout }) => {
 
                     {/* Subtotal */}
                     <div className="text-right min-w-[70px]">
-                      <span className="text-base font-black text-[var(--foreground)]">
+                      <span className="text-sm sm:text-base font-black text-[var(--foreground)]">
                         ₹{(item.selectedPack.price || item.product.numericPrice) * item.quantity}
                       </span>
                     </div>
@@ -108,7 +108,7 @@ export const CartPage = ({ onOpenCheckout }) => {
           {/* Right: Summary & Checkout */}
           <div className="space-y-4">
             {/* Price Breakdown Card */}
-            <div className="bg-white p-6 rounded-3xl border border-[var(--border)]/15 shadow-sm space-y-4">
+            <div className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-[var(--border)]/15 shadow-sm space-y-4">
               <h4 className="text-xs font-black uppercase text-[var(--foreground)] tracking-wider border-b border-[var(--border)]/10 pb-2">
                 Order Summary
               </h4>

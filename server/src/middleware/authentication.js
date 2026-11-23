@@ -75,8 +75,8 @@ export function optionalAuth() {
       req.user = result.rows[0] || null;
       next();
     } catch (error) {
-      if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') return next();
-      next(error);
+      req.user = null;
+      return next();
     }
   };
 }

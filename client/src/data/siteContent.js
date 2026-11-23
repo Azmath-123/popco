@@ -54,7 +54,7 @@ export const POLICY_CONTENT = {
             },
             {
                 q: 'Do you offer bulk and wholesale orders for businesses?',
-                a: 'Yes! We supply bulk sacks (1kg, 5kg, and 10kg commercial grades) for cafes, caterers, dry fruit stores, and retailers. Click "Partner With Us" or message our WhatsApp team at +91 8080808447.'
+                a: 'Yes! We supply bulk sacks (1kg, 5kg, and 10kg commercial grades) for cafes, caterers, dry fruit stores, and retailers. Reach out via our wholesale inquiry or WhatsApp support directly.'
             }
         ]
     },

@@ -82,20 +82,20 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 items-start">
           {/* Left: Product Gallery */}
           <div className="space-y-4">
-            <div className="bg-white rounded-3xl border border-[var(--border)]/15 p-6 shadow-sm flex items-center justify-center min-h-[380px] sm:min-h-[460px] relative overflow-hidden group">
-              <img src={selectedImage} alt={product.name} className="max-h-[380px] w-auto object-contain transition-transform duration-500 group-hover:scale-105"/>
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-[var(--border)]/15 p-4 sm:p-6 shadow-sm flex items-center justify-center min-h-[280px] sm:min-h-[460px] relative overflow-hidden group">
+              <img src={selectedImage} alt={product.name} className="max-h-[260px] sm:max-h-[380px] w-auto object-contain transition-transform duration-500 group-hover:scale-105"/>
               <span className="absolute top-4 left-4 bg-[var(--secondary-foreground)] text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full shadow-xs">
                 {product.badge || (product.category === 'raw' ? 'Mithila 6+ Suta' : '100% Plant Protein')}
               </span>
             </div>
 
             {/* Thumbnail Row */}
-            {product.images && product.images.length > 1 && (<div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-                {product.images.map((img, idx) => (<button key={idx} onClick={() => setSelectedImage(img)} className={`w-20 h-20 bg-white rounded-xl border-2 p-1.5 transition-all cursor-pointer shrink-0 ${selectedImage === img
+            {product.images && product.images.length > 1 && (<div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 no-scrollbar">
+                {product.images.map((img, idx) => (<button key={idx} onClick={() => setSelectedImage(img)} className={`w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-xl border-2 p-1.5 transition-all cursor-pointer shrink-0 ${selectedImage === img
                     ? 'border-[var(--border)] ring-2 ring-[var(--primary)]/20 scale-105'
                     : 'border-[var(--border)]/15 opacity-70 hover:opacity-100'}`}>
                     <img src={img} alt={`${product.name} view ${idx + 1}`} className="w-full h-full object-contain"/>
@@ -103,41 +103,41 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
               </div>)}
 
             {/* Trust highlights below gallery */}
-            <div className="grid grid-cols-3 gap-3 pt-2">
-              <div className="p-3 bg-white rounded-xl border border-[var(--border)]/10 text-center space-y-1">
-                <Truck size={18} className="mx-auto text-[var(--foreground)]"/>
-                <h5 className="text-[10px] font-extrabold uppercase text-[var(--foreground)]">Fast Dispatch</h5>
-                <p className="text-[9px] text-[var(--foreground)]/60 font-sans">Shipped in 24 Hours</p>
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-2">
+              <div className="p-2 sm:p-3 bg-white rounded-xl border border-[var(--border)]/10 text-center space-y-1">
+                <Truck size={16} className="mx-auto text-[var(--foreground)]"/>
+                <h5 className="text-[9px] sm:text-[10px] font-extrabold uppercase text-[var(--foreground)] truncate">Fast Dispatch</h5>
+                <p className="text-[8px] sm:text-[9px] text-[var(--foreground)]/60 font-sans truncate">Shipped in 24h</p>
               </div>
 
-              <div className="p-3 bg-white rounded-xl border border-[var(--border)]/10 text-center space-y-1">
-                <ShieldCheck size={18} className="mx-auto text-[var(--foreground)]"/>
-                <h5 className="text-[10px] font-extrabold uppercase text-[var(--foreground)]">100% Purity</h5>
-                <p className="text-[9px] text-[var(--foreground)]/60 font-sans">Zero Preservatives</p>
+              <div className="p-2 sm:p-3 bg-white rounded-xl border border-[var(--border)]/10 text-center space-y-1">
+                <ShieldCheck size={16} className="mx-auto text-[var(--foreground)]"/>
+                <h5 className="text-[9px] sm:text-[10px] font-extrabold uppercase text-[var(--foreground)] truncate">100% Purity</h5>
+                <p className="text-[8px] sm:text-[9px] text-[var(--foreground)]/60 font-sans truncate">Zero Chemicals</p>
               </div>
 
-              <div className="p-3 bg-white rounded-xl border border-[var(--border)]/10 text-center space-y-1">
-                <RefreshCw size={18} className="mx-auto text-[var(--foreground)]"/>
-                <h5 className="text-[10px] font-extrabold uppercase text-[var(--foreground)]">Fresh Harvest</h5>
-                <p className="text-[9px] text-[var(--foreground)]/60 font-sans">Airtight Pouch Seal</p>
+              <div className="p-2 sm:p-3 bg-white rounded-xl border border-[var(--border)]/10 text-center space-y-1">
+                <RefreshCw size={16} className="mx-auto text-[var(--foreground)]"/>
+                <h5 className="text-[9px] sm:text-[10px] font-extrabold uppercase text-[var(--foreground)] truncate">Fresh Harvest</h5>
+                <p className="text-[8px] sm:text-[9px] text-[var(--foreground)]/60 font-sans truncate">Airtight Pouch</p>
               </div>
             </div>
           </div>
 
           {/* Right: Product Details & Purchase Actions */}
-          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[var(--border)]/15 shadow-sm space-y-6">
+          <div className="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-[var(--border)]/15 shadow-sm space-y-5 sm:space-y-6">
             <div>
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="flex items-center text-amber-500">
                   {[...Array(5)].map((_, i) => (<Star key={i} size={14} fill={i < product.rating ? 'currentColor' : 'none'} stroke={i < product.rating ? 'none' : 'currentColor'}/>))}
                 </div>
                 <span className="text-xs font-black text-[var(--foreground)]">{product.rating}.0</span>
-                <span className="text-xs text-[var(--foreground)]/50 font-bold">
+                <span className="text-[11px] sm:text-xs text-[var(--foreground)]/50 font-bold truncate">
                   ({product.reviewCount} Verified Reviews)
                 </span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl font-black uppercase text-[var(--foreground)] tracking-tight">
+              <h1 className="text-xl sm:text-3xl font-black uppercase text-[var(--foreground)] tracking-tight">
                 {product.name}
               </h1>
               <p className="text-xs font-bold text-[var(--secondary-foreground)] uppercase tracking-wider mt-0.5">
@@ -146,13 +146,13 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
             </div>
 
             {/* Price section */}
-            <div className="p-4 bg-[var(--background)] rounded-2xl border border-[var(--border)]/10 flex items-center justify-between">
+            <div className="p-3.5 sm:p-4 bg-[var(--background)] rounded-xl sm:rounded-2xl border border-[var(--border)]/10 flex items-center justify-between">
               <div>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-black text-[var(--foreground)]">
+                  <span className="text-2xl sm:text-3xl font-black text-[var(--foreground)]">
                     ₹{currentPrice}
                   </span>
-                  <span className="text-base text-[var(--foreground)]/40 line-through font-bold">
+                  <span className="text-sm sm:text-base text-[var(--foreground)]/40 line-through font-bold">
                     ₹{originalPackPrice}
                   </span>
                   <span className="bg-[var(--secondary-foreground)] text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
@@ -383,21 +383,21 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
         </div>
 
         {/* Related Products */}
-        {relatedProducts.length > 0 && (<div className="mt-16 space-y-6">
-            <h3 className="text-2xl font-black uppercase text-[var(--foreground)] tracking-tight text-center">
+        {relatedProducts.length > 0 && (<div className="mt-12 sm:mt-16 space-y-6">
+            <h3 className="text-xl sm:text-2xl font-black uppercase text-[var(--foreground)] tracking-tight text-center">
               You May Also Like
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {relatedProducts.map((rel) => (<Link key={rel.id} to={`/product/${rel.slug}`} className="group bg-white rounded-2xl border border-[var(--border)]/15 overflow-hidden p-4 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between">
-                  <div className="h-44 bg-[var(--background)] rounded-xl p-2 flex items-center justify-center overflow-hidden mb-3">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+              {relatedProducts.map((rel) => (<Link key={rel.id} to={`/product/${rel.slug}`} className="group bg-white rounded-xl sm:rounded-2xl border border-[var(--border)]/15 overflow-hidden p-3 sm:p-4 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between">
+                  <div className="h-32 sm:h-44 bg-[var(--background)] rounded-lg sm:rounded-xl p-2 flex items-center justify-center overflow-hidden mb-2.5 sm:mb-3">
                     <img src={rel.image} alt={rel.name} className="max-h-full object-contain group-hover:scale-105 transition-transform"/>
                   </div>
                   <div>
-                    <h4 className="text-xs font-black uppercase text-[var(--foreground)] group-hover:text-[var(--secondary-foreground)]">
+                    <h4 className="text-xs font-black uppercase text-[var(--foreground)] group-hover:text-[var(--secondary-foreground)] line-clamp-1 sm:line-clamp-2">
                       {rel.name}
                     </h4>
                     <p className="text-[10px] text-[var(--secondary-foreground)] font-bold mt-0.5">{rel.weight}</p>
-                    <span className="text-sm font-black text-[var(--foreground)] mt-2 block">
+                    <span className="text-xs sm:text-sm font-black text-[var(--foreground)] mt-2 block">
                       ₹{rel.numericPrice}
                     </span>
                   </div>

@@ -14,24 +14,19 @@ registerApiRoutes();
 app.disable('x-powered-by');
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", 'https://checkout.razorpay.com'],
-      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-      fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
-      imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", 'https://api.razorpay.com', 'https://lumberjack.razorpay.com'],
-      frameSrc: ["'self'", 'https://api.razorpay.com', 'https://checkout.razorpay.com', 'https://*.razorpay.com'],
-      formAction: ["'self'", 'https://api.razorpay.com', 'https://*.razorpay.com'],
-      objectSrc: ["'none'"],
-      baseUri: ["'self'"],
-      frameAncestors: ["'self'"],
-    },
-  },
+  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: false,
 }));
-const allowedOrigins = (process.env.APP_ORIGIN || 'http://localhost:5173').split(',').map((origin) => origin.trim());
-app.use(cors({ origin: (origin, callback) => callback(null, !origin || allowedOrigins.includes(origin)), credentials: true }));
+const corsOptions = {
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Cart-Token', 'X-Request-Id', 'Accept', 'Origin', 'X-Requested-With'],
+  exposedHeaders: ['X-Request-Id'],
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(cookieParser());
 app.use(`${v1}/webhooks/razorpay`, express.raw({ type: 'application/json', limit: '1mb' }));
 app.use(express.json({ limit: '1mb' }));
@@ -55,8 +50,16 @@ app.use((req, res) => {
 app.use((error, req, res, _next) => {
   const status = error.status || (error.code === '23505' ? 409 : 500);
   const code = error.code && typeof error.code === 'string' && error.code.length < 40 ? error.code : (status === 500 ? 'INTERNAL_SERVER_ERROR' : 'REQUEST_ERROR');
-  if (status >= 500) console.error(JSON.stringify({ requestId: req.requestId, code, message: error.message }));
-  res.status(status).json({ error: { code, message: status === 500 ? 'The server could not complete this request.' : error.message, request_id: req.requestId, ...(error.details ? { details: error.details } : {}) } });
+  if (status >= 500) console.error(JSON.stringify({ requestId: req.requestId, code, message: error.message, stack: error.stack }));
+  const isDev = process.env.NODE_ENV !== 'production';
+  res.status(status).json({ 
+    error: { 
+      code, 
+      message: (status === 500 && !isDev) ? 'The server could not complete this request.' : error.message, 
+      request_id: req.requestId, 
+      ...(error.details ? { details: error.details } : {}) 
+    } 
+  });
 });
 
 export default app;

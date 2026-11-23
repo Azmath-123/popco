@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Send, CheckCircle2, MessageCircle, AlertCircle } from 'lucide-react';
+import { X, Send, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useStore } from '../context/StoreContext';
+import { apiRequest } from '../lib/api';
 
 export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, onQuantityChange }) => {
   const { currentUser, showToast } = useStore();
@@ -44,23 +46,17 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
 
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/v1/bulk-quotes', {
+      await apiRequest('/bulk-quotes', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           name: cleanName,
           phone: cleanPhone,
           email: currentUser?.email || '',
           productName: selectedProduct?.name || 'Bulk Raw Makhana',
           quantityKg: finalQty,
           message: `Direct Bulk Quote Request: ${finalQty} KG of ${selectedProduct?.name || 'Wholesale Products'}`
-        })
+        }
       });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || 'Failed to submit bulk quote enquiry.');
-      }
 
       setIsSuccess(true);
       showToast('Enquiry received! Opening WhatsApp for instant quotation...', 'success');
@@ -85,7 +81,7 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
   };
 
   return (
-    <div className="fixed inset-0 z-60 overflow-y-auto flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-60 overflow-y-auto flex items-center justify-center p-2.5 sm:p-4">
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity" 
@@ -93,14 +89,14 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
         aria-hidden="true"
       />
 
-      {/* Modal Dialog (Matching Website Theme: PopCo Cream Background, Primary Maroon Header & Buttons) */}
-      <div className="relative bg-[var(--background)] text-[var(--foreground)] rounded-3xl w-full max-w-md shadow-2xl border border-[var(--border)]/40 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
+      {/* Modal Dialog */}
+      <div className="relative bg-[var(--background)] text-[var(--foreground)] rounded-2xl sm:rounded-3xl w-full max-w-md shadow-2xl border border-[var(--border)]/40 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
         
-        {/* Header Banner - PopCo Primary Maroon */}
-        <div className="bg-[var(--primary)] text-white p-6 relative">
+        {/* Header Banner */}
+        <div className="bg-[var(--primary)] text-white p-5 sm:p-6 relative">
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors cursor-pointer"
+            className="absolute top-4 right-4 sm:top-5 sm:right-5 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X size={18} />
@@ -108,21 +104,22 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
 
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-white/15 flex items-center justify-center text-white shadow-inner">
-              <MessageCircle size={22} />
+              <FaWhatsapp size={22} />
             </div>
             <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-widest text-white/80 bg-white/10 px-2 py-0.5 rounded inline-block mb-1">
-                DIRECT SUPPORT
+              <div className="text-[10px] font-extrabold uppercase tracking-widest text-white/80 flex items-center gap-1 mb-0.5">
+                <Sparkles size={11} />
+                <span>DIRECT MEERUT DISPATCH</span>
               </div>
-              <h3 className="text-lg font-black uppercase tracking-wider text-white">
-                BULK QUOTE
+              <h3 className="text-base sm:text-lg font-black uppercase tracking-wider text-white">
+                WHOLESALE QUOTE
               </h3>
             </div>
           </div>
         </div>
 
         {/* Modal Content */}
-        <div className="p-6 sm:p-7 space-y-4">
+        <div className="p-4 sm:p-7 space-y-4">
           {/* Selected Product & Quantity Summary Pill */}
           <div className="bg-white border border-[var(--border)]/40 rounded-2xl p-3.5 flex items-center justify-between text-xs shadow-xs">
             <div>
@@ -136,13 +133,13 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
           </div>
 
           {isSuccess ? (
-            <div className="py-8 text-center space-y-4">
-              <div className="w-16 h-16 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full flex items-center justify-center mx-auto shadow-inner">
-                <CheckCircle2 size={36} />
+            <div className="py-8 text-center space-y-3">
+              <div className="w-14 h-14 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <CheckCircle2 size={32} />
               </div>
-              <h4 className="text-lg font-extrabold text-[var(--foreground)]">Enquiry Sent Successfully!</h4>
+              <h4 className="text-base font-extrabold text-[var(--foreground)]">Enquiry Received!</h4>
               <p className="text-xs text-[var(--foreground)]/70 max-w-xs mx-auto leading-relaxed">
-                Our B2B dispatch team at PopCo Meerut has received your wholesale requirement. Launching WhatsApp for instant rate quotation...
+                Opening WhatsApp for direct rate quotation and dispatch timelines...
               </p>
             </div>
           ) : (
@@ -162,7 +159,7 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Your Name"
+                  placeholder="Your Name / Business Name"
                   required
                   className="w-full px-4 py-3 rounded-xl bg-white text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] text-sm font-semibold border border-[var(--border)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all shadow-xs"
                 />
@@ -176,7 +173,7 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="10 Digit Mobile Number"
+                  placeholder="10-digit WhatsApp Number"
                   maxLength={12}
                   required
                   className="w-full px-4 py-3 rounded-xl bg-white text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] text-sm font-semibold border border-[var(--border)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all shadow-xs"
@@ -200,8 +197,8 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
                   required
                   className="w-full px-4 py-3 rounded-xl bg-white text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] text-sm font-bold border border-[var(--border)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all shadow-xs"
                 />
-                <p className="text-[10px] text-[var(--foreground)]/60 mt-1">
-                  Minimum order: 50 KG • Supplied in 50 KG master sacks
+                <p className="text-[10px] text-[var(--foreground)]/50 mt-1 font-medium">
+                  Min 50 KG • Supplied in airtight 50 KG master sacks
                 </p>
               </div>
 
@@ -209,21 +206,21 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3.5 px-6 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary)]/90 active:scale-[0.98] text-white font-black uppercase tracking-widest text-xs shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 px-6 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary)]/90 active:scale-[0.98] text-white font-black uppercase tracking-widest text-xs shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (
-                    <span>SENDING ENQUIRY...</span>
+                    <span>PROCESSING...</span>
                   ) : (
                     <>
-                      <span>SEND ENQUIRY</span>
-                      <Send size={14} />
+                      <FaWhatsapp size={16} />
+                      <span>GET QUOTE ON WHATSAPP</span>
                     </>
                   )}
                 </button>
               </div>
 
-              <p className="text-[10px] text-center text-[var(--foreground)]/60 tracking-wider">
-                🔒 100% Direct Factory Inquiry • No Spam • Pan-India Logistics
+              <p className="text-[10px] text-center text-[var(--foreground)]/50 font-medium">
+                ⚡ Direct factory quotation • Fast dispatch across India
               </p>
             </form>
           )}

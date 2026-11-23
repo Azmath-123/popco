@@ -8,8 +8,14 @@ export default defineConfig({
     hmr: process.env.DISABLE_HMR !== 'true',
     watch: process.env.DISABLE_HMR === 'true' ? null : {},
     proxy: {
-      '/api': 'http://localhost:4000',
-      '/health': 'http://localhost:4000',
+      '/api': {
+        target: 'http://127.0.0.1:4000',
+        changeOrigin: true,
+      },
+      '/health': {
+        target: 'http://127.0.0.1:4000',
+        changeOrigin: true,
+      },
     },
   },
 });

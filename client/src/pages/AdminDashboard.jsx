@@ -140,7 +140,7 @@ export const AdminDashboard = () => {
     return (<div className="flex-1 bg-[var(--background)] py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Top Header Bar */}
-        <div className="bg-[var(--primary)] text-white p-6 rounded-3xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-[var(--primary)] text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[10px] font-black uppercase tracking-widest bg-white/10 px-2.5 py-0.5 rounded text-white flex items-center gap-1">
@@ -151,17 +151,17 @@ export const AdminDashboard = () => {
                 PopCo Makhana • Meerut
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[var(--background)]">
+            <h1 className="text-xl sm:text-3xl font-black uppercase tracking-tight text-[var(--background)]">
               Store & Operations Dashboard
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Link to="/" className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all">
-              ← Back to Storefront
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            <Link to="/" className="px-3.5 sm:px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all">
+              ← Storefront
             </Link>
 
-            <button onClick={resetProducts} className="px-4 py-2 bg-[var(--secondary-foreground)] hover:bg-[var(--secondary-foreground)]/90 text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-sm" title="Reset catalog to authentic default items">
+            <button onClick={resetProducts} className="px-3.5 sm:px-4 py-2 bg-[var(--secondary-foreground)] hover:bg-[var(--secondary-foreground)]/90 text-white rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-sm cursor-pointer" title="Reset catalog to authentic default items">
               <RotateCcw size={13}/>
               <span>Reset Catalog</span>
             </button>

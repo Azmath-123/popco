@@ -31,7 +31,7 @@ export const AuthModal = () => {
             <X size={20}/>
           </button>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-[10px] tracking-widest text-[var(--secondary-foreground)] font-extrabold uppercase bg-white/10 px-2 py-0.5 rounded">
+            <span className="text-[10px] tracking-widest text-white font-extrabold uppercase bg-white/20 border border-white/20 px-2.5 py-0.5 rounded-full shadow-xs">
               POPCO ACCOUNT
             </span>
           </div>

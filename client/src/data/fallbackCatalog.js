@@ -1,6 +1,6 @@
 export const INITIAL_PRODUCTS = [
     {
-        "id": 2,
+        "id": "640b3d58-d33d-4f05-afe9-4a24ed891e15",
         "slug": "mukeja-makhana-200g",
         "name": "Premium Raw Makhana",
         "price": "₹399",
@@ -68,7 +68,7 @@ export const INITIAL_PRODUCTS = [
         "isFeatured": true
     },
     {
-        "id": 11,
+        "id": "42ccdcef-13a6-4c4f-8cc3-c602ae868ccd",
         "slug": "popco-roasted-salted-edamame-beans-150g",
         "name": "Roasted and Salted Edamame Beans",
         "price": "₹299",

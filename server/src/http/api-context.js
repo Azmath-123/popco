@@ -211,11 +211,24 @@ async function getStoreSettings(query = pool) {
 
 async function getCart(query, token, customerId = null) {
   if (!token || token.length < 20 || token.length > 100) return { items: [], subtotal: 0, comboDiscount: 0 };
-  const cartResult = await query.query(
-    `INSERT INTO carts (cart_token, customer_id) VALUES ($1, $2)
-     ON CONFLICT (cart_token) DO UPDATE SET customer_id = COALESCE(EXCLUDED.customer_id, carts.customer_id), updated_at = NOW()
-     RETURNING id`, [token, customerId],
-  );
+  let cartResult;
+  try {
+    cartResult = await query.query(
+      `INSERT INTO carts (cart_token, customer_id) VALUES ($1, $2)
+       ON CONFLICT (cart_token) DO UPDATE SET customer_id = COALESCE(EXCLUDED.customer_id, carts.customer_id), updated_at = NOW()
+       RETURNING id`, [token, customerId],
+    );
+  } catch (err) {
+    if (err.code === '23503' && customerId) {
+      cartResult = await query.query(
+        `INSERT INTO carts (cart_token, customer_id) VALUES ($1, NULL)
+         ON CONFLICT (cart_token) DO UPDATE SET updated_at = NOW()
+         RETURNING id`, [token],
+      );
+    } else {
+      throw err;
+    }
+  }
   const rows = await query.query(
     `SELECT ci.id AS cart_item_id, ci.product_id, ci.pack_count, ci.pack_label, ci.quantity, p.*
      FROM cart_items ci JOIN products p ON p.id = ci.product_id
@@ -251,12 +264,24 @@ async function getCart(query, token, customerId = null) {
 
 async function getOrCreateCartId(query, token, customerId = null) {
   if (!token || token.length < 20 || token.length > 100) fail(400, 'CART_TOKEN_REQUIRED', 'A valid cart token is required.');
-  const result = await query.query(
-    `INSERT INTO carts (cart_token, customer_id) VALUES ($1, $2)
-     ON CONFLICT (cart_token) DO UPDATE SET customer_id = COALESCE(EXCLUDED.customer_id, carts.customer_id), updated_at = NOW()
-     RETURNING id`, [token, customerId],
-  );
-  return result.rows[0].id;
+  try {
+    const result = await query.query(
+      `INSERT INTO carts (cart_token, customer_id) VALUES ($1, $2)
+       ON CONFLICT (cart_token) DO UPDATE SET customer_id = COALESCE(EXCLUDED.customer_id, carts.customer_id), updated_at = NOW()
+       RETURNING id`, [token, customerId],
+    );
+    return result.rows[0].id;
+  } catch (err) {
+    if (err.code === '23503' && customerId) {
+      const retryResult = await query.query(
+        `INSERT INTO carts (cart_token, customer_id) VALUES ($1, NULL)
+         ON CONFLICT (cart_token) DO UPDATE SET updated_at = NOW()
+         RETURNING id`, [token],
+      );
+      return retryResult.rows[0].id;
+    }
+    throw err;
+  }
 }
 
 function getRazorpay() {

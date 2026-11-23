@@ -13,7 +13,7 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) throw new Err
 await runMigrations();
 await seedDefaults();
 
-const server = app.listen(port, () => {
+const server = app.listen(port, '0.0.0.0', () => {
   console.log(`PopCo API listening on http://localhost:${port}`);
   if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) console.warn('ADMIN_EMAIL and ADMIN_PASSWORD are unset; no initial admin account was created.');
 });

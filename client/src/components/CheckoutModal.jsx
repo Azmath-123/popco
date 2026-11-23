@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { X, CheckCircle2, ShieldCheck, CreditCard, Banknote, ArrowRight, MessageCircle } from 'lucide-react';
+import { X, CheckCircle2, ShieldCheck, CreditCard, Banknote, ArrowRight } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import confetti from 'canvas-confetti';
 import { useNavigate } from 'react-router-dom';
 
@@ -101,10 +102,10 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
     const handlePrintInvoice = () => {
         window.print();
     };
-    return (<div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-[var(--background)] rounded-2xl shadow-2xl max-w-2xl w-full border border-[var(--border)]/20 overflow-hidden relative max-h-[90vh] flex flex-col">
+    return (<div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4">
+      <div className="bg-[var(--background)] rounded-2xl shadow-2xl max-w-2xl w-full border border-[var(--border)]/20 overflow-hidden relative max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="p-5 bg-white border-b border-[var(--border)]/15 flex items-center justify-between">
+        <div className="p-4 sm:p-5 bg-white border-b border-[var(--border)]/15 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShieldCheck size={22} className="text-[var(--foreground)]"/>
             <h2 className="text-base sm:text-lg font-extrabold uppercase tracking-wider text-[var(--foreground)]">
@@ -164,7 +165,7 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
                 <a href={`https://wa.me/918080808447?text=Hi%20PopCo%2C%20I%20placed%20order%20${confirmedOrder.orderNumber}.%20Please%20send%20tracking%20updates!`} target="_blank" rel="noopener noreferrer" className="px-6 py-3 rounded-full bg-[var(--primary)] text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[var(--primary)]/90 shadow-md transition-all">
-                  <MessageCircle size={15}/>
+                  <FaWhatsapp size={16}/>
                   <span>Get WhatsApp Updates</span>
                 </a>
                 <button onClick={() => {
@@ -216,7 +217,7 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
                     </label>
                     <input type="text" required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g. Flat 402, Lotus Residency, Near City Centre" className="w-full px-3 py-2 text-xs bg-white border border-[var(--border)]/20 rounded-lg focus:outline-none focus:border-[var(--border)] font-bold"/>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
                     <div>
                       <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">
                         City *

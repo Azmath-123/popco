@@ -1,4 +1,5 @@
-const apiBase = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+const rawBase = import.meta.env.VITE_API_BASE_URL || 'https://pop-co-backend.onrender.com';
+const apiBase = rawBase.endsWith('/api/v1') ? rawBase : `${rawBase.replace(/\/$/, '')}/api/v1`;
 const cartTokenKey = 'mukeja_cart_token_v1';
 
 export function getCartToken() {

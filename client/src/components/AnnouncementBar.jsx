@@ -1,6 +1,7 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { ShieldCheck, Sparkles, MessageCircle } from 'lucide-react';
+import { ShieldCheck, Sparkles } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 export const AnnouncementBar = () => {
     const { settings, currentUser } = useStore();
@@ -16,8 +17,8 @@ export const AnnouncementBar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-4 text-white/80">
-          <a href={`https://wa.me/${settings.whatsappNumber}?text=Hi%20PopCo%2C%20I%20have%20an%20enquiry`} target="_blank" rel="noopener noreferrer" className="hover:text-white flex items-center gap-1 transition-colors">
-            <MessageCircle size={13}/>
+          <a href={`https://wa.me/${settings.whatsappNumber}?text=Hi%20PopCo%2C%20I%20have%20an%20enquiry`} target="_blank" rel="noopener noreferrer" className="hover:text-white flex items-center gap-1.5 transition-colors">
+            <FaWhatsapp size={14}/>
             <span>Support</span>
           </a>
           {currentUser && (currentUser.role === 'super_admin' || currentUser.role === 'admin') && (

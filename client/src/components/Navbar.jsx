@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
+import { FaWhatsapp } from 'react-icons/fa';
 import { 
   ShoppingBag, 
   User as UserIcon, 
@@ -119,15 +120,8 @@ export const Navbar = () => {
     };
 
     const handleAboutClick = (e) => {
-        if (location.pathname === '/') {
-            e.preventDefault();
-            const aboutEl = document.getElementById('about');
-            if (aboutEl) {
-                aboutEl.scrollIntoView({ behavior: 'smooth' });
-            }
-        } else {
-            navigate('/#about');
-        }
+        if (e && e.preventDefault) e.preventDefault();
+        navigate('/about');
         setMobileMenuOpen(false);
     };
 
@@ -313,10 +307,10 @@ export const Navbar = () => {
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--primary)] transition-all group-hover:w-full"></span>
             </button>
 
-            <a href="/#about" onClick={handleAboutClick} className="hover:text-[var(--foreground)] transition-colors py-1 relative group cursor-pointer">
+            <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="hover:text-[var(--foreground)] transition-colors py-1 relative group cursor-pointer">
               About POP CO
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--primary)] transition-all group-hover:w-full"></span>
-            </a>
+            </Link>
 
             <a 
               href="https://wa.me/918080808447?text=Hello%20PopCo%2C%20I%20am%20interested%20in%20partnering%20with%20you" 
@@ -518,9 +512,9 @@ export const Navbar = () => {
                 </span>
               </button>
 
-              <a href="/#about" onClick={handleAboutClick} className="py-2 border-b border-[var(--border)]/10 hover:text-[var(--secondary-foreground)]">
+              <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-[var(--border)]/10 hover:text-[var(--secondary-foreground)]">
                 About POP CO
-              </a>
+              </Link>
 
               <Link to="/cart" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-[var(--border)]/10 flex items-center justify-between">
                 <span>Cart ({cartCount})</span>
@@ -550,9 +544,10 @@ export const Navbar = () => {
               href="https://wa.me/918080808447?text=Hello%20PopCo%2C%20I%20am%20interested%20in%20partnering%20with%20you" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="w-full block text-center py-3 rounded-full bg-[var(--primary)] text-white text-xs font-bold uppercase tracking-widest shadow-md"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[var(--primary)] text-white text-xs font-bold uppercase tracking-widest shadow-md"
             >
-              Partner With Us (WhatsApp)
+              <FaWhatsapp size={15} />
+              <span>Partner With Us (WhatsApp)</span>
             </a>
           </div>
         )}

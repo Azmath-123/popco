@@ -1,34 +1,59 @@
 import React, { useState } from 'react';
-import { X, Minus, Plus, MessageCircle, Truck, ShieldCheck, FileText, Package, Check } from 'lucide-react';
+import { 
+  X, 
+  Minus, 
+  Plus, 
+  Truck, 
+  ShieldCheck, 
+  FileText, 
+  Package, 
+  Check, 
+  Sparkles, 
+  Sun, 
+  Award, 
+  Zap, 
+  Leaf 
+} from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useStore } from '../context/StoreContext';
 import { BulkQuoteModal } from './BulkQuoteModal';
 
 const WHOLESALE_PRODUCTS = [
   {
     id: 'bulk-makhana',
-    name: 'Bulk Raw Makhana',
+    name: 'Raw Makhana',
+    shortName: 'Raw Makhana',
     subtitle: 'Direct Meerut Dispatch • Premium Jumbo Grade',
-    description: 'Premium double-screened makhana kernels. Screened for large size, minimal moisture, and superior expansion ratio. Packaged in airtight bulk sacks for wholesale, retail re-packing, and snack processing.',
     images: [
       '/products/popco-raw-makhana-200g-lifestyle-01.webp',
+      '/products/popco-raw-makhana-200g-front.webp',
       '/products/popco-raw-makhana-200g-lifestyle-02.webp',
       '/products/popco-raw-makhana-200g-lifestyle-03.webp',
-      '/products/popco-raw-makhana-200g-front.webp',
     ],
-    highlights: ['100% Sun-Dried Natural', 'Meerut Quality Checked', 'High Expansion Ratio', 'Zero Additives']
+    features: [
+      { icon: Sun, label: '100% Sun-Dried Natural' },
+      { icon: Award, label: 'Direct Meerut Origin' },
+      { icon: Sparkles, label: 'Jumbo 6+ Suta Kernels' },
+      { icon: ShieldCheck, label: 'Zero Additives or Bleach' }
+    ]
   },
   {
     id: 'bulk-edamame',
-    name: 'Bulk Roasted & Salted Edamame Beans',
+    name: 'Roasted Edamame',
+    shortName: 'Roasted Edamame',
     subtitle: 'High Protein • Crunchy Roasted Soy Snack',
-    description: 'Crisp, golden-roasted green edamame beans lightly seasoned with pure sea salt. Packed with 46% plant protein and 14% dietary fiber. Ideal for private labeling, healthy snack mixes, and institutional catering.',
     images: [
       '/products/popco-roasted-edamame-150g-lifestyle-04.jpg',
+      '/products/popco-roasted-edamame-150g-front.jpg',
       '/products/popco-roasted-edamame-150g-lifestyle-01.jpg',
       '/products/popco-roasted-edamame-150g-lifestyle-02.jpg',
-      '/products/popco-roasted-edamame-150g-front.jpg',
     ],
-    highlights: ['46% Plant-Based Protein', 'Roasted Not Fried', 'Gluten-Free & Vegan', 'Long Shelf Life']
+    features: [
+      { icon: Zap, label: '46% Plant-Based Protein' },
+      { icon: Sun, label: 'Slow Hot-Air Roasted' },
+      { icon: Leaf, label: 'Gluten-Free & 100% Vegan' },
+      { icon: ShieldCheck, label: 'Pure Sea Salt Seasoning' }
+    ]
   }
 ];
 
@@ -68,132 +93,137 @@ export const WholesaleBulkModal = () => {
         />
 
         {/* Modal Window Container */}
-        <div className="min-h-screen px-4 py-6 sm:py-10 flex items-center justify-center">
-          <div className="relative w-full max-w-5xl bg-[var(--background)] rounded-3xl shadow-2xl border border-[var(--border)]/40 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
+        <div className="min-h-screen px-2.5 sm:px-4 py-4 sm:py-10 flex items-center justify-center">
+          <div className="relative w-full max-w-5xl bg-[var(--background)] rounded-2xl sm:rounded-3xl shadow-2xl border border-[var(--border)]/40 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
             
             {/* Top Close Button */}
             <button
               onClick={() => setIsBulkOrderOpen(false)}
-              className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 p-2.5 rounded-full bg-white hover:bg-[var(--primary)]/10 text-[var(--foreground)] transition-colors shadow-sm cursor-pointer border border-[var(--border)]/20"
+              className="absolute top-3 right-3 sm:top-6 sm:right-6 z-20 p-2 sm:p-2.5 rounded-full bg-white hover:bg-[var(--primary)]/10 text-[var(--foreground)] transition-colors shadow-sm cursor-pointer border border-[var(--border)]/20"
               aria-label="Close wholesale modal"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
 
             {/* Modal Body: Two Columns */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 p-6 sm:p-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 p-4 sm:p-10">
               
-              {/* Left Column: Product Gallery */}
-              <div className="lg:col-span-6 flex flex-col sm:flex-row gap-4">
-                {/* Thumbnails list */}
-                <div className="flex sm:flex-col gap-2.5 order-2 sm:order-1 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 shrink-0">
+              {/* Left Column: Product Gallery (Spacious, uncropped, free image presentation) */}
+              <div className="lg:col-span-6 flex flex-col justify-between space-y-3 sm:space-y-4">
+                
+                {/* Main Hero Image Frame */}
+                <div className="relative w-full bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 flex items-center justify-center border border-[var(--border)]/30 shadow-xs min-h-[220px] sm:min-h-[380px] overflow-hidden">
+                  <img
+                    src={activeImage}
+                    alt={currentProduct.name}
+                    className="w-full h-full max-h-[240px] sm:max-h-[340px] object-contain transition-all duration-300 drop-shadow-sm hover:scale-102"
+                  />
+                  
+                  {/* Subtle Factory Badge */}
+                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-[var(--primary)] text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-2.5 sm:px-3 py-1 rounded-full shadow-xs flex items-center gap-1.5">
+                    <Package size={11} />
+                    <span>WHOLESALE • B2B DISPATCH</span>
+                  </div>
+                </div>
+
+                {/* Horizontal Thumbnails Row (Clean, centered, not crowding the main image) */}
+                <div className="flex items-center justify-center gap-2 sm:gap-2.5 pt-1 overflow-x-auto pb-1">
                   {currentProduct.images.map((img, idx) => (
                     <button
                       key={img}
                       onClick={() => setSelectedImageIndex(idx)}
-                      className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
+                      className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl overflow-hidden p-1 bg-white border-2 transition-all cursor-pointer shrink-0 ${
                         selectedImageIndex === idx
-                          ? 'border-[var(--primary)] ring-2 ring-[var(--primary)]/30 shadow-md scale-102'
-                          : 'border-[var(--border)]/30 opacity-70 hover:opacity-100 hover:border-[var(--primary)]/50'
+                          ? 'border-[var(--primary)] ring-2 ring-[var(--primary)]/30 shadow-sm scale-105'
+                          : 'border-[var(--border)]/40 opacity-70 hover:opacity-100 hover:border-[var(--primary)]/50'
                       }`}
                     >
                       <img
                         src={img}
-                        alt={`${currentProduct.name} thumbnail ${idx + 1}`}
-                        className="w-full h-full object-cover"
+                        alt={`${currentProduct.name} preview ${idx + 1}`}
+                        className="w-full h-full object-contain"
                       />
                     </button>
                   ))}
                 </div>
-
-                {/* Main Hero Image */}
-                <div className="relative flex-1 rounded-3xl overflow-hidden bg-white border border-[var(--border)]/30 shadow-inner order-1 sm:order-2 aspect-4/3 sm:aspect-square flex items-center justify-center">
-                  <img
-                    src={activeImage}
-                    alt={currentProduct.name}
-                    className="w-full h-full object-cover transition-all duration-300"
-                  />
-                  <div className="absolute top-4 left-4 bg-[var(--primary)] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-md">
-                    WHOLESALE • B2B DISPATCH
-                  </div>
-                </div>
               </div>
 
-              {/* Right Column: Wholesale Specifications & Action */}
-              <div className="lg:col-span-6 flex flex-col justify-between space-y-6">
+              {/* Right Column: Clean, Modern Information & Action */}
+              <div className="lg:col-span-6 flex flex-col justify-between space-y-5">
                 
                 {/* Title & Product Switcher */}
                 <div>
-                  <div className="inline-flex items-center gap-2 mb-2">
-                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-[var(--primary)] bg-[var(--primary)]/10 px-3 py-1 rounded-full border border-[var(--primary)]/20">
-                      FACTORY WHOLESALE ORDER
-                    </span>
+                  <div className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[var(--primary)] bg-[var(--primary)]/10 px-3 py-1 rounded-full border border-[var(--primary)]/20">
+                    <Sparkles size={12} />
+                    <span>FACTORY WHOLESALE ORDER</span>
                   </div>
 
-                  <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[var(--foreground)] leading-tight">
-                    {currentProduct.name} <span className="text-[var(--primary)]">(BULK)</span>
+                  <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[var(--foreground)] mt-2">
+                    {currentProduct.name} <span className="text-[var(--primary)] font-bold">(BULK)</span>
                   </h2>
-                  <p className="text-xs sm:text-sm text-[var(--foreground)]/70 font-medium mt-1">
+                  <p className="text-xs sm:text-sm text-[var(--foreground)]/70 font-medium mt-0.5">
                     {currentProduct.subtitle}
                   </p>
 
-                  {/* Clean 2-Product Toggle (Strictly 2 products, no Suta / sub-categories) */}
-                  <div className="mt-5">
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--foreground)]/60 mb-2">
-                      SELECT WHOLESALE PRODUCT
-                    </label>
-                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                  {/* Clean 2-Product Segmented Toggle */}
+                  <div className="mt-4">
+                    <div className="grid grid-cols-2 gap-2 p-1 bg-[var(--primary)]/5 rounded-2xl border border-[var(--border)]/30">
                       {WHOLESALE_PRODUCTS.map((prod, idx) => (
                         <button
                           key={prod.id}
                           onClick={() => handleProductSelect(idx)}
-                          className={`p-3 rounded-2xl text-left font-bold text-xs sm:text-sm transition-all border cursor-pointer flex items-center justify-between ${
+                          className={`py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all border-0 cursor-pointer flex items-center justify-center gap-2 ${
                             selectedProductIndex === idx
-                              ? 'bg-[var(--primary)] text-white border-[var(--primary)] shadow-md'
-                              : 'bg-white text-[var(--foreground)]/80 border-[var(--border)]/40 hover:border-[var(--primary)]/40 hover:bg-[var(--primary)]/5'
+                              ? 'bg-[var(--primary)] text-white shadow-sm'
+                              : 'text-[var(--foreground)]/70 hover:text-[var(--foreground)] hover:bg-white/60'
                           }`}
                         >
-                          <span className="truncate">{prod.name.replace('Bulk ', '')}</span>
-                          {selectedProductIndex === idx && <Check size={16} className="text-white shrink-0 ml-1" />}
+                          <span>{prod.shortName}</span>
+                          {selectedProductIndex === idx && <Check size={16} className="text-white shrink-0" />}
                         </button>
                       ))}
                     </div>
                   </div>
                 </div>
 
-                {/* Product Highlights */}
-                <div className="bg-white rounded-2xl p-4 border border-[var(--border)]/30 shadow-xs">
-                  <p className="text-xs text-[var(--foreground)]/80 leading-relaxed mb-3">
-                    {currentProduct.description}
-                  </p>
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--border)]/20">
-                    {currentProduct.highlights.map((h) => (
-                      <div key={h} className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--foreground)]/80">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
-                        <span>{h}</span>
+                {/* Feature Cards Grid (Clean Icons, No Dense Text Paragraphs) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
+                  {currentProduct.features.map((feat) => {
+                    const FeatIcon = feat.icon;
+                    return (
+                      <div 
+                        key={feat.label} 
+                        className="flex items-center gap-2 sm:gap-2.5 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-white border border-[var(--border)]/30 shadow-xs"
+                      >
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center shrink-0">
+                          <FeatIcon size={15} />
+                        </div>
+                        <span className="text-[11px] sm:text-xs font-bold text-[var(--foreground)]/80 leading-snug">
+                          {feat.label}
+                        </span>
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
 
                 {/* Quantity Stepper (Min 50 KG, Adjustments of 50 KG) */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[var(--foreground)]/60">
+                <div className="bg-white rounded-2xl p-4 border border-[var(--border)]/30 shadow-xs">
+                  <div className="flex items-center justify-between mb-2.5">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[var(--foreground)]/60">
                       ORDER QUANTITY (KG)
-                    </label>
+                    </span>
                     <span className="text-[10px] font-bold text-[var(--primary)] uppercase tracking-wider">
                       Min 50 KG • 50 KG Steps
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-4 bg-white border-2 border-[var(--border)]/40 rounded-2xl p-2 shadow-xs">
+                  <div className="flex items-center justify-between gap-3">
                     {/* Decrement Button */}
                     <button
                       type="button"
                       onClick={handleDecrement}
                       disabled={quantityKg <= 50}
-                      className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 hover:bg-[var(--primary)] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-[var(--primary)] transition-all cursor-pointer font-bold"
+                      className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 hover:bg-[var(--primary)] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-[var(--primary)] transition-all cursor-pointer font-bold shrink-0"
                       title={quantityKg <= 50 ? 'Minimum wholesale order is 50 KG' : 'Decrease by 50 KG'}
                       aria-label="Decrease quantity"
                     >
@@ -208,7 +238,7 @@ export const WholesaleBulkModal = () => {
                       <span className="text-sm font-extrabold text-[var(--primary)] ml-1.5 uppercase">
                         KG
                       </span>
-                      <p className="text-[10px] font-semibold text-[var(--foreground)]/50">
+                      <p className="text-[10px] font-semibold text-[var(--foreground)]/50 mt-0.5">
                         ({Math.round(quantityKg / 50)} × 50 KG Master Sacks)
                       </p>
                     </div>
@@ -217,7 +247,7 @@ export const WholesaleBulkModal = () => {
                     <button
                       type="button"
                       onClick={handleIncrement}
-                      className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 hover:bg-[var(--primary)] hover:text-white flex items-center justify-center text-[var(--primary)] transition-all cursor-pointer active:scale-95 font-bold"
+                      className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 hover:bg-[var(--primary)] hover:text-white flex items-center justify-center text-[var(--primary)] transition-all cursor-pointer active:scale-95 font-bold shrink-0"
                       title="Increase by 50 KG"
                       aria-label="Increase quantity"
                     >
@@ -231,33 +261,33 @@ export const WholesaleBulkModal = () => {
                   <button
                     type="button"
                     onClick={() => setIsQuoteModalOpen(true)}
-                    className="w-full py-4 px-6 rounded-2xl bg-[var(--primary)] hover:bg-[var(--primary)]/90 active:scale-[0.99] text-white font-black uppercase tracking-widest text-sm shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 cursor-pointer group"
+                    className="w-full py-4 px-6 rounded-2xl bg-[var(--primary)] hover:bg-[var(--primary)]/90 active:scale-[0.99] text-white font-black uppercase tracking-widest text-sm shadow-md hover:shadow-xl transition-all flex items-center justify-center gap-2.5 cursor-pointer group"
                   >
-                    <MessageCircle size={20} className="text-white group-hover:scale-110 transition-transform" />
-                    <span>GET QUOTE</span>
+                    <FaWhatsapp size={20} className="text-white group-hover:scale-110 transition-transform" />
+                    <span>GET INSTANT QUOTE</span>
                   </button>
                   <p className="text-[10px] text-center text-[var(--foreground)]/50 mt-2 font-medium">
-                    ⚡ Instant quotation & dispatch timelines via WhatsApp & Email
+                    ⚡ Instant wholesale rates & dispatch timeline via WhatsApp
                   </p>
                 </div>
 
-                {/* Trust & Logistics Footer Points (Matching Reference) */}
-                <div className="space-y-2.5 pt-4 border-t border-[var(--border)]/30 text-[11px] text-[var(--foreground)]/70 font-medium">
-                  <div className="flex items-center gap-2.5">
-                    <Truck size={16} className="text-[var(--primary)] shrink-0" />
-                    <span>Pan-India Bulk Delivery via Reliable Road Logistics</span>
+                {/* Trust & Logistics Compact Badges */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-[var(--border)]/30 text-center">
+                  <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-white/60 border border-[var(--border)]/20">
+                    <Truck size={17} className="text-[var(--primary)]" />
+                    <span className="text-[10px] font-bold text-[var(--foreground)]/70">Pan-India</span>
                   </div>
-                  <div className="flex items-center gap-2.5">
-                    <ShieldCheck size={16} className="text-[var(--primary)] shrink-0" />
-                    <span>Direct Factory & Mandi Dispatch from Meerut</span>
+                  <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-white/60 border border-[var(--border)]/20">
+                    <ShieldCheck size={17} className="text-[var(--primary)]" />
+                    <span className="text-[10px] font-bold text-[var(--foreground)]/70">Meerut Mandi</span>
                   </div>
-                  <div className="flex items-center gap-2.5">
-                    <FileText size={16} className="text-[var(--primary)] shrink-0" />
-                    <span>FSSAI Certified, Lab Reports & GST Tax Invoicing Provided</span>
+                  <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-white/60 border border-[var(--border)]/20">
+                    <FileText size={17} className="text-[var(--primary)]" />
+                    <span className="text-[10px] font-bold text-[var(--foreground)]/70">GST & FSSAI</span>
                   </div>
-                  <div className="flex items-center gap-2.5">
-                    <Package size={16} className="text-[var(--primary)] shrink-0" />
-                    <span>Supplied in Heavy-Duty Airtight 50 KG Moisture-Barrier Sacks</span>
+                  <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-white/60 border border-[var(--border)]/20">
+                    <Package size={17} className="text-[var(--primary)]" />
+                    <span className="text-[10px] font-bold text-[var(--foreground)]/70">50KG Sacks</span>
                   </div>
                 </div>
 
