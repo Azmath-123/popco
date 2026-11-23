@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { X, CheckCircle2, ShieldCheck, CreditCard, Banknote, ArrowRight } from 'lucide-react';
+import { X, CheckCircle2, ShieldCheck, CreditCard, Banknote, ArrowRight, AlertCircle } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import confetti from 'canvas-confetti';
 import { useNavigate } from 'react-router-dom';
+import { PhoneInput } from './PhoneInput';
+import { validateEmail, validatePhone, validateName, validatePincode, formatFullPhone } from '../lib/validation';
 
 const loadRazorpay = () => new Promise((resolve, reject) => {
     if (window.Razorpay) return resolve(window.Razorpay);
@@ -27,6 +29,7 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
     const [name, setName] = useState(currentUser?.name || '');
     const [email, setEmail] = useState(currentUser?.email || '');
     const [phone, setPhone] = useState(currentUser?.phone || '');
+    const [countryCode, setCountryCode] = useState('+91');
     const [address, setAddress] = useState(defaultAddr?.addressLine1 || '');
     const [city, setCity] = useState(defaultAddr?.city || 'Patna');
     const [state, setState] = useState(defaultAddr?.state || 'Uttar Pradesh');
@@ -34,6 +37,8 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
     const [paymentMethod, setPaymentMethod] = useState('razorpay');
     const [isProcessing, setIsProcessing] = useState(false);
     const [confirmedOrder, setConfirmedOrder] = useState(null);
+    const [formError, setFormError] = useState('');
+
     if (!isOpen)
         return null;
     const celebrate = () => {
@@ -43,21 +48,67 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
     };
     const handleStartPayment = async (e) => {
         e.preventDefault();
-        if (!name || !phone || !address || !pincode) {
-            showToast('Please fill in all mandatory delivery fields.', 'error');
+        setFormError('');
+
+        if (!validateName(name)) {
+            const msg = 'Please enter your full name (at least 2 characters).';
+            setFormError(msg);
+            showToast(msg, 'error');
             return;
         }
+
+        if (!validatePhone(phone, countryCode)) {
+            const msg = countryCode === '+91'
+                ? 'Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.'
+                : 'Please enter a valid phone number (7 to 15 digits).';
+            setFormError(msg);
+            showToast(msg, 'error');
+            return;
+        }
+
+        if (email && !validateEmail(email)) {
+            const msg = 'Please enter a valid email address (e.g. name@example.com).';
+            setFormError(msg);
+            showToast(msg, 'error');
+            return;
+        }
+
+        if (!address || address.trim().length < 4) {
+            const msg = 'Please enter a valid street address (at least 4 characters).';
+            setFormError(msg);
+            showToast(msg, 'error');
+            return;
+        }
+
+        if (!city || city.trim().length < 2) {
+            const msg = 'Please enter a valid city name.';
+            setFormError(msg);
+            showToast(msg, 'error');
+            return;
+        }
+
+        if (!pincode || !validatePincode(pincode, countryCode)) {
+            const msg = countryCode === '+91'
+                ? 'Please enter a valid 6-digit Indian PIN code.'
+                : 'Please enter a valid postal code.';
+            setFormError(msg);
+            showToast(msg, 'error');
+            return;
+        }
+
+        const fullPhone = formatFullPhone(phone, countryCode);
+
         setIsProcessing(true);
         try {
             const result = await createOrder({
                 customer: {
-                    name,
-                    email: email || 'customer@mukeja.com',
-                    phone,
-                    address,
-                    city,
-                    state,
-                    pincode,
+                    name: name.trim(),
+                    email: email ? email.trim().toLowerCase() : 'customer@popcoindia.com',
+                    phone: fullPhone,
+                    address: address.trim(),
+                    city: city.trim(),
+                    state: state.trim(),
+                    pincode: pincode.trim(),
                 },
                 paymentMethod,
             });
@@ -74,7 +125,7 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
                 name: 'PopCo Makhana',
                 description: `Order ${result.order.orderNumber}`,
                 order_id: result.paymentSession.razorpayOrderId,
-                prefill: { name, email: email || undefined, contact: phone },
+                prefill: { name: name.trim(), email: email ? email.trim() : undefined, contact: fullPhone },
                 notes: { orderNumber: result.order.orderNumber },
                 theme: { color: 'var(--primary)' },
                 handler: async (paymentResponse) => {
@@ -178,6 +229,13 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
             </div>) : (
         /* Checkout Form */
         <form onSubmit={handleStartPayment} className="space-y-6">
+              {formError && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-700 text-xs flex items-center gap-2">
+                  <AlertCircle size={15} className="shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
+
               {/* Customer Contact */}
               <div className="space-y-3">
                 <h3 className="text-xs font-black uppercase tracking-wider text-[var(--foreground)] border-b border-[var(--border)]/15 pb-1">
@@ -188,19 +246,25 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
                     <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">
                       Full Name *
                     </label>
-                    <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Binali Hussain" className="w-full px-3 py-2 text-xs bg-white border border-[var(--border)]/20 rounded-lg focus:outline-none focus:border-[var(--border)] font-bold"/>
+                    <input type="text" required value={name} onChange={(e) => { setName(e.target.value); setFormError(''); }} placeholder="e.g. Binali Hussain" className="w-full px-3 py-2 text-xs bg-white border border-[var(--border)]/20 rounded-lg focus:outline-none focus:border-[var(--border)] font-bold"/>
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">
                       Phone Number *
                     </label>
-                    <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" className="w-full px-3 py-2 text-xs bg-white border border-[var(--border)]/20 rounded-lg focus:outline-none focus:border-[var(--border)] font-bold"/>
+                    <PhoneInput
+                      phone={phone}
+                      onChange={(val) => { setPhone(val); setFormError(''); }}
+                      countryCode={countryCode}
+                      onCountryCodeChange={(code) => { setCountryCode(code); setFormError(''); }}
+                      required
+                    />
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">
-                      Email Address (for Invoice & Tracking)
+                      Email Address (for Invoice & Tracking) *
                     </label>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="e.g. binali.hussain98@gmail.com" className="w-full px-3 py-2 text-xs bg-white border border-[var(--border)]/20 rounded-lg focus:outline-none focus:border-[var(--border)] font-bold"/>
+                    <input type="email" required value={email} onChange={(e) => { setEmail(e.target.value); setFormError(''); }} placeholder="e.g. binali.hussain98@gmail.com" className="w-full px-3 py-2 text-xs bg-white border border-[var(--border)]/20 rounded-lg focus:outline-none focus:border-[var(--border)] font-bold"/>
                   </div>
                 </div>
               </div>

@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
 import { User, Package, MapPin, ShieldCheck, Plus, Trash2, Truck, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { PhoneInput } from '../components/PhoneInput';
+import { validatePhone, validateName, validatePincode, formatFullPhone } from '../lib/validation';
+
 export const ProfilePage = () => {
-    const { currentUser, orders, logout, addAddress, deleteAddress, setDefaultAddress, setIsAuthModalOpen } = useStore();
+    const { currentUser, orders, logout, addAddress, deleteAddress, setDefaultAddress, setIsAuthModalOpen, showToast } = useStore();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('orders');
     // New address form state
@@ -11,6 +14,7 @@ export const ProfilePage = () => {
     const [newLabel, setNewLabel] = useState('Home');
     const [newName, setNewName] = useState(currentUser?.name || '');
     const [newPhone, setNewPhone] = useState(currentUser?.phone || '');
+    const [newCountryCode, setNewCountryCode] = useState('+91');
     const [newAddressLine, setNewAddressLine] = useState('');
     const [newCity, setNewCity] = useState('');
     const [newState, setNewState] = useState('');
@@ -31,22 +35,54 @@ export const ProfilePage = () => {
     }
     const handleCreateAddress = (e) => {
         e.preventDefault();
-        if (!newAddressLine || !newCity || !newPincode)
+        const recipientName = (newName || currentUser.name || '').trim();
+
+        if (!validateName(recipientName)) {
+            showToast('Please enter recipient name (at least 2 characters).', 'error');
             return;
+        }
+
+        if (newPhone && !validatePhone(newPhone, newCountryCode)) {
+            showToast(newCountryCode === '+91'
+                ? 'Please enter a valid 10-digit mobile number.'
+                : 'Please enter a valid phone number (7 to 15 digits).', 'error');
+            return;
+        }
+
+        if (!newAddressLine || newAddressLine.trim().length < 4) {
+            showToast('Please enter a valid street address (at least 4 characters).', 'error');
+            return;
+        }
+
+        if (!newCity || newCity.trim().length < 2) {
+            showToast('Please enter a valid city name.', 'error');
+            return;
+        }
+
+        if (!newPincode || !validatePincode(newPincode, newCountryCode)) {
+            showToast(newCountryCode === '+91'
+                ? 'Please enter a valid 6-digit Indian PIN code.'
+                : 'Please enter a valid postal code.', 'error');
+            return;
+        }
+
+        const fullPhone = newPhone ? formatFullPhone(newPhone, newCountryCode) : (currentUser.phone || '');
+
         addAddress({
-            label: newLabel,
-            name: newName || currentUser.name,
-            phone: newPhone || currentUser.phone,
-            addressLine1: newAddressLine,
-            city: newCity,
-            state: newState || 'Uttar Pradesh',
-            pincode: newPincode,
+            label: newLabel.trim() || 'Home',
+            name: recipientName,
+            phone: fullPhone,
+            addressLine1: newAddressLine.trim(),
+            city: newCity.trim(),
+            state: newState.trim() || 'Uttar Pradesh',
+            pincode: newPincode.trim(),
             isDefault: currentUser.addresses.length === 0,
         });
         setNewAddressLine('');
         setNewCity('');
         setNewPincode('');
         setShowAddAddress(false);
+        showToast('New delivery address saved!', 'success');
     };
     return (<div className="flex-1 bg-[var(--background)] py-6 sm:py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
@@ -233,7 +269,19 @@ export const ProfilePage = () => {
                     <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">
                       Recipient Name
                     </label>
-                    <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} className="w-full px-3 py-2 text-xs bg-[var(--background)] border border-[var(--border)]/20 rounded-lg font-bold"/>
+                    <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Binali Hussain" className="w-full px-3 py-2 text-xs bg-[var(--background)] border border-[var(--border)]/20 rounded-lg font-bold"/>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">
+                      Contact Phone Number
+                    </label>
+                    <PhoneInput
+                      phone={newPhone}
+                      onChange={setNewPhone}
+                      countryCode={newCountryCode}
+                      onCountryCodeChange={setNewCountryCode}
+                      required={false}
+                    />
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">

@@ -4,7 +4,7 @@ import { useStore } from '../context/StoreContext';
 import { Star, ShoppingBag, ShieldCheck, Truck, RefreshCw, Plus, Minus, ArrowRight, MessageSquare } from 'lucide-react';
 export const ProductDetailPage = ({ onOpenCheckout }) => {
     const { slug } = useParams();
-    const { products, addToCart, reviews, addReview, currentUser } = useStore();
+    const { products, addToCart, reviews, addReview, currentUser, showToast } = useStore();
     const navigate = useNavigate();
     // Find product by slug or id
     const product = products.find((p) => p.slug === slug || p.id.toString() === slug) || products[0];
@@ -55,20 +55,29 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
     };
     const handleReviewSubmit = (e) => {
         e.preventDefault();
-        if (!reviewAuthor || !reviewComment)
+        const authorClean = (reviewAuthor || '').trim();
+        const commentClean = (reviewComment || '').trim();
+        if (!authorClean || authorClean.length < 2) {
+            showToast('Please enter your name (at least 2 characters).', 'error');
             return;
+        }
+        if (!commentClean || commentClean.length < 5) {
+            showToast('Please enter your review (at least 5 characters).', 'error');
+            return;
+        }
         addReview({
             productId: product.id,
-            author: reviewAuthor,
+            author: authorClean,
             rating: reviewRating,
-            title: reviewTitle || 'Crunchy and fresh!',
-            comment: reviewComment,
+            title: (reviewTitle || '').trim() || 'Crunchy and fresh!',
+            comment: commentClean,
             verified: true,
             location: 'India',
         });
         setReviewComment('');
         setReviewTitle('');
         setShowReviewForm(false);
+        showToast('Thank you! Your verified review has been published.', 'success');
     };
     return (<div className="flex-1 bg-[var(--background)] pb-16">
       {/* Breadcrumb */}

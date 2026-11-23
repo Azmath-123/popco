@@ -3,11 +3,14 @@ import { X, Send, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useStore } from '../context/StoreContext';
 import { apiRequest } from '../lib/api';
+import { PhoneInput } from './PhoneInput';
+import { validatePhone, validateName, formatFullPhone } from '../lib/validation';
 
 export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, onQuantityChange }) => {
   const { currentUser, showToast } = useStore();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+91');
   const [qty, setQty] = useState(quantityKg || 50);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -30,19 +33,21 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
     setErrorMsg('');
 
     const cleanName = name.trim();
-    const cleanPhone = phone.trim().replace(/\D/g, '');
 
-    if (!cleanName || cleanName.length < 2) {
-      setErrorMsg('Please enter your full name (at least 2 characters).');
+    if (!validateName(cleanName)) {
+      setErrorMsg('Please enter your full name or business name (at least 2 characters).');
       return;
     }
 
-    if (!cleanPhone || cleanPhone.length < 10) {
-      setErrorMsg('Please enter a valid 10-digit mobile number.');
+    if (!validatePhone(phone, countryCode)) {
+      setErrorMsg(countryCode === '+91'
+        ? 'Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.'
+        : 'Please enter a valid mobile number (7 to 15 digits).');
       return;
     }
 
     const finalQty = Number(qty) >= 50 ? Number(qty) : 50;
+    const fullPhone = formatFullPhone(phone, countryCode);
 
     setIsSubmitting(true);
     try {
@@ -50,7 +55,7 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
         method: 'POST',
         body: {
           name: cleanName,
-          phone: cleanPhone,
+          phone: fullPhone,
           email: currentUser?.email || '',
           productName: selectedProduct?.name || 'Bulk Raw Makhana',
           quantityKg: finalQty,
@@ -62,7 +67,7 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
       showToast('Enquiry received! Opening WhatsApp for instant quotation...', 'success');
 
       // WhatsApp pre-filled message
-      const whatsappMsg = `Hi PopCo, I am requesting a bulk wholesale quotation for *${finalQty} KG* of *${selectedProduct?.name || 'Bulk Products'}*.\n\n👤 Name: ${cleanName}\n📞 Phone: ${cleanPhone}\n\nPlease share dispatch timeline and current wholesale rates.`;
+      const whatsappMsg = `Hi PopCo, I am requesting a bulk wholesale quotation for *${finalQty} KG* of *${selectedProduct?.name || 'Bulk Products'}*.\n\n👤 Name: ${cleanName}\n📞 Phone: ${fullPhone}\n\nPlease share dispatch timeline and current wholesale rates.`;
       const whatsappUrl = `https://wa.me/9180808447?text=${encodeURIComponent(whatsappMsg)}`;
 
       setTimeout(() => {
@@ -167,16 +172,14 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
 
               <div>
                 <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--foreground)]/70 mb-1.5">
-                  PHONE NUMBER
+                  PHONE NUMBER (WHATSAPP) *
                 </label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="10-digit WhatsApp Number"
-                  maxLength={12}
+                <PhoneInput
+                  phone={phone}
+                  onChange={(val) => { setPhone(val); setErrorMsg(''); }}
+                  countryCode={countryCode}
+                  onCountryCodeChange={(code) => { setCountryCode(code); setErrorMsg(''); }}
                   required
-                  className="w-full px-4 py-3 rounded-xl bg-white text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] text-sm font-semibold border border-[var(--border)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all shadow-xs"
                 />
               </div>
 
