@@ -315,14 +315,14 @@ export const HomePage = ({ onOpenCheckout }) => {
 
         {/* Action Buttons */}
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full">
-          <button
+          {/* <button
             type="button"
             onClick={() => setIsBulkOrderOpen(true)}
             className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white text-[#9c0008] text-xs font-extrabold uppercase tracking-wider shadow-lg hover:bg-[#F5EFE6] transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex items-center justify-center gap-2"
           >
             <Sparkles size={15} />
             <span>Build 10-Jar Custom Combo</span>
-          </button>
+          </button> */}
 
           <div className="flex items-center gap-3 w-full sm:w-auto justify-center">
             <a

@@ -1,16 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
 import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 export const CartDrawer = ({ onProceedToCheckout }) => {
     const { cart, isCartOpen, setIsCartOpen, cartCount, cartSubtotal, cartGrossSubtotal, comboDiscount, shippingFee, cartTotal, removeFromCart, updateQuantity, currentUser, settings, } = useStore();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!isCartOpen) return;
+        const prevBody = document.body.style.overflow;
+        const prevHtml = document.documentElement.style.overflow;
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = prevBody;
+            document.documentElement.style.overflow = prevHtml;
+        };
+    }, [isCartOpen]);
+
     if (!isCartOpen)
         return null;
     const freeShippingThreshold = settings.freeShippingThreshold;
     const remainingForFreeShipping = Math.max(0, freeShippingThreshold - cartSubtotal);
     const shippingProgress = Math.min(100, Math.round((cartSubtotal / freeShippingThreshold) * 100));
-    return (<div className="fixed inset-0 z-50 overflow-hidden">
+    return (<div className="fixed inset-0 z-50 overflow-hidden overscroll-contain">
       {/* Backdrop */}
       <div className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity" onClick={() => setIsCartOpen(false)}/>
 

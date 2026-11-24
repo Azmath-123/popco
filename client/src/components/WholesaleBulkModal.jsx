@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Minus, 
@@ -64,6 +64,18 @@ export const WholesaleBulkModal = () => {
   const [quantityKg, setQuantityKg] = useState(50);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
+  useEffect(() => {
+    if (!isBulkOrderOpen) return;
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
+    };
+  }, [isBulkOrderOpen]);
+
   if (!isBulkOrderOpen) return null;
 
   const currentProduct = WHOLESALE_PRODUCTS[selectedProductIndex];
@@ -84,7 +96,7 @@ export const WholesaleBulkModal = () => {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+      <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain" role="dialog" aria-modal="true">
         {/* Backdrop */}
         <div 
           className="fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity duration-300"

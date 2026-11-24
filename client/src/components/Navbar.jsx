@@ -127,7 +127,7 @@ export const Navbar = () => {
 
     const handleAccountClick = () => {
         if (currentUser) {
-            navigate('/profile');
+            navigate('/admin');
         } else {
             setAuthModalMode('login');
             setIsAuthModalOpen(true);
@@ -362,19 +362,19 @@ export const Navbar = () => {
             {/* User Account / Profile */}
             <button 
               onClick={handleAccountClick} 
-              className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-[var(--primary)]/10 transition-colors text-[var(--foreground)] cursor-pointer" 
-              title={currentUser ? `Logged in as ${currentUser.name}` : 'Login / Register'}
+              className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full hover:bg-[var(--primary)]/10 transition-colors text-[var(--foreground)] cursor-pointer" 
+              title={currentUser ? `Logged in as ${currentUser.name} - Open Admin Panel` : 'Login / Register'}
             >
-              <div className="w-8 h-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center font-bold text-xs uppercase shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center font-bold text-xs uppercase shadow-sm shrink-0">
                 {currentUser ? currentUser.name.charAt(0) : <UserIcon size={16}/>}
               </div>
               {currentUser && (
-                <div className="hidden lg:flex flex-col text-left">
-                  <span className="text-xs font-bold leading-tight truncate max-w-[100px]">
+                <div className="flex flex-col text-left max-w-[80px] sm:max-w-[120px] md:max-w-[140px]">
+                  <span className="text-xs font-bold leading-tight truncate text-[var(--foreground)]" title={currentUser.name}>
                     {currentUser.name}
                   </span>
-                  <span className="text-[10px] text-[var(--foreground)]/60 font-semibold uppercase">
-                    {currentUser.role === 'super_admin' ? 'Admin' : 'Account'}
+                  <span className="text-[10px] text-[var(--primary)] font-semibold uppercase tracking-wider leading-none mt-0.5">
+                    Admin
                   </span>
                 </div>
               )}
@@ -522,21 +522,18 @@ export const Navbar = () => {
               </Link>
 
               {currentUser ? (
-                <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-[var(--border)]/10 flex items-center justify-between">
-                  <span>My Profile ({currentUser.name})</span>
-                  <span className="text-[var(--secondary-foreground)] text-xs font-semibold uppercase">{currentUser.role === 'super_admin' ? 'Admin' : 'Account'}</span>
+                <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="py-2.5 border-b border-[var(--border)]/10 flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <UserIcon size={16} className="text-[var(--primary)]" />
+                    <span className="truncate max-w-[180px] sm:max-w-[240px]">{currentUser.name} (Admin Panel)</span>
+                  </span>
+                  <span className="text-[10px] bg-[var(--primary)] text-white px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Open</span>
                 </Link>
               ) : (
-                <button onClick={handleAccountClick} className="py-2 text-left border-b border-[var(--border)]/10 text-[var(--foreground)] flex items-center justify-between">
+                <button onClick={handleAccountClick} className="py-2 text-left border-b border-[var(--border)]/10 text-[var(--foreground)] flex items-center justify-between w-full cursor-pointer">
                   <span>Login / Register</span>
                   <span className="text-xs text-[var(--secondary-foreground)]">Sign In</span>
                 </button>
-              )}
-
-              {currentUser && (currentUser.role === 'super_admin' || currentUser.role === 'admin') && (
-                <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[var(--secondary-foreground)] font-bold flex items-center gap-2">
-                  <span>Admin Management Portal</span>
-                </Link>
               )}
             </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
 import { X, CheckCircle2, ShieldCheck, CreditCard, Banknote, ArrowRight, AlertCircle } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
@@ -38,6 +38,18 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [confirmedOrder, setConfirmedOrder] = useState(null);
     const [formError, setFormError] = useState('');
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const prevBody = document.body.style.overflow;
+        const prevHtml = document.documentElement.style.overflow;
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = prevBody;
+            document.documentElement.style.overflow = prevHtml;
+        };
+    }, [isOpen]);
 
     if (!isOpen)
         return null;
@@ -153,7 +165,7 @@ export const CheckoutModal = ({ isOpen, onClose }) => {
     const handlePrintInvoice = () => {
         window.print();
     };
-    return (<div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4">
+    return (<div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4 overscroll-contain">
       <div className="bg-[var(--background)] rounded-2xl shadow-2xl max-w-2xl w-full border border-[var(--border)]/20 overflow-hidden relative max-h-[92vh] flex flex-col">
         {/* Header */}
         <div className="p-4 sm:p-5 bg-white border-b border-[var(--border)]/15 flex items-center justify-between">

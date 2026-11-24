@@ -1,16 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
 import { POLICY_CONTENT } from '../data/siteContent.js';
 import { X, ChevronDown, FileText, HelpCircle, Shield, Sparkles } from 'lucide-react';
 export const PolicyModal = () => {
     const { activePolicy, closePolicy, openPolicy } = useStore();
     const [openFaqIndex, setOpenFaqIndex] = React.useState(0);
+
+    useEffect(() => {
+        if (!activePolicy) return;
+        const prevBody = document.body.style.overflow;
+        const prevHtml = document.documentElement.style.overflow;
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = prevBody;
+            document.documentElement.style.overflow = prevHtml;
+        };
+    }, [activePolicy]);
+
     if (!activePolicy)
         return null;
     const toggleFaq = (idx) => {
         setOpenFaqIndex(openFaqIndex === idx ? null : idx);
     };
-    return (<div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    return (<div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain">
       <div className="bg-[var(--background)] rounded-2xl shadow-2xl max-w-3xl w-full border border-[var(--border)]/20 overflow-hidden relative max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="p-4 sm:p-5 bg-white border-b border-[var(--border)]/15 flex items-center justify-between">

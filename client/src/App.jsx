@@ -50,6 +50,23 @@ const AppContent = () => {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
+  const { isCartOpen, isBulkOrderOpen, isAuthModalOpen, activePolicy } = useStore();
+
+  // Stop background interface scrolling whenever any modal or drawer is active
+  useEffect(() => {
+    const isModalOpen = isCheckoutOpen || isCartOpen || isBulkOrderOpen || isAuthModalOpen || Boolean(activePolicy);
+    if (isModalOpen) {
+      const prevBodyOverflow = document.body.style.overflow;
+      const prevHtmlOverflow = document.documentElement.style.overflow;
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevBodyOverflow;
+        document.documentElement.style.overflow = prevHtmlOverflow;
+      };
+    }
+  }, [isCheckoutOpen, isCartOpen, isBulkOrderOpen, isAuthModalOpen, activePolicy]);
+
   return (<div className="min-h-screen flex flex-col font-sans bg-[var(--background)] text-[var(--foreground)]">
     <RouteWatcher />
 

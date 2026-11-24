@@ -23,6 +23,15 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
       setQty(quantityKg || 50);
       setIsSuccess(false);
       setErrorMsg('');
+
+      const prevBody = document.body.style.overflow;
+      const prevHtml = document.documentElement.style.overflow;
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevBody;
+        document.documentElement.style.overflow = prevHtml;
+      };
     }
   }, [isOpen, currentUser, quantityKg]);
 
@@ -86,7 +95,7 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
   };
 
   return (
-    <div className="fixed inset-0 z-60 overflow-y-auto flex items-center justify-center p-2.5 sm:p-4">
+    <div className="fixed inset-0 z-60 overflow-y-auto flex items-center justify-center p-2.5 sm:p-4 overscroll-contain">
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity" 
