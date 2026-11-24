@@ -1,34 +1,105 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { Star, ShoppingBag, ShieldCheck, Truck, RefreshCw, Plus, Minus, ArrowRight, MessageSquare } from 'lucide-react';
+import { 
+  Star, 
+  ShoppingBag, 
+  ShieldCheck, 
+  Truck, 
+  RefreshCw, 
+  Plus, 
+  Minus, 
+  ArrowRight, 
+  MessageSquare,
+  Heart,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react';
+
 export const ProductDetailPage = ({ onOpenCheckout }) => {
     const { slug } = useParams();
     const { products, addToCart, reviews, addReview, currentUser, showToast } = useStore();
     const navigate = useNavigate();
+    
     // Find product by slug or id
     const product = products.find((p) => p.slug === slug || p.id.toString() === slug) || products[0];
-    // Gallery state
-    const [selectedImage, setSelectedImage] = useState(product?.image || '/product_1.webp');
+
+    // Gallery images slider state
+    const galleryImages = (product?.images && product.images.length > 0)
+        ? product.images
+        : [product?.image || '/product_1.webp'];
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+
     // Pack selector state
     const [selectedPack, setSelectedPack] = useState(product?.packs?.[0] || { count: 1, label: 'Single Pack', price: product?.numericPrice || 229 });
+    
     // Quantity state
     const [quantity, setQuantity] = useState(1);
+
+    // Payment offer mode state ('prepaid' or 'cod')
+    const [selectedPaymentMode, setSelectedPaymentMode] = useState('prepaid');
+
+    // Wishlist state
+    const [isWishlisted, setIsWishlisted] = useState(() => {
+        try {
+            const list = JSON.parse(localStorage.getItem('popco_wishlist') || '[]');
+            return Array.isArray(list) && product ? list.includes(product.id) : false;
+        } catch {
+            return false;
+        }
+    });
+
     // Review Form state
     const [showReviewForm, setShowReviewForm] = useState(false);
     const [reviewAuthor, setReviewAuthor] = useState(currentUser?.name || '');
     const [reviewRating, setReviewRating] = useState(5);
     const [reviewTitle, setReviewTitle] = useState('');
     const [reviewComment, setReviewComment] = useState('');
+
     // Update selected image and pack when product changes
     useEffect(() => {
         if (product) {
-            setSelectedImage(product.image);
+            setActiveImageIndex(0);
             setSelectedPack(product.packs?.[0] || { count: 1, label: 'Single Pack', price: product.numericPrice });
             setQuantity(1);
+            try {
+                const list = JSON.parse(localStorage.getItem('popco_wishlist') || '[]');
+                setIsWishlisted(Array.isArray(list) && list.includes(product.id));
+            } catch {
+                setIsWishlisted(false);
+            }
             window.scrollTo(0, 0);
         }
     }, [product?.slug]);
+
+    const handleToggleWishlist = () => {
+        if (!product) return;
+        try {
+            const list = JSON.parse(localStorage.getItem('popco_wishlist') || '[]');
+            let updated;
+            if (list.includes(product.id)) {
+                updated = list.filter((id) => id !== product.id);
+                setIsWishlisted(false);
+                showToast('Removed from your wishlist', 'info');
+            } else {
+                updated = [...list, product.id];
+                setIsWishlisted(true);
+                showToast('Added to your wishlist! ❤️', 'success');
+            }
+            localStorage.setItem('popco_wishlist', JSON.stringify(updated));
+        } catch (e) {
+            console.warn('Wishlist toggle error:', e);
+        }
+    };
+
+    const handlePrevImage = () => {
+        setActiveImageIndex((prev) => (prev === 0 ? galleryImages.length - 1 : prev - 1));
+    };
+
+    const handleNextImage = () => {
+        setActiveImageIndex((prev) => (prev === galleryImages.length - 1 ? 0 : prev + 1));
+    };
+
     if (!product) {
         return (<div className="py-20 text-center">
         <h2 className="text-xl font-bold">Product not found</h2>
@@ -37,19 +108,29 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
         </Link>
       </div>);
     }
+
     // Calculate current unit price from selected pack
     const currentPrice = selectedPack.price || product.numericPrice;
     const originalPackPrice = Math.round(currentPrice * 1.25);
     const savings = originalPackPrice - currentPrice;
+
+    // Prepaid offer calculation (Instant ~8% discount for online prepaid order)
+    const prepaidDiscount = Math.round(currentPrice * 0.08);
+    const prepaidPrice = currentPrice - prepaidDiscount;
+    const codPrice = currentPrice;
+
     // Filter product specific reviews
     const productReviews = reviews.filter((r) => r.productId === product.id);
+
     // Related products
     const relatedProducts = products
         .filter((p) => p.id !== product.id && p.category === product.category)
         .slice(0, 4);
+
     const handleAddToCart = () => {
         addToCart(product, selectedPack, quantity);
     };
+
     const handleBuyNow = async () => {
         if (await addToCart(product, selectedPack, quantity)) onOpenCheckout();
     };
@@ -93,23 +174,72 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 items-start">
-          {/* Left: Product Gallery */}
+          {/* Left: Product Gallery Slider */}
           <div className="space-y-4">
-            <div className="bg-white rounded-2xl sm:rounded-3xl border border-[var(--border)]/15 p-4 sm:p-6 shadow-sm flex items-center justify-center min-h-[280px] sm:min-h-[460px] relative overflow-hidden group">
-              <img src={selectedImage} alt={product.name} className="max-h-[260px] sm:max-h-[380px] w-auto object-contain transition-transform duration-500 group-hover:scale-105"/>
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-[var(--border)]/15 p-4 sm:p-6 shadow-sm flex items-center justify-center min-h-[300px] sm:min-h-[460px] relative overflow-hidden group select-none">
+              {/* Slider Left Arrow */}
+              {galleryImages.length > 1 && (
+                <button
+                  type="button"
+                  onClick={handlePrevImage}
+                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 bg-white/95 hover:bg-white text-[var(--foreground)] rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer z-10 border border-[var(--border)]/20"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft size={22} />
+                </button>
+              )}
+
+              {/* Main Product Image */}
+              <img 
+                src={galleryImages[activeImageIndex] || selectedImage} 
+                alt={`${product.name} - view ${activeImageIndex + 1}`} 
+                className="max-h-[260px] sm:max-h-[380px] w-auto object-contain transition-all duration-300 group-hover:scale-105"
+              />
+
+              {/* Slider Right Arrow */}
+              {galleryImages.length > 1 && (
+                <button
+                  type="button"
+                  onClick={handleNextImage}
+                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 bg-white/95 hover:bg-white text-[var(--foreground)] rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer z-10 border border-[var(--border)]/20"
+                  aria-label="Next image"
+                >
+                  <ChevronRight size={22} />
+                </button>
+              )}
+
+              {/* Badge Top Left */}
               <span className="absolute top-4 left-4 bg-[var(--secondary-foreground)] text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full shadow-xs">
                 {product.badge || (product.category === 'raw' ? 'Mithila 6+ Suta' : '100% Plant Protein')}
               </span>
+
+              {/* Image Counter Bottom Right */}
+              {galleryImages.length > 1 && (
+                <span className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                  {activeImageIndex + 1} / {galleryImages.length}
+                </span>
+              )}
             </div>
 
             {/* Thumbnail Row */}
-            {product.images && product.images.length > 1 && (<div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 no-scrollbar">
-                {product.images.map((img, idx) => (<button key={idx} onClick={() => setSelectedImage(img)} className={`w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-xl border-2 p-1.5 transition-all cursor-pointer shrink-0 ${selectedImage === img
-                    ? 'border-[var(--border)] ring-2 ring-[var(--primary)]/20 scale-105'
-                    : 'border-[var(--border)]/15 opacity-70 hover:opacity-100'}`}>
-                    <img src={img} alt={`${product.name} view ${idx + 1}`} className="w-full h-full object-contain"/>
-                  </button>))}
-              </div>)}
+            {galleryImages.length > 1 && (
+              <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 no-scrollbar">
+                {galleryImages.map((img, idx) => (
+                  <button 
+                    key={idx} 
+                    type="button"
+                    onClick={() => setActiveImageIndex(idx)} 
+                    className={`w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-xl border-2 p-1.5 transition-all cursor-pointer shrink-0 ${
+                      activeImageIndex === idx
+                        ? 'border-[var(--primary)] ring-2 ring-[var(--primary)]/20 scale-105'
+                        : 'border-[var(--border)]/15 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={img} alt={`${product.name} thumbnail ${idx + 1}`} className="w-full h-full object-contain"/>
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Trust highlights below gallery */}
             <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-2">
@@ -146,32 +276,80 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
                 </span>
               </div>
 
-              <h1 className="text-xl sm:text-3xl font-black uppercase text-[var(--foreground)] tracking-tight">
-                {product.name}
-              </h1>
+              {/* Product Title with Wishlist Button */}
+              <div className="flex items-center justify-between gap-3">
+                <h1 className="text-xl sm:text-3xl font-black uppercase text-[var(--foreground)] tracking-tight">
+                  {product.name}
+                </h1>
+                <button
+                  type="button"
+                  onClick={handleToggleWishlist}
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-[var(--border)]/30 bg-white hover:bg-rose-50 flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
+                  title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                  aria-label="Wishlist toggle"
+                >
+                  <Heart 
+                    size={20} 
+                    className={`transition-colors duration-200 ${isWishlisted ? 'fill-[#e11d48] text-[#e11d48]' : 'text-[var(--foreground)]/70 hover:text-[#e11d48]'}`} 
+                  />
+                </button>
+              </div>
+
               <p className="text-xs font-bold text-[var(--secondary-foreground)] uppercase tracking-wider mt-0.5">
                 {product.weight}
               </p>
             </div>
 
-            {/* Price section */}
-            <div className="p-3.5 sm:p-4 bg-[var(--background)] rounded-xl sm:rounded-2xl border border-[var(--border)]/10 flex items-center justify-between">
-              <div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl sm:text-3xl font-black text-[var(--foreground)]">
-                    ₹{currentPrice}
-                  </span>
-                  <span className="text-sm sm:text-base text-[var(--foreground)]/40 line-through font-bold">
-                    ₹{originalPackPrice}
-                  </span>
-                  <span className="bg-[var(--secondary-foreground)] text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
-                    SAVE ₹{savings}
-                  </span>
-                </div>
-                <span className="text-[10px] text-[var(--foreground)]/70 font-bold uppercase tracking-wider block mt-1">
-                  Inclusive of all taxes • Free Shipping on orders over ₹599
+            {/* Price & Prepaid vs COD Comparison (matching Image 2) */}
+            <div className="space-y-3 pt-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-base sm:text-lg font-black text-[var(--foreground)] tracking-wide">
+                  INR. {currentPrice.toLocaleString('en-IN')}.00
                 </span>
+                {originalPackPrice > currentPrice && (
+                  <span className="text-xs sm:text-sm text-[var(--foreground)]/40 line-through font-bold">
+                    INR. {originalPackPrice.toLocaleString('en-IN')}.00
+                  </span>
+                )}
               </div>
+
+              {/* On Prepaid (Green) vs On COD (Black) Cards */}
+              <div className="grid grid-cols-2 gap-3 max-w-md">
+                {/* Green On Prepaid Card */}
+                <div 
+                  onClick={() => setSelectedPaymentMode('prepaid')}
+                  className={`p-3.5 sm:p-4 rounded-xl text-center cursor-pointer transition-all border-2 ${
+                    selectedPaymentMode === 'prepaid'
+                      ? 'bg-[#16a34a] text-white border-[#16a34a] shadow-md shadow-[#16a34a]/25 scale-102'
+                      : 'bg-[#16a34a]/90 text-white border-transparent hover:bg-[#16a34a]'
+                  }`}
+                >
+                  <div className="text-xs sm:text-sm font-bold tracking-wide">On Prepaid</div>
+                  <div className="text-xl sm:text-2xl font-black mt-0.5 tracking-tight">₹{prepaidPrice}</div>
+                </div>
+
+                {/* Black On COD Card */}
+                <div 
+                  onClick={() => setSelectedPaymentMode('cod')}
+                  className={`p-3.5 sm:p-4 rounded-xl text-center cursor-pointer transition-all border-2 ${
+                    selectedPaymentMode === 'cod'
+                      ? 'bg-black text-white border-black shadow-md scale-102'
+                      : 'bg-[#18181b] text-white border-transparent hover:bg-black'
+                  }`}
+                >
+                  <div className="text-xs sm:text-sm font-bold tracking-wide">On COD</div>
+                  <div className="text-xl sm:text-2xl font-black mt-0.5 tracking-tight">₹{codPrice}</div>
+                </div>
+              </div>
+
+              {/* Black Pill Banner (from Image 2) */}
+              <div className="w-full max-w-md bg-black text-white py-2 px-4 rounded-full text-center text-[11px] sm:text-xs font-bold tracking-wide shadow-sm flex items-center justify-center gap-2">
+                <span>Click on Buy It Now Button to avail this offer</span>
+              </div>
+
+              <span className="text-[10px] text-[var(--foreground)]/70 font-bold uppercase tracking-wider block pt-1">
+                Inclusive of all taxes • Free Shipping on orders over ₹599
+              </span>
             </div>
 
             {/* Pack Selector (Single, 2, 3, 4 packs) */}

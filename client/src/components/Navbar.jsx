@@ -406,132 +406,63 @@ export const Navbar = () => {
 
         {/* Mobile Menu Dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-[var(--background)] border-b border-[var(--border)]/15 px-5 py-5 shadow-xl space-y-4 max-h-[calc(100vh-5rem)] overflow-y-auto">
-            <div className="flex flex-col space-y-3 font-sans text-sm font-bold uppercase tracking-wider text-[var(--foreground)]">
-              {/* Mobile Products Accordion */}
-              <div className="border-b border-[var(--border)]/10 pb-3">
-                <button
-                  type="button"
-                  onClick={() => setMobileProductsOpen(!mobileProductsOpen)}
-                  className="w-full py-2 hover:text-[var(--secondary-foreground)] flex items-center justify-between cursor-pointer"
-                >
-                  <span className="flex items-center gap-2">
-                    <span>Products</span>
-                    <span className="text-[10px] bg-[var(--primary)]/10 text-[var(--primary)] px-2 py-0.5 rounded-full font-bold">
-                      3 Items
+          <div className="md:hidden bg-[var(--background)] border-b border-[var(--border)]/15 px-5 py-3 shadow-xl max-h-[calc(100vh-5rem)] overflow-y-auto">
+            <div className="flex flex-col font-sans text-xs font-bold uppercase tracking-wider text-[var(--foreground)] divide-y divide-[var(--border)]/15">
+              {/* Product items (clean text only, matching Image 1) */}
+              {PRODUCTS_DATA.map((item) => {
+                if (item.isAvailable) {
+                  return (
+                    <Link
+                      key={item.id}
+                      to={item.url}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="py-3.5 flex items-center justify-between text-xs font-black tracking-wider text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
+                    >
+                      <span>{item.name}</span>
+                      <ChevronRight size={16} className="text-[var(--foreground)]/40" />
+                    </Link>
+                  );
+                }
+
+                // Tea coming soon (refer to Image 1)
+                return (
+                  <div
+                    key={item.id}
+                    className="py-3.5 flex items-center justify-between text-xs font-black tracking-wider text-[var(--foreground)]/60 select-none"
+                  >
+                    <span>{item.name}</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200/60">
+                      Coming Soon
                     </span>
-                  </span>
-                  <ChevronDown 
-                    size={18} 
-                    className={`transition-transform duration-200 ${mobileProductsOpen ? 'rotate-180 text-[var(--primary)]' : ''}`}
-                  />
-                </button>
-
-                {mobileProductsOpen && (
-                  <div className="mt-2 space-y-2.5">
-                    {PRODUCTS_DATA.map((item) => {
-                      if (item.isAvailable) {
-                        return (
-                          <Link
-                            key={item.id}
-                            to={item.url}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="flex items-center gap-3 p-2.5 rounded-2xl bg-white border border-[var(--border)]/20 hover:border-[var(--primary)]/40 hover:shadow-sm transition-all group text-left"
-                          >
-                            <div className={`w-14 h-14 rounded-xl ${item.bgColor} flex items-center justify-center shrink-0 overflow-hidden shadow-inner`}>
-                              <img
-                                src={item.image}
-                                alt={item.name}
-                                className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform"
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1.5 mb-0.5">
-                                <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded ${item.badgeColor}`}>
-                                  {item.badge}
-                                </span>
-                              </div>
-                              <p className="text-xs font-black uppercase text-[var(--foreground)] truncate group-hover:text-[var(--primary)] transition-colors">
-                                {item.name}
-                              </p>
-                              <p className="text-[11px] text-[var(--foreground)]/60 font-medium">
-                                {item.subtitle} • <span className="font-bold text-[var(--foreground)]">{item.price}</span>
-                              </p>
-                            </div>
-                            <ChevronRight size={16} className="text-[var(--foreground)]/40 group-hover:text-[var(--primary)] shrink-0" />
-                          </Link>
-                        );
-                      }
-
-                      // Coming Soon Tea in Mobile
-                      return (
-                        <div
-                          key={item.id}
-                          className="flex items-center gap-3 p-2.5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-dashed border-amber-300/80 cursor-not-allowed select-none text-left"
-                        >
-                          <div className="w-14 h-14 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 text-amber-900 shadow-inner">
-                            <Coffee size={22} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5 mb-0.5">
-                              <span className="text-[9px] font-black uppercase tracking-widest bg-gradient-to-r from-amber-600 to-orange-600 text-white px-2 py-0.5 rounded-full shadow-2xs">
-                                Coming Soon
-                              </span>
-                            </div>
-                            <p className="text-xs font-black uppercase text-amber-950 truncate">
-                              {item.name}
-                            </p>
-                            <p className="text-[11px] text-amber-900/70 font-medium">
-                              {item.subtitle}
-                            </p>
-                          </div>
-                          <span className="text-[9px] font-black uppercase tracking-wider text-amber-800 bg-amber-200/70 px-2 py-1 rounded-md shrink-0">
-                            Soon
-                          </span>
-                        </div>
-                      );
-                    })}
-
-                    <div className="pt-1">
-                      <a
-                        href="/#shop"
-                        onClick={handleProductsClick}
-                        className="text-xs font-bold text-[var(--primary)] hover:underline flex items-center gap-1.5 py-1"
-                      >
-                        <span>View full catalog in Shop section</span>
-                        <ArrowRight size={13} />
-                      </a>
-                    </div>
                   </div>
-                )}
-              </div>
+                );
+              })}
 
-              <button 
-                type="button"
-                onClick={() => { setIsBulkOrderOpen(true); setMobileMenuOpen(false); }} 
-                className="py-2 text-left border-b border-[var(--border)]/10 hover:text-[var(--secondary-foreground)] flex items-center justify-between cursor-pointer"
+              <Link 
+                to="/about" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="py-3.5 flex items-center justify-between text-xs font-black tracking-wider text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
               >
-                <span className="flex items-center gap-2">
-                  <Sparkles size={14} className="text-[var(--secondary-foreground)]"/>
-                  <span>Bulk Order (Custom Combo)</span>
-                </span>
-                <span className="text-[10px] bg-[var(--primary)] text-white px-2 py-0.5 rounded-full font-black">
-                  10 For ₹1,799
-                </span>
-              </button>
-
-              <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-[var(--border)]/10 hover:text-[var(--secondary-foreground)]">
-                About POP CO
+                <span>About POP CO</span>
+                <ChevronRight size={16} className="text-[var(--foreground)]/40" />
               </Link>
 
-              <Link to="/cart" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b border-[var(--border)]/10 flex items-center justify-between">
+              <Link 
+                to="/cart" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="py-3.5 flex items-center justify-between text-xs font-black tracking-wider text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
+              >
                 <span>Cart ({cartCount})</span>
-                <span className="text-[var(--secondary-foreground)] font-black">View</span>
+                <span className="text-[var(--primary)] font-black">View</span>
               </Link>
 
               {currentUser ? (
                 currentUser.role === 'admin' || currentUser.role === 'super_admin' ? (
-                  <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="py-2.5 border-b border-[var(--border)]/10 flex items-center justify-between">
+                  <Link 
+                    to="/admin" 
+                    onClick={() => setMobileMenuOpen(false)} 
+                    className="py-3.5 flex items-center justify-between text-xs font-black tracking-wider text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
+                  >
                     <span className="flex items-center gap-2">
                       <UserIcon size={16} className="text-[var(--primary)]" />
                       <span className="truncate max-w-[180px] sm:max-w-[240px]">{currentUser.name} (Admin Panel)</span>
@@ -539,7 +470,11 @@ export const Navbar = () => {
                     <span className="text-[10px] bg-[var(--primary)] text-white px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Admin</span>
                   </Link>
                 ) : (
-                  <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="py-2.5 border-b border-[var(--border)]/10 flex items-center justify-between">
+                  <Link 
+                    to="/profile" 
+                    onClick={() => setMobileMenuOpen(false)} 
+                    className="py-3.5 flex items-center justify-between text-xs font-black tracking-wider text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
+                  >
                     <span className="flex items-center gap-2">
                       <UserIcon size={16} className="text-[var(--primary)]" />
                       <span className="truncate max-w-[180px] sm:max-w-[240px]">{currentUser.name} (My Profile)</span>
@@ -548,22 +483,27 @@ export const Navbar = () => {
                   </Link>
                 )
               ) : (
-                <button onClick={handleAccountClick} className="py-2 text-left border-b border-[var(--border)]/10 text-[var(--foreground)] flex items-center justify-between w-full cursor-pointer">
+                <button 
+                  onClick={handleAccountClick} 
+                  className="py-3.5 text-left text-[var(--foreground)] hover:text-[var(--primary)] flex items-center justify-between w-full cursor-pointer text-xs font-black tracking-wider transition-colors"
+                >
                   <span>Login / Register</span>
-                  <span className="text-xs text-[var(--secondary-foreground)]">Sign In</span>
+                  <span className="text-xs text-[var(--primary)] font-bold">Sign In</span>
                 </button>
               )}
             </div>
 
-            <a 
-              href="https://wa.me/918080808447?text=Hello%20PopCo%2C%20I%20am%20interested%20in%20partnering%20with%20you" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[var(--primary)] text-white text-xs font-bold uppercase tracking-widest shadow-md"
-            >
-              <FaWhatsapp size={15} />
-              <span>Partner With Us (WhatsApp)</span>
-            </a>
+            <div className="pt-3">
+              <a 
+                href="https://wa.me/918080808447?text=Hello%20PopCo%2C%20I%20am%20interested%20in%20partnering%20with%20you" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[var(--primary)] text-white text-xs font-bold uppercase tracking-widest shadow-md"
+              >
+                <FaWhatsapp size={15} />
+                <span>Partner With Us (WhatsApp)</span>
+              </a>
+            </div>
           </div>
         )}
       </header>

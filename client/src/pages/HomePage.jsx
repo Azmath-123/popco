@@ -310,7 +310,7 @@ export const HomePage = ({ onOpenCheckout }) => {
         </div>
 
         <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-          Need Bulk Makhana or Wholesale Sacks?
+          Need Bulk Makhana or Snacks?
         </h2>
 
         {/* Action Buttons */}
@@ -342,7 +342,7 @@ export const HomePage = ({ onOpenCheckout }) => {
               onClick={() => openPolicy('faq')}
               className="flex-1 sm:flex-none px-5 py-3.5 rounded-full bg-transparent hover:bg-white/10 text-white/90 hover:text-white text-xs font-bold uppercase tracking-wider border border-white/20 transition-all cursor-pointer text-center"
             >
-              Wholesale FAQ
+              FAQ
             </button>
           </div>
         </div>
