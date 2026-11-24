@@ -64,18 +64,6 @@ export const WholesaleBulkModal = () => {
   const [quantityKg, setQuantityKg] = useState(50);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (!isBulkOrderOpen) return;
-    const prevBody = document.body.style.overflow;
-    const prevHtml = document.documentElement.style.overflow;
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prevBody;
-      document.documentElement.style.overflow = prevHtml;
-    };
-  }, [isBulkOrderOpen]);
-
   if (!isBulkOrderOpen) return null;
 
   const currentProduct = WHOLESALE_PRODUCTS[selectedProductIndex];

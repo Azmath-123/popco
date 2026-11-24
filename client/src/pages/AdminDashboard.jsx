@@ -9,7 +9,7 @@ import { InventoryTab } from '../features/admin/tabs/InventoryTab.jsx';
 import { StoreSettingsTab } from '../features/admin/tabs/StoreSettingsTab.jsx';
 export const AdminDashboard = () => {
     const { products, addProduct, updateProduct, deleteProduct, resetProducts, orders, updateOrderStatus, currentUser, settings, updateSettings, showToast, } = useStore();
-    if (!currentUser) {
+    if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'admin')) {
         return null;
     }
     const [activeTab, setActiveTab] = useState('analytics');

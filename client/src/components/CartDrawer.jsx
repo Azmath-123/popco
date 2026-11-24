@@ -6,18 +6,6 @@ export const CartDrawer = ({ onProceedToCheckout }) => {
     const { cart, isCartOpen, setIsCartOpen, cartCount, cartSubtotal, cartGrossSubtotal, comboDiscount, shippingFee, cartTotal, removeFromCart, updateQuantity, currentUser, settings, } = useStore();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (!isCartOpen) return;
-        const prevBody = document.body.style.overflow;
-        const prevHtml = document.documentElement.style.overflow;
-        document.body.style.overflow = 'hidden';
-        document.documentElement.style.overflow = 'hidden';
-        return () => {
-            document.body.style.overflow = prevBody;
-            document.documentElement.style.overflow = prevHtml;
-        };
-    }, [isCartOpen]);
-
     if (!isCartOpen)
         return null;
     const freeShippingThreshold = settings.freeShippingThreshold;

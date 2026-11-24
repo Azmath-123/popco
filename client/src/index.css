@@ -173,6 +173,11 @@
     max-width: 100vw;
   }
 
+  html.modal-open,
+  body.modal-open {
+    overflow: hidden !important;
+  }
+
   body {
     @apply bg-background text-foreground;
   }

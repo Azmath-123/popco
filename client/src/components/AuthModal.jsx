@@ -14,19 +14,6 @@ export const AuthModal = () => {
     const [email, setEmail] = useState('');
     const [formError, setFormError] = useState('');
 
-    // Prevent background scrolling while auth modal is open
-    useEffect(() => {
-        if (!isAuthModalOpen) return;
-        const prevBody = document.body.style.overflow;
-        const prevHtml = document.documentElement.style.overflow;
-        document.body.style.overflow = 'hidden';
-        document.documentElement.style.overflow = 'hidden';
-        return () => {
-            document.body.style.overflow = prevBody;
-            document.documentElement.style.overflow = prevHtml;
-        };
-    }, [isAuthModalOpen]);
-
     if (!isAuthModalOpen)
         return null;
 
@@ -73,7 +60,10 @@ export const AuthModal = () => {
             signup(name.trim(), email.trim().toLowerCase(), fullPhone, password);
         }
     };
-    return (<div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain">
+    return (<div 
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overscroll-contain"
+      onClick={(e) => { if (e.target === e.currentTarget) setIsAuthModalOpen(false); }}
+    >
       <div className="bg-[var(--background)] rounded-2xl shadow-2xl max-w-md w-full border border-[var(--border)]/20 overflow-hidden relative">
         {/* Background artwork or header */}
         <div className="bg-[var(--primary)] text-white p-6 relative">

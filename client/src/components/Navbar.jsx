@@ -126,11 +126,13 @@ export const Navbar = () => {
     };
 
     const handleAccountClick = () => {
-        if (currentUser) {
-            navigate('/admin');
-        } else {
+        if (!currentUser) {
             setAuthModalMode('login');
             setIsAuthModalOpen(true);
+        } else if (currentUser.role === 'admin' || currentUser.role === 'super_admin') {
+            navigate('/admin');
+        } else {
+            navigate('/profile');
         }
         setMobileMenuOpen(false);
     };
@@ -363,7 +365,13 @@ export const Navbar = () => {
             <button 
               onClick={handleAccountClick} 
               className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full hover:bg-[var(--primary)]/10 transition-colors text-[var(--foreground)] cursor-pointer" 
-              title={currentUser ? `Logged in as ${currentUser.name} - Open Admin Panel` : 'Login / Register'}
+              title={
+                !currentUser 
+                  ? 'Login / Register' 
+                  : currentUser.role === 'admin' || currentUser.role === 'super_admin'
+                    ? `Logged in as ${currentUser.name} (Admin) - Open Admin Panel`
+                    : `Logged in as ${currentUser.name} - Open My Account`
+              }
             >
               <div className="w-8 h-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center font-bold text-xs uppercase shadow-sm shrink-0">
                 {currentUser ? currentUser.name.charAt(0) : <UserIcon size={16}/>}
@@ -374,7 +382,7 @@ export const Navbar = () => {
                     {currentUser.name}
                   </span>
                   <span className="text-[10px] text-[var(--primary)] font-semibold uppercase tracking-wider leading-none mt-0.5">
-                    Admin
+                    {currentUser.role === 'admin' || currentUser.role === 'super_admin' ? 'Admin' : 'Account'}
                   </span>
                 </div>
               )}
@@ -522,13 +530,23 @@ export const Navbar = () => {
               </Link>
 
               {currentUser ? (
-                <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="py-2.5 border-b border-[var(--border)]/10 flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <UserIcon size={16} className="text-[var(--primary)]" />
-                    <span className="truncate max-w-[180px] sm:max-w-[240px]">{currentUser.name} (Admin Panel)</span>
-                  </span>
-                  <span className="text-[10px] bg-[var(--primary)] text-white px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Open</span>
-                </Link>
+                currentUser.role === 'admin' || currentUser.role === 'super_admin' ? (
+                  <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="py-2.5 border-b border-[var(--border)]/10 flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <UserIcon size={16} className="text-[var(--primary)]" />
+                      <span className="truncate max-w-[180px] sm:max-w-[240px]">{currentUser.name} (Admin Panel)</span>
+                    </span>
+                    <span className="text-[10px] bg-[var(--primary)] text-white px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Admin</span>
+                  </Link>
+                ) : (
+                  <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="py-2.5 border-b border-[var(--border)]/10 flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <UserIcon size={16} className="text-[var(--primary)]" />
+                      <span className="truncate max-w-[180px] sm:max-w-[240px]">{currentUser.name} (My Profile)</span>
+                    </span>
+                    <span className="text-[10px] bg-[var(--primary)] text-white px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Account</span>
+                  </Link>
+                )
               ) : (
                 <button onClick={handleAccountClick} className="py-2 text-left border-b border-[var(--border)]/10 text-[var(--foreground)] flex items-center justify-between w-full cursor-pointer">
                   <span>Login / Register</span>

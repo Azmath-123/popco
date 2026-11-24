@@ -52,19 +52,27 @@ const AppContent = () => {
   const isAdmin = location.pathname.startsWith('/admin');
   const { isCartOpen, isBulkOrderOpen, isAuthModalOpen, activePolicy } = useStore();
 
-  // Stop background interface scrolling whenever any modal or drawer is active
+  // Stop background interface scrolling ONLY while a modal or drawer is active
   useEffect(() => {
-    const isModalOpen = isCheckoutOpen || isCartOpen || isBulkOrderOpen || isAuthModalOpen || Boolean(activePolicy);
+    const isModalOpen = Boolean(isCheckoutOpen || isCartOpen || isBulkOrderOpen || isAuthModalOpen || activePolicy);
     if (isModalOpen) {
-      const prevBodyOverflow = document.body.style.overflow;
-      const prevHtmlOverflow = document.documentElement.style.overflow;
-      document.body.style.overflow = 'hidden';
+      document.documentElement.classList.add('modal-open');
+      document.body.classList.add('modal-open');
       document.documentElement.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = prevBodyOverflow;
-        document.documentElement.style.overflow = prevHtmlOverflow;
-      };
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.documentElement.classList.remove('modal-open');
+      document.body.classList.remove('modal-open');
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
     }
+
+    return () => {
+      document.documentElement.classList.remove('modal-open');
+      document.body.classList.remove('modal-open');
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    };
   }, [isCheckoutOpen, isCartOpen, isBulkOrderOpen, isAuthModalOpen, activePolicy]);
 
   return (<div className="min-h-screen flex flex-col font-sans bg-[var(--background)] text-[var(--foreground)]">

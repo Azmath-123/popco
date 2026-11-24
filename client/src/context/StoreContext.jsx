@@ -22,7 +22,14 @@ export const StoreProvider = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isBulkOrderOpen, setIsBulkOrderOpen] = useState(false);
   const [reviews, setReviews] = useState(INITIAL_REVIEWS);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const cached = localStorage.getItem('popco_current_user');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('login');
   const [orders, setOrders] = useState([]);
@@ -40,16 +47,32 @@ export const StoreProvider = ({ children }) => {
   };
 
   const refreshStore = async () => {
-    const [bootstrap, cartResponse] = await Promise.all([
-      apiRequest('/store/bootstrap'),
-      apiRequest('/cart'),
-    ]);
-    setProducts(bootstrap.products || []);
-    setReviews(bootstrap.reviews || []);
-    setSettings({ ...DEFAULT_SETTINGS, ...(bootstrap.settings || {}) });
-    setCurrentUser(bootstrap.user || null);
-    setOrders(bootstrap.orders || []);
-    setCart(cartResponse.items || []);
+    try {
+      const [bootstrap, cartResponse] = await Promise.all([
+        apiRequest('/store/bootstrap'),
+        apiRequest('/cart'),
+      ]);
+      setProducts(bootstrap?.products?.length ? bootstrap.products : INITIAL_PRODUCTS);
+      setReviews(bootstrap?.reviews?.length ? bootstrap.reviews : INITIAL_REVIEWS);
+      setSettings({ ...DEFAULT_SETTINGS, ...(bootstrap?.settings || {}) });
+      if (bootstrap?.user) {
+        setCurrentUser(bootstrap.user);
+        try {
+          localStorage.setItem('popco_current_user', JSON.stringify(bootstrap.user));
+        } catch {}
+      } else {
+        const cached = localStorage.getItem('popco_current_user');
+        if (cached) {
+          try {
+            setCurrentUser(JSON.parse(cached));
+          } catch {}
+        }
+      }
+      setOrders(bootstrap?.orders || []);
+      setCart(cartResponse?.items || []);
+    } catch (err) {
+      console.warn('Store refresh error:', err);
+    }
   };
 
   useEffect(() => {
@@ -60,7 +83,19 @@ export const StoreProvider = ({ children }) => {
         setProducts(bootstrap?.products?.length ? bootstrap.products : INITIAL_PRODUCTS);
         setReviews(bootstrap?.reviews?.length ? bootstrap.reviews : INITIAL_REVIEWS);
         setSettings({ ...DEFAULT_SETTINGS, ...(bootstrap?.settings || {}) });
-        setCurrentUser(bootstrap?.user || null);
+        if (bootstrap?.user) {
+          setCurrentUser(bootstrap.user);
+          try {
+            localStorage.setItem('popco_current_user', JSON.stringify(bootstrap.user));
+          } catch {}
+        } else {
+          const cached = localStorage.getItem('popco_current_user');
+          if (cached) {
+            try {
+              setCurrentUser(JSON.parse(cached));
+            } catch {}
+          }
+        }
         setOrders(bootstrap?.orders || []);
         setCart(cartResponse?.items || []);
       })
@@ -258,23 +293,52 @@ export const StoreProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      await apiRequest('/auth/login', { method: 'POST', body: { email, password } });
+      const user = await apiRequest('/auth/login', { method: 'POST', body: { email, password } });
+      if (user) {
+        setCurrentUser(user);
+        try {
+          localStorage.setItem('popco_current_user', JSON.stringify(user));
+        } catch {}
+      }
       setIsAuthModalOpen(false);
-      await refreshStore();
-      showToast('Welcome back!', 'success');
-    } catch (error) { showToast(error.message, 'error'); }
+      try {
+        await refreshStore();
+      } catch (err) {
+        console.warn('refreshStore error after login:', err);
+      }
+      showToast(`Welcome back, ${user?.name || 'Admin'}!`, 'success');
+      return user;
+    } catch (error) { 
+      showToast(error.message, 'error'); 
+      throw error;
+    }
   };
   const signup = async (name, email, phone, password) => {
     try {
-      await apiRequest('/auth/register', { method: 'POST', body: { name, email, phone, password } });
+      const user = await apiRequest('/auth/register', { method: 'POST', body: { name, email, phone, password } });
+      if (user) {
+        setCurrentUser(user);
+        try {
+          localStorage.setItem('popco_current_user', JSON.stringify(user));
+        } catch {}
+      }
       setIsAuthModalOpen(false);
-      await refreshStore();
+      try {
+        await refreshStore();
+      } catch (err) {
+        console.warn('refreshStore error after register:', err);
+      }
       showToast(`Welcome to PopCo, ${name}!`, 'success');
-    } catch (error) { showToast(error.message, 'error'); }
+      return user;
+    } catch (error) { 
+      showToast(error.message, 'error'); 
+      throw error;
+    }
   };
   const logout = async () => {
     try { await apiRequest('/auth/logout', { method: 'POST' }); }
     catch (error) { showToast(error.message, 'error'); }
+    try { localStorage.removeItem('popco_current_user'); } catch {}
     setCurrentUser(null);
     setOrders([]);
     showToast('Logged out successfully.', 'info');
