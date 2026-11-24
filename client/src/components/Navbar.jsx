@@ -12,7 +12,9 @@ import {
   ChevronDown, 
   ChevronRight, 
   Coffee, 
-  ArrowRight 
+  ArrowRight,
+  LogOut,
+  ShieldCheck
 } from 'lucide-react';
 
 const PRODUCTS_DATA = [
@@ -32,7 +34,7 @@ const PRODUCTS_DATA = [
     id: 'edamame',
     name: 'Roasted and Salted Edamame Beans',
     subtitle: 'Plant Protein & Fibre • 150g Pack',
-    price: '₹299',
+    price: '₹260',
     badge: '46% Protein',
     badgeColor: 'bg-[var(--secondary-foreground)] text-white',
     image: '/products/popco-roasted-edamame-150g-front.jpg',
@@ -59,6 +61,8 @@ export const Navbar = () => {
       cartCount, 
       setIsCartOpen, 
       currentUser, 
+      logout,
+      showToast,
       setIsAuthModalOpen, 
       setAuthModalMode, 
       searchQuery, 
@@ -69,11 +73,24 @@ export const Navbar = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [mobileProductsOpen, setMobileProductsOpen] = useState(true);
     const [desktopProductsOpen, setDesktopProductsOpen] = useState(false);
+    const [profileMenuOpen, setProfileMenuOpen] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
 
     const hoverTimeoutRef = useRef(null);
+    const profileMenuRef = useRef(null);
     const navigate = useNavigate();
     const location = useLocation();
+
+    // Close profile dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
+                setProfileMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const handleDropdownEnter = () => {
         if (hoverTimeoutRef.current) {
@@ -99,6 +116,7 @@ export const Navbar = () => {
     // Close menus on route change
     useEffect(() => {
         setDesktopProductsOpen(false);
+        setProfileMenuOpen(false);
         setMobileMenuOpen(false);
     }, [location.pathname]);
 
@@ -129,46 +147,53 @@ export const Navbar = () => {
         if (!currentUser) {
             setAuthModalMode('login');
             setIsAuthModalOpen(true);
-        } else if (currentUser.role === 'admin' || currentUser.role === 'super_admin') {
-            navigate('/admin');
+            setMobileMenuOpen(false);
         } else {
-            navigate('/profile');
+            setProfileMenuOpen((prev) => !prev);
         }
-        setMobileMenuOpen(false);
     };
 
     return (
       <header className="sticky top-0 z-30 bg-[var(--background)]/95 backdrop-blur-md border-b border-[var(--border)]/10 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-          {/* Left: Mobile Menu Trigger & Logo */}
-          <div className="flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3 sm:gap-4">
+          {/* Left: Mobile & Tablet Menu Trigger & Logo */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
-              className="md:hidden p-2 text-[var(--foreground)] hover:bg-[var(--primary)]/5 rounded-lg transition-colors cursor-pointer" 
+              className="lg:hidden p-2 text-[var(--foreground)] hover:bg-[var(--primary)]/5 rounded-lg transition-colors cursor-pointer" 
               aria-label="Toggle navigation"
             >
               {mobileMenuOpen ? <X size={24}/> : <Menu size={24}/>}
             </button>
 
-            <Link to="/" className="flex items-center gap-3 group">
+            <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
               <img 
                 src="/popco-logo.webp" 
                 alt="PopCo" 
-                className="h-12 md:h-14 w-auto object-contain transition-transform group-hover:scale-105"
+                className="h-10 sm:h-12 md:h-14 w-auto object-contain transition-transform group-hover:scale-105 shrink-0"
               />
-              <div className="hidden sm:block text-left">
-                <span className="block text-xl font-extrabold tracking-wider text-[var(--foreground)] leading-none">
+              <div className="hidden sm:block text-left shrink-0">
+                <span className="block text-lg sm:text-xl font-extrabold tracking-wider text-[var(--foreground)] leading-none whitespace-nowrap">
                   POPCO
                 </span>
-                <span className="block text-[10px] tracking-widest text-[var(--secondary-foreground)] font-semibold mt-0.5">
+                <span className="block text-[10px] tracking-widest text-[var(--secondary-foreground)] font-semibold mt-0.5 whitespace-nowrap">
                   INDIA
                 </span>
               </div>
             </Link>
           </div>
 
-          {/* Center: Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8 font-sans text-xs lg:text-sm font-bold uppercase tracking-widest text-[var(--foreground)]/80">
+          {/* Center: Desktop Navigation Links (Visible on large screens 1024px+ so it never overlaps on tablets) */}
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-8 font-sans text-xs xl:text-sm font-bold uppercase tracking-widest text-[var(--foreground)]/80 shrink-0">
+            {/* Home Navigation Link */}
+            <Link 
+              to="/" 
+              className="hover:text-[var(--foreground)] transition-colors py-2 relative group cursor-pointer font-bold uppercase tracking-widest text-xs lg:text-sm"
+            >
+              <span>Home</span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--primary)] transition-all group-hover:w-full"></span>
+            </Link>
+
             {/* Products Dropdown (Hover Trigger) */}
             <div 
               className="relative"
@@ -188,111 +213,82 @@ export const Navbar = () => {
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--primary)] transition-all group-hover:w-full"></span>
               </button>
 
-              {/* Desktop Hover Mega-Dropdown */}
+              {/* Desktop Products Dropdown (Names Only - No Images) */}
               {desktopProductsOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 w-[720px] z-50">
-                  <div className="bg-white/95 backdrop-blur-md rounded-3xl border border-[var(--border)]/20 shadow-2xl p-5 space-y-4">
-                    {/* Dropdown Header */}
-                    <div className="flex items-center justify-between border-b border-[var(--border)]/10 pb-3">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse"></span>
-                        <span className="text-xs font-black uppercase tracking-wider text-[var(--foreground)]">
-                          POP CO Products
-                        </span>
-                      </div>
+                <div className="absolute top-full left-0 pt-2 w-80 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <div className="bg-white/98 backdrop-blur-md rounded-2xl border border-[var(--border)]/30 shadow-2xl p-3 space-y-1">
+                    <div className="px-2.5 py-1.5 border-b border-[var(--border)]/15 flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-[var(--foreground)]/60">
+                        PopCo Products
+                      </span>
                       <a
                         href="/#shop"
                         onClick={handleProductsClick}
-                        className="text-[11px] font-bold text-[var(--secondary-foreground)] hover:text-[var(--primary)] flex items-center gap-1 tracking-wider uppercase transition-colors"
+                        className="text-[10px] font-extrabold text-[var(--primary)] hover:underline uppercase tracking-wider cursor-pointer"
                       >
-                        <span>View All In Shop</span>
-                        <ArrowRight size={12} />
+                        Shop All
                       </a>
                     </div>
 
-                    {/* 3 Product Cards */}
-                    <div className="grid grid-cols-3 gap-3">
-                      {PRODUCTS_DATA.map((item) => {
-                        if (item.isAvailable) {
-                          return (
-                            <Link
-                              key={item.id}
-                              to={item.url}
-                              onClick={() => setDesktopProductsOpen(false)}
-                              className="group flex flex-col justify-between bg-[var(--background)]/60 hover:bg-white rounded-2xl p-3 border border-[var(--border)]/15 hover:border-[var(--primary)]/40 hover:shadow-lg transition-all duration-200 cursor-pointer text-left"
-                            >
-                              <div>
-                                <div className={`relative w-full h-32 rounded-xl ${item.bgColor} overflow-hidden flex items-center justify-center mb-2.5 shadow-inner`}>
-                                  <span className={`absolute top-2 left-2 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shadow-xs ${item.badgeColor}`}>
-                                    {item.badge}
-                                  </span>
-                                  <img
-                                    src={item.image}
-                                    alt={item.name}
-                                    className="h-full w-full object-contain p-1.5 transition-transform duration-300 group-hover:scale-105"
-                                  />
-                                </div>
-                                <h4 className="text-xs font-black uppercase text-[var(--foreground)] leading-tight group-hover:text-[var(--primary)] transition-colors line-clamp-2">
-                                  {item.name}
-                                </h4>
-                                <p className="text-[10px] text-[var(--foreground)]/60 font-sans mt-0.5">
-                                  {item.subtitle}
-                                </p>
-                              </div>
-                              <div className="mt-2.5 pt-2 border-t border-[var(--border)]/10 flex items-center justify-between">
-                                <span className="text-xs font-black text-[var(--foreground)]">
+                    {PRODUCTS_DATA.map((item) => {
+                      if (item.isAvailable) {
+                        return (
+                          <Link
+                            key={item.id}
+                            to={item.url}
+                            onClick={() => setDesktopProductsOpen(false)}
+                            className="group flex items-center justify-between p-2.5 rounded-xl hover:bg-[var(--primary)]/10 text-[var(--foreground)] hover:text-[var(--primary)] transition-all cursor-pointer"
+                          >
+                            <div className="flex flex-col text-left">
+                              <span className="font-extrabold uppercase tracking-wide text-xs group-hover:text-[var(--primary)] transition-colors">
+                                {item.name}
+                              </span>
+                              <span className="text-[10px] text-[var(--foreground)]/60 font-sans mt-0.5 normal-case">
+                                {item.subtitle}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0 ml-3">
+                              {item.price && (
+                                <span className="text-[11px] font-black text-[var(--foreground)]/80 group-hover:text-[var(--primary)]">
                                   {item.price}
                                 </span>
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--primary)] flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
-                                  <span>View</span>
-                                  <ChevronRight size={12} />
-                                </span>
-                              </div>
-                            </Link>
-                          );
-                        }
-
-                        // Product 3: Tea (Coming Soon, Not clickable)
-                        return (
-                          <div
-                            key={item.id}
-                            className="flex flex-col justify-between bg-gradient-to-b from-[#FFFDF9] to-[#FEF3C7]/40 rounded-2xl p-3 border-2 border-dashed border-amber-300/80 cursor-not-allowed select-none relative overflow-hidden shadow-xs text-left"
-                          >
-                            <div>
-                              {/* Coming Soon Banner */}
-                              <div className="w-full bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white text-[9px] font-black uppercase tracking-widest py-1 text-center rounded-lg shadow-xs mb-2">
-                                COMING SOON
-                              </div>
-
-                              {/* Tea Visual */}
-                              <div className={`relative w-full h-24 rounded-xl ${item.bgColor} flex flex-col items-center justify-center mb-2.5 border border-amber-200/60 shadow-inner`}>
-                                <div className="w-10 h-10 rounded-full bg-amber-200/70 text-amber-900 flex items-center justify-center shadow-xs">
-                                  <Coffee size={20} />
-                                </div>
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-900/80 mt-1">
-                                  Artisan Chai
-                                </span>
-                              </div>
-
-                              <h4 className="text-xs font-black uppercase text-amber-950 leading-tight">
-                                {item.name}
-                              </h4>
-                              <p className="text-[10px] text-amber-900/70 font-sans mt-0.5">
-                                {item.subtitle}
-                              </p>
+                              )}
+                              <ChevronRight size={14} className="text-[var(--foreground)]/40 group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition-all" />
                             </div>
-
-                            <div className="mt-2.5 pt-2 border-t border-amber-200/50 flex items-center justify-between">
-                              <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
-                                In Crafting
-                              </span>
-                              <span className="text-[10px] font-bold text-amber-800/60">
-                                Coming Soon
-                              </span>
-                            </div>
-                          </div>
+                          </Link>
                         );
-                      })}
+                      }
+
+                      // Coming soon item (Tea)
+                      return (
+                        <div
+                          key={item.id}
+                          className="flex items-center justify-between p-2.5 rounded-xl text-[var(--foreground)]/50 select-none bg-black/[0.02]"
+                        >
+                          <div className="flex flex-col text-left">
+                            <span className="font-bold uppercase tracking-wide text-xs">
+                              {item.name}
+                            </span>
+                            <span className="text-[10px] text-[var(--foreground)]/40 font-sans mt-0.5 normal-case">
+                              {item.subtitle}
+                            </span>
+                          </div>
+                          <span className="text-[9px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 ml-3">
+                            Coming Soon
+                          </span>
+                        </div>
+                      );
+                    })}
+
+                    <div className="pt-2 border-t border-[var(--border)]/15 mt-1">
+                      <a
+                        href="/#shop"
+                        onClick={handleProductsClick}
+                        className="flex items-center justify-between p-2 rounded-xl text-[11px] font-black text-[var(--secondary-foreground)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/5 transition-colors uppercase tracking-wider cursor-pointer"
+                      >
+                        <span>View All In Store</span>
+                        <ArrowRight size={13} />
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -325,8 +321,8 @@ export const Navbar = () => {
             </a>
           </nav>
 
-          {/* Right: Search, Cart & Account Icons */}
-          <div className="flex items-center gap-2 sm:gap-4">
+          {/* Right: Search, Cart, Account & Logout Icons */}
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* Search Bar Toggle */}
             <div className="relative">
               {showSearch ? (
@@ -337,7 +333,7 @@ export const Navbar = () => {
                     placeholder="Search makhana..." 
                     value={searchQuery} 
                     onChange={(e) => setSearchQuery(e.target.value)} 
-                    className="bg-transparent text-xs text-[var(--foreground)] outline-none w-32 sm:w-48 placeholder:text-[var(--foreground)]/40 uppercase" 
+                    className="bg-transparent text-xs text-[var(--foreground)] outline-none w-28 sm:w-48 placeholder:text-[var(--foreground)]/40 uppercase" 
                     autoFocus
                   />
                   <button 
@@ -353,7 +349,7 @@ export const Navbar = () => {
               ) : (
                 <button 
                   onClick={() => setShowSearch(true)} 
-                  className="w-10 h-10 flex items-center justify-center rounded-full text-[var(--foreground)] hover:bg-[var(--primary)]/10 transition-colors" 
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-[var(--foreground)] hover:bg-[var(--primary)]/10 transition-colors" 
                   title="Search products"
                 >
                   <Search size={19}/>
@@ -361,40 +357,111 @@ export const Navbar = () => {
               )}
             </div>
 
-            {/* User Account / Profile */}
-            <button 
-              onClick={handleAccountClick} 
-              className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full hover:bg-[var(--primary)]/10 transition-colors text-[var(--foreground)] cursor-pointer" 
-              title={
-                !currentUser 
-                  ? 'Login / Register' 
-                  : currentUser.role === 'admin' || currentUser.role === 'super_admin'
-                    ? `Logged in as ${currentUser.name} (Admin) - Open Admin Panel`
-                    : `Logged in as ${currentUser.name} - Open My Account`
-              }
-            >
-              <div className="w-8 h-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center font-bold text-xs uppercase shadow-sm shrink-0">
-                {currentUser ? currentUser.name.charAt(0) : <UserIcon size={16}/>}
-              </div>
-              {currentUser && (
-                <div className="flex flex-col text-left max-w-[80px] sm:max-w-[120px] md:max-w-[140px]">
-                  <span className="text-xs font-bold leading-tight truncate text-[var(--foreground)]" title={currentUser.name}>
-                    {currentUser.name}
-                  </span>
-                  <span className="text-[10px] text-[var(--primary)] font-semibold uppercase tracking-wider leading-none mt-0.5">
-                    {currentUser.role === 'admin' || currentUser.role === 'super_admin' ? 'Admin' : 'Account'}
-                  </span>
+            {/* User Account / Profile with Dropdown */}
+            <div className="relative shrink-0" ref={profileMenuRef}>
+              <button 
+                onClick={handleAccountClick} 
+                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-full hover:bg-[var(--primary)]/10 transition-colors text-[var(--foreground)] cursor-pointer" 
+                title={
+                  !currentUser 
+                    ? 'Login / Register' 
+                    : currentUser.role === 'admin' || currentUser.role === 'super_admin'
+                      ? `Logged in as ${currentUser.name} (Admin)`
+                      : `Logged in as ${currentUser.name}`
+                }
+                aria-label="User account"
+              >
+                <div className="w-8 h-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center font-bold text-xs uppercase shadow-sm shrink-0">
+                  {currentUser ? currentUser.name.charAt(0) : <UserIcon size={16}/>}
+                </div>
+                {currentUser && (
+                  <div className="hidden sm:flex flex-col text-left max-w-[80px] md:max-w-[120px]">
+                    <span className="text-xs font-bold leading-tight truncate text-[var(--foreground)]" title={currentUser.name}>
+                      {currentUser.name}
+                    </span>
+                    <span className="text-[10px] text-[var(--primary)] font-semibold uppercase tracking-wider leading-none mt-0.5">
+                      {currentUser.role === 'admin' || currentUser.role === 'super_admin' ? 'Admin' : 'Account'}
+                    </span>
+                  </div>
+                )}
+                {currentUser && (
+                  <ChevronDown size={14} className={`hidden sm:block text-[var(--foreground)]/50 transition-transform ${profileMenuOpen ? 'rotate-180 text-[var(--primary)]' : ''}`} />
+                )}
+              </button>
+
+              {/* Profile Dropdown: Admin Panel or User Panel + Logout Below */}
+              {currentUser && profileMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-56 bg-white/98 backdrop-blur-md rounded-2xl shadow-2xl border border-[var(--border)]/20 p-2 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <div className="px-3 py-2 border-b border-[var(--border)]/15 mb-1">
+                    <p className="text-xs font-black uppercase text-[var(--foreground)] truncate">
+                      {currentUser.name}
+                    </p>
+                    <p className="text-[10px] text-[var(--foreground)]/60 truncate font-sans lowercase">
+                      {currentUser.email}
+                    </p>
+                    <span className="inline-block mt-1 text-[9px] font-black uppercase tracking-wider bg-[var(--primary)]/10 text-[var(--primary)] px-2 py-0.5 rounded-full">
+                      {currentUser.role === 'admin' || currentUser.role === 'super_admin' ? 'Administrator' : 'Customer Account'}
+                    </span>
+                  </div>
+
+                  {/* Panel navigation: Admin panel for admin, User panel for customer */}
+                  {currentUser.role === 'admin' || currentUser.role === 'super_admin' ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        navigate('/admin');
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-[var(--primary)]/10 text-[var(--foreground)] hover:text-[var(--primary)] transition-all text-xs font-bold uppercase tracking-wider cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck size={16} className="text-[var(--primary)]" />
+                        <span>Admin Panel</span>
+                      </div>
+                      <ChevronRight size={14} className="text-[var(--primary)]/60" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        navigate('/profile');
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-[var(--primary)]/10 text-[var(--foreground)] hover:text-[var(--primary)] transition-all text-xs font-bold uppercase tracking-wider cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <UserIcon size={16} className="text-[var(--primary)]" />
+                        <span>User Panel</span>
+                      </div>
+                      <ChevronRight size={14} className="text-[var(--primary)]/60" />
+                    </button>
+                  )}
+
+                  {/* Logout option below panel */}
+                  <div className="pt-1.5 mt-1 border-t border-[var(--border)]/15">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setProfileMenuOpen(false);
+                        await logout();
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-rose-50 text-rose-600 transition-all text-xs font-black uppercase tracking-wider cursor-pointer"
+                    >
+                      <LogOut size={16} />
+                      <span>Logout</span>
+                    </button>
+                  </div>
                 </div>
               )}
-            </button>
+            </div>
 
             {/* Cart Drawer Trigger */}
             <button 
               onClick={() => setIsCartOpen(true)} 
-              className="relative w-11 h-11 flex items-center justify-center rounded-full bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90 transition-all shadow-md shadow-[var(--primary)]/20 active:scale-95 cursor-pointer group" 
+              className="relative w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-full bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90 transition-all shadow-md shadow-[var(--primary)]/20 active:scale-95 cursor-pointer group shrink-0" 
               title="Shopping Cart"
             >
-              <ShoppingBag size={20} className="transition-transform group-hover:scale-110"/>
+              <ShoppingBag size={19} className="transition-transform group-hover:scale-110"/>
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-[var(--secondary-foreground)] text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-[var(--background)] animate-pulse">
                   {cartCount}
@@ -404,11 +471,21 @@ export const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
+        {/* Mobile & Tablet Menu Dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-[var(--background)] border-b border-[var(--border)]/15 px-5 py-3 shadow-xl max-h-[calc(100vh-5rem)] overflow-y-auto">
+          <div className="lg:hidden bg-[var(--background)] border-b border-[var(--border)]/15 px-5 py-3 shadow-xl max-h-[calc(100vh-5rem)] overflow-y-auto animate-in slide-in-from-top-2 duration-200">
             <div className="flex flex-col font-sans text-xs font-bold uppercase tracking-wider text-[var(--foreground)] divide-y divide-[var(--border)]/15">
-              {/* Product items (clean text only, matching Image 1) */}
+              {/* Home link */}
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-3.5 flex items-center justify-between text-xs font-black tracking-wider text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
+              >
+                <span>Home</span>
+                <ChevronRight size={16} className="text-[var(--foreground)]/40" />
+              </Link>
+
+              {/* Product items (clean text only) */}
               {PRODUCTS_DATA.map((item) => {
                 if (item.isAvailable) {
                   return (
@@ -424,7 +501,7 @@ export const Navbar = () => {
                   );
                 }
 
-                // Tea coming soon (refer to Image 1)
+                // Tea coming soon
                 return (
                   <div
                     key={item.id}
@@ -437,6 +514,22 @@ export const Navbar = () => {
                   </div>
                 );
               })}
+
+              {/* Bulk Order in Mobile/Tablet Menu */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setIsBulkOrderOpen(true);
+                }}
+                className="py-3.5 flex items-center justify-between text-xs font-black tracking-wider text-[var(--foreground)] hover:text-[var(--primary)] transition-colors w-full text-left cursor-pointer"
+              >
+                <span className="flex items-center gap-2">
+                  <Sparkles size={16} className="text-[var(--secondary-foreground)]" />
+                  <span>Bulk Order (Wholesale)</span>
+                </span>
+                <span className="text-[10px] bg-[var(--primary)]/10 text-[var(--primary)] px-2 py-0.5 rounded-full font-bold">50KG+</span>
+              </button>
 
               <Link 
                 to="/about" 
@@ -457,31 +550,49 @@ export const Navbar = () => {
               </Link>
 
               {currentUser ? (
-                currentUser.role === 'admin' || currentUser.role === 'super_admin' ? (
-                  <Link 
-                    to="/admin" 
-                    onClick={() => setMobileMenuOpen(false)} 
-                    className="py-3.5 flex items-center justify-between text-xs font-black tracking-wider text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
+                <>
+                  {currentUser.role === 'admin' || currentUser.role === 'super_admin' ? (
+                    <Link 
+                      to="/admin" 
+                      onClick={() => setMobileMenuOpen(false)} 
+                      className="py-3.5 flex items-center justify-between text-xs font-black tracking-wider text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <UserIcon size={16} className="text-[var(--primary)]" />
+                        <span className="truncate max-w-[180px] sm:max-w-[240px]">{currentUser.name} (Admin Panel)</span>
+                      </span>
+                      <span className="text-[10px] bg-[var(--primary)] text-white px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Admin</span>
+                    </Link>
+                  ) : (
+                    <Link 
+                      to="/profile" 
+                      onClick={() => setMobileMenuOpen(false)} 
+                      className="py-3.5 flex items-center justify-between text-xs font-black tracking-wider text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <UserIcon size={16} className="text-[var(--primary)]" />
+                        <span className="truncate max-w-[180px] sm:max-w-[240px]">{currentUser.name} (My Profile)</span>
+                      </span>
+                      <span className="text-[10px] bg-[var(--primary)] text-white px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Account</span>
+                    </Link>
+                  )}
+
+                  {/* Logout Button in Mobile/Tablet Menu */}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setMobileMenuOpen(false);
+                      await logout();
+                    }}
+                    className="py-3.5 flex items-center justify-between text-xs font-black tracking-wider text-red-600 hover:text-red-700 transition-colors w-full cursor-pointer"
                   >
                     <span className="flex items-center gap-2">
-                      <UserIcon size={16} className="text-[var(--primary)]" />
-                      <span className="truncate max-w-[180px] sm:max-w-[240px]">{currentUser.name} (Admin Panel)</span>
+                      <LogOut size={16} />
+                      <span>Log Out ({currentUser.name})</span>
                     </span>
-                    <span className="text-[10px] bg-[var(--primary)] text-white px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Admin</span>
-                  </Link>
-                ) : (
-                  <Link 
-                    to="/profile" 
-                    onClick={() => setMobileMenuOpen(false)} 
-                    className="py-3.5 flex items-center justify-between text-xs font-black tracking-wider text-[var(--foreground)] hover:text-[var(--primary)] transition-colors"
-                  >
-                    <span className="flex items-center gap-2">
-                      <UserIcon size={16} className="text-[var(--primary)]" />
-                      <span className="truncate max-w-[180px] sm:max-w-[240px]">{currentUser.name} (My Profile)</span>
-                    </span>
-                    <span className="text-[10px] bg-[var(--primary)] text-white px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Account</span>
-                  </Link>
-                )
+                    <span className="text-[10px] bg-red-100 text-red-700 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Sign Out</span>
+                  </button>
+                </>
               ) : (
                 <button 
                   onClick={handleAccountClick} 

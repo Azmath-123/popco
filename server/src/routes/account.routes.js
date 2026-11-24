@@ -24,8 +24,9 @@ api.post('/auth/register', authLimiter, asyncRoute(async (req, res) => {
     throw error;
   });
   const user = userDto(result.rows[0]);
-  setSessionCookie(res, createAccessToken(result.rows[0]));
-  res.status(201).json(user);
+  const token = createAccessToken(result.rows[0]);
+  setSessionCookie(res, token);
+  res.status(201).json({ ...user, token });
 }));
 
 api.post('/auth/login', authLimiter, asyncRoute(async (req, res) => {
@@ -33,8 +34,9 @@ api.post('/auth/login', authLimiter, asyncRoute(async (req, res) => {
   const result = await pool.query('SELECT * FROM customers WHERE email = $1', [cleanEmail(body.email)]);
   const user = result.rows[0];
   if (!user || user.status !== 'active' || !(await verifyPassword(body.password, user.password_hash))) fail(401, 'INVALID_CREDENTIALS', 'Email or password is incorrect.');
-  setSessionCookie(res, createAccessToken(user));
-  res.json(userDto(user));
+  const token = createAccessToken(user);
+  setSessionCookie(res, token);
+  res.json({ ...userDto(user), token });
 }));
 
 api.post('/auth/logout', (_req, res) => { clearSessionCookie(res); res.status(204).end(); });

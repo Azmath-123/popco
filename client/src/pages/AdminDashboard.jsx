@@ -1,14 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { useStore } from '../context/StoreContext';
-import { BarChart3, Package, ShoppingBag, Settings, ShieldCheck, Plus, Trash2, Edit3, TrendingUp, AlertTriangle, Printer, RotateCcw, Save, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { BarChart3, Package, ShoppingBag, Settings, ShieldCheck, Plus, Trash2, Edit3, TrendingUp, AlertTriangle, Printer, RotateCcw, Save, X, LogOut, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { AnalyticsTab } from '../features/admin/tabs/AnalyticsTab.jsx';
 import { OrdersTab } from '../features/admin/tabs/OrdersTab.jsx';
 import { ProductsTab } from '../features/admin/tabs/ProductsTab.jsx';
 import { InventoryTab } from '../features/admin/tabs/InventoryTab.jsx';
 import { StoreSettingsTab } from '../features/admin/tabs/StoreSettingsTab.jsx';
 export const AdminDashboard = () => {
-    const { products, addProduct, updateProduct, deleteProduct, resetProducts, orders, updateOrderStatus, currentUser, settings, updateSettings, showToast, } = useStore();
+    const { products, addProduct, updateProduct, deleteProduct, resetProducts, orders, updateOrderStatus, currentUser, logout, settings, updateSettings, showToast, } = useStore();
+    const navigate = useNavigate();
     if (!currentUser || (currentUser.role !== 'super_admin' && currentUser.role !== 'admin')) {
         return null;
     }
@@ -19,6 +20,7 @@ export const AdminDashboard = () => {
     const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState(null);
     // Product Form (Create / Edit Modal)
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+    const [isSavingProduct, setIsSavingProduct] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [prodName, setProdName] = useState('');
     const [prodSlug, setProdSlug] = useState('');
@@ -33,6 +35,7 @@ export const AdminDashboard = () => {
     const [settWhatsapp, setSettWhatsapp] = useState(settings.whatsappNumber);
     const [settEmail, setSettEmail] = useState(settings.supportEmail);
     const [settThreshold, setSettThreshold] = useState(settings.freeShippingThreshold.toString());
+    const [isSavingSettings, setIsSavingSettings] = useState(false);
     // Analytics Metrics
     const totalRevenue = useMemo(() => {
         return orders.reduce((sum, o) => (o.paymentStatus === 'paid' ? sum + o.total : sum), 0);
@@ -79,63 +82,73 @@ export const AdminDashboard = () => {
         setProdDescription(p.description);
         setIsProductModalOpen(true);
     };
-    const handleSaveProduct = (e) => {
+    const handleSaveProduct = async (e) => {
         e.preventDefault();
-        const numPrice = parseInt(prodPrice) || 299;
-        const stock = parseInt(prodStock) || 0;
-        const slug = prodSlug.trim() || prodName.toLowerCase().replace(/[^a-z0-9]/g, '-');
-        if (editingProduct) {
-            updateProduct(editingProduct.id, {
-                name: prodName,
-                slug,
-                numericPrice: numPrice,
-                price: `₹${numPrice}`,
-                originalPrice: Math.round(numPrice * 1.25),
-                weight: prodWeight,
-                category: prodCategory,
-                image: prodImage,
-                stockCount: stock,
-                inStock: stock > 0,
-                description: prodDescription,
-            });
+        setIsSavingProduct(true);
+        try {
+            const numPrice = parseInt(prodPrice) || 299;
+            const stock = parseInt(prodStock) || 0;
+            const slug = prodSlug.trim() || prodName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            if (editingProduct) {
+                await updateProduct(editingProduct.id, {
+                    name: prodName,
+                    slug,
+                    numericPrice: numPrice,
+                    price: `₹${numPrice}`,
+                    originalPrice: Math.round(numPrice * 1.25),
+                    weight: prodWeight,
+                    category: prodCategory,
+                    image: prodImage,
+                    stockCount: stock,
+                    inStock: stock > 0,
+                    description: prodDescription,
+                });
+            }
+            else {
+                await addProduct({
+                    name: prodName,
+                    slug,
+                    numericPrice: numPrice,
+                    price: `₹${numPrice}`,
+                    originalPrice: Math.round(numPrice * 1.25),
+                    weight: prodWeight,
+                    category: prodCategory,
+                    image: prodImage,
+                    images: [prodImage],
+                    stockCount: stock,
+                    inStock: stock > 0,
+                    description: prodDescription,
+                    rating: 5,
+                    reviewCount: 0,
+                    color: 'bg-[var(--secondary)]',
+                    metaTitle: `Buy ${prodName} | PopCo Makhana`,
+                    metaDescription: prodDescription.slice(0, 150),
+                    sku: `MMK-${Math.floor(100 + Math.random() * 900)}`,
+                    packs: [
+                        { count: 1, label: 'Single Pack', price: numPrice },
+                        { count: 2, label: 'Pack of 2', price: Math.round(numPrice * 1.85) },
+                        { count: 4, label: 'Pack of 4', price: Math.round(numPrice * 3.5) },
+                    ],
+                });
+            }
+            setIsProductModalOpen(false);
+        } finally {
+            setIsSavingProduct(false);
         }
-        else {
-            addProduct({
-                name: prodName,
-                slug,
-                numericPrice: numPrice,
-                price: `₹${numPrice}`,
-                originalPrice: Math.round(numPrice * 1.25),
-                weight: prodWeight,
-                category: prodCategory,
-                image: prodImage,
-                images: [prodImage],
-                stockCount: stock,
-                inStock: stock > 0,
-                description: prodDescription,
-                rating: 5,
-                reviewCount: 0,
-                color: 'bg-[var(--secondary)]',
-                metaTitle: `Buy ${prodName} | PopCo Makhana`,
-                metaDescription: prodDescription.slice(0, 150),
-                sku: `MMK-${Math.floor(100 + Math.random() * 900)}`,
-                packs: [
-                    { count: 1, label: 'Single Pack', price: numPrice },
-                    { count: 2, label: 'Pack of 2', price: Math.round(numPrice * 1.85) },
-                    { count: 4, label: 'Pack of 4', price: Math.round(numPrice * 3.5) },
-                ],
-            });
-        }
-        setIsProductModalOpen(false);
     };
-    const handleSaveSettings = (e) => {
+    const handleSaveSettings = async (e) => {
         e.preventDefault();
-        updateSettings({
-            announcementText: settAnnouncement,
-            whatsappNumber: settWhatsapp,
-            supportEmail: settEmail,
-            freeShippingThreshold: parseInt(settThreshold) || 599,
-        });
+        setIsSavingSettings(true);
+        try {
+            await updateSettings({
+                announcementText: settAnnouncement,
+                whatsappNumber: settWhatsapp,
+                supportEmail: settEmail,
+                freeShippingThreshold: parseInt(settThreshold) || 599,
+            });
+        } finally {
+            setIsSavingSettings(false);
+        }
     };
     return (<div className="flex-1 bg-[var(--background)] py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -165,6 +178,18 @@ export const AdminDashboard = () => {
               <RotateCcw size={13}/>
               <span>Reset Catalog</span>
             </button>
+
+            <button 
+              onClick={async () => {
+                await logout();
+                navigate('/');
+              }} 
+              className="px-3.5 sm:px-4 py-2 bg-red-600/80 hover:bg-red-600 text-white rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-sm cursor-pointer" 
+              title="Logout from Admin"
+            >
+              <LogOut size={13}/>
+              <span>Logout</span>
+            </button>
           </div>
         </div>
 
@@ -191,7 +216,7 @@ export const AdminDashboard = () => {
         {activeTab === 'orders' && <OrdersTab filteredOrders={filteredOrders} orderSearch={orderSearch} setOrderSearch={setOrderSearch} orderStatusFilter={orderStatusFilter} setOrderStatusFilter={setOrderStatusFilter} updateOrderStatus={updateOrderStatus} setSelectedOrderForInvoice={setSelectedOrderForInvoice} />}
         {activeTab === 'products' && <ProductsTab products={products} handleOpenNewProduct={handleOpenNewProduct} handleOpenEditProduct={handleOpenEditProduct} deleteProduct={deleteProduct} />}
         {activeTab === 'inventory' && <InventoryTab products={products} updateProduct={updateProduct} />}
-        {activeTab === 'settings' && <StoreSettingsTab settAnnouncement={settAnnouncement} setSettAnnouncement={setSettAnnouncement} settWhatsapp={settWhatsapp} setSettWhatsapp={setSettWhatsapp} settEmail={settEmail} setSettEmail={setSettEmail} settThreshold={settThreshold} setSettThreshold={setSettThreshold} handleSaveSettings={handleSaveSettings} />}
+        {activeTab === 'settings' && <StoreSettingsTab settAnnouncement={settAnnouncement} setSettAnnouncement={setSettAnnouncement} settWhatsapp={settWhatsapp} setSettWhatsapp={setSettWhatsapp} settEmail={settEmail} setSettEmail={setSettEmail} settThreshold={settThreshold} setSettThreshold={setSettThreshold} handleSaveSettings={handleSaveSettings} isSavingSettings={isSavingSettings} />}
       </div>
 
       {/* Product Edit / Create Modal */}
@@ -279,8 +304,19 @@ export const AdminDashboard = () => {
                 <button type="button" onClick={() => setIsProductModalOpen(false)} className="px-4 py-2 bg-white border border-[var(--border)]/20 rounded-lg font-bold text-[var(--foreground)]">
                   Cancel
                 </button>
-                <button type="submit" className="px-6 py-2 bg-[var(--primary)] text-white font-black uppercase rounded-lg hover:bg-[var(--primary)]/90">
-                  Save Product
+                <button 
+                  type="submit" 
+                  disabled={isSavingProduct}
+                  className="px-6 py-2 bg-[var(--primary)] text-white font-black uppercase rounded-lg hover:bg-[var(--primary)]/90 flex items-center gap-2 cursor-pointer disabled:opacity-60"
+                >
+                  {isSavingProduct ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <span>Save Product</span>
+                  )}
                 </button>
               </div>
             </form>

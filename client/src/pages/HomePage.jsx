@@ -1,12 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useStore } from '../context/StoreContext';
 import { HeroSlider } from '../components/HeroSlider';
 import { HomepageComboSection } from '../components/HomepageComboSection';
-import { Star, ShoppingBag, Eye, Sparkles, ArrowRight, MapPin, Award, Leaf, ShieldCheck } from 'lucide-react';
+import { Star, ShoppingBag, Eye, Sparkles, ArrowRight, MapPin, Award, Leaf, ShieldCheck, Loader2 } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useNavigate, Link } from 'react-router-dom';
 export const HomePage = ({ onOpenCheckout }) => {
-  const { products, selectedCategory, setSelectedCategory, searchQuery, setSearchQuery, sortBy, setSortBy, addToCart, openPolicy, settings, setIsBulkOrderOpen } = useStore();
+  const { products, selectedCategory, setSelectedCategory, searchQuery, setSearchQuery, sortBy, setSortBy, addToCart, openPolicy, settings, setIsBulkOrderOpen, isBootstrapping } = useStore();
+  const [addingProductId, setAddingProductId] = useState(null);
   const navigate = useNavigate();
   // Filter & Sort Products
   const filteredProducts = useMemo(() => {
@@ -37,14 +38,19 @@ export const HomePage = ({ onOpenCheckout }) => {
         return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0);
       });
   }, [products, selectedCategory, searchQuery, sortBy]);
-  const handleQuickAdd = (product, e) => {
+  const handleQuickAdd = async (product, e) => {
     e.stopPropagation();
+    setAddingProductId(product.id);
     const defaultPack = product.packs?.[0] || {
       count: 1,
       label: 'Single Pack',
       price: product.numericPrice,
     };
-    addToCart(product, defaultPack, 1);
+    try {
+      await addToCart(product, defaultPack, 1);
+    } finally {
+      setTimeout(() => setAddingProductId(null), 300);
+    }
   };
   return (<div className="flex-1 flex flex-col">
     {/* 1. Hero Section Slider */}
@@ -132,8 +138,23 @@ export const HomePage = ({ onOpenCheckout }) => {
         </div>
       </div>
 
-      {/* Product Grid */}
-      {filteredProducts.length === 0 ? (<div className="text-center py-16 bg-white rounded-2xl border border-[var(--border)]/10 space-y-3">
+      {/* Product Grid / Loader */}
+      {isBootstrapping ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {[1, 2, 3, 4].map((n) => (
+            <div key={n} className="bg-white rounded-2xl sm:rounded-[28px] border border-[#EFE8DE] p-3.5 sm:p-4 space-y-3 animate-pulse">
+              <div className="w-full h-56 sm:h-72 bg-[#F5EFE6] rounded-xl sm:rounded-[22px] flex items-center justify-center">
+                <Loader2 size={24} className="animate-spin text-[var(--foreground)]/20" />
+              </div>
+              <div className="h-4 bg-gray-200 rounded-full w-3/4 mx-auto"></div>
+              <div className="flex gap-2">
+                <div className="flex-1 h-10 bg-gray-200 rounded-xl"></div>
+                <div className="flex-1 h-10 bg-gray-200 rounded-xl"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filteredProducts.length === 0 ? (<div className="text-center py-16 bg-white rounded-2xl border border-[var(--border)]/10 space-y-3">
         <ShoppingBag size={40} className="mx-auto text-[var(--foreground)]/30" />
         <h3 className="text-lg font-black uppercase text-[var(--foreground)]">No Products Found</h3>
         <p className="text-xs text-[var(--foreground)]/70 font-sans">
@@ -149,6 +170,7 @@ export const HomePage = ({ onOpenCheckout }) => {
         {filteredProducts.map((product) => {
           const discountPercent = Math.round(((product.originalPrice - product.numericPrice) / product.originalPrice) * 100);
           const formattedWeight = (product.weight || '').replace(/gm$/i, 'G').toUpperCase();
+          const isAddingThis = addingProductId === product.id;
 
           return (<div key={product.id} onClick={() => navigate(`/product/${product.slug}`)} className="group bg-white rounded-2xl sm:rounded-[28px] border border-[#EFE8DE] overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer transform hover:-translate-y-1.5 p-3.5 sm:p-4">
             <div>
@@ -181,21 +203,31 @@ export const HomePage = ({ onOpenCheckout }) => {
               {/* Left Pill: Amount Button -> Add to Cart on Hover */}
               <button
                 type="button"
+                disabled={isAddingThis}
                 onClick={(e) => handleQuickAdd(product, e)}
-                className="group/btn relative flex-1 h-10 sm:h-11 px-2.5 rounded-xl bg-[#F6EFE5] hover:bg-[var(--primary)] text-[#2D2A26] hover:text-white transition-all duration-300 font-extrabold text-xs sm:text-sm tracking-wider cursor-pointer shadow-xs active:scale-95 flex items-center justify-center overflow-hidden border border-transparent hover:border-[var(--primary)]"
+                className="group/btn relative flex-1 h-10 sm:h-11 px-2.5 rounded-xl bg-[#F6EFE5] hover:bg-[var(--primary)] text-[#2D2A26] hover:text-white transition-all duration-300 font-extrabold text-xs sm:text-sm tracking-wider cursor-pointer shadow-xs active:scale-95 flex items-center justify-center overflow-hidden border border-transparent hover:border-[var(--primary)] disabled:opacity-75"
                 title="Add to cart"
               >
-                {/* Normal State: Amount (with icon on mobile) */}
-                <span className="flex items-center justify-center gap-1.5 transition-all duration-300 sm:group-hover/btn:-translate-y-8 sm:group-hover/btn:opacity-0 font-extrabold text-xs sm:text-sm">
-                  <ShoppingBag size={13} className="sm:hidden text-[var(--primary)]" />
-                  <span>₹{product.numericPrice}</span>
-                </span>
+                {isAddingThis ? (
+                  <span className="flex items-center justify-center gap-1.5 text-[var(--primary)] font-black text-xs">
+                    <Loader2 size={14} className="animate-spin" />
+                    <span>Adding...</span>
+                  </span>
+                ) : (
+                  <>
+                    {/* Normal State: Amount (with icon on mobile) */}
+                    <span className="flex items-center justify-center gap-1.5 transition-all duration-300 sm:group-hover/btn:-translate-y-8 sm:group-hover/btn:opacity-0 font-extrabold text-xs sm:text-sm">
+                      <ShoppingBag size={13} className="sm:hidden text-[var(--primary)]" />
+                      <span>₹{product.numericPrice}</span>
+                    </span>
 
-                {/* Hover State: Add to Cart */}
-                <span className="hidden sm:flex absolute inset-0 items-center justify-center gap-1.5 transition-all duration-300 translate-y-8 opacity-0 group-hover/btn:translate-y-0 group-hover/btn:opacity-100 font-black text-[11px] sm:text-xs uppercase tracking-wider text-white">
-                  <ShoppingBag size={14} />
-                  <span>Add To Cart</span>
-                </span>
+                    {/* Hover State: Add to Cart */}
+                    <span className="hidden sm:flex absolute inset-0 items-center justify-center gap-1.5 transition-all duration-300 translate-y-8 opacity-0 group-hover/btn:translate-y-0 group-hover/btn:opacity-100 font-black text-[11px] sm:text-xs uppercase tracking-wider text-white">
+                      <ShoppingBag size={14} />
+                      <span>Add To Cart</span>
+                    </span>
+                  </>
+                )}
               </button>
 
               {/* Right Pill: Weight Size */}

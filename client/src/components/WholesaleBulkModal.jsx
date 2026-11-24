@@ -12,7 +12,10 @@ import {
   Sun, 
   Award, 
   Zap, 
-  Leaf 
+  Leaf,
+  Globe,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useStore } from '../context/StoreContext';
@@ -82,6 +85,14 @@ export const WholesaleBulkModal = () => {
     setQuantityKg((prev) => (prev > 50 ? prev - 50 : 50));
   };
 
+  const handlePrevImage = () => {
+    setSelectedImageIndex((prev) => (prev === 0 ? currentProduct.images.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = () => {
+    setSelectedImageIndex((prev) => (prev === currentProduct.images.length - 1 ? 0 : prev + 1));
+  };
+
   return (
     <>
       <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain" role="dialog" aria-modal="true">
@@ -92,14 +103,14 @@ export const WholesaleBulkModal = () => {
           aria-hidden="true"
         />
 
-        {/* Modal Window Container */}
-        <div className="min-h-screen px-2.5 sm:px-4 py-4 sm:py-10 flex items-center justify-center">
+        {/* Modal Window Container - Positioned below header, never clipped at top */}
+        <div className="min-h-screen px-3 sm:px-6 pt-24 sm:pt-28 pb-10 sm:pb-16 flex items-start justify-center">
           <div className="relative w-full max-w-5xl bg-[var(--background)] rounded-2xl sm:rounded-3xl shadow-2xl border border-[var(--border)]/40 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
             
             {/* Top Close Button */}
             <button
               onClick={() => setIsBulkOrderOpen(false)}
-              className="absolute top-3 right-3 sm:top-6 sm:right-6 z-20 p-2 sm:p-2.5 rounded-full bg-white hover:bg-[var(--primary)]/10 text-[var(--foreground)] transition-colors shadow-sm cursor-pointer border border-[var(--border)]/20"
+              className="absolute top-3 right-3 sm:top-5 sm:right-5 z-20 p-2 sm:p-2.5 rounded-full bg-white/95 hover:bg-[var(--primary)] hover:text-white text-[var(--foreground)] transition-all shadow-md cursor-pointer border border-[var(--border)]/25 hover:scale-105"
               aria-label="Close wholesale modal"
             >
               <X size={18} />
@@ -111,8 +122,8 @@ export const WholesaleBulkModal = () => {
               {/* Left Column: Product Gallery (Spacious, uncropped, free image presentation) */}
               <div className="lg:col-span-6 flex flex-col justify-between space-y-3 sm:space-y-4">
                 
-                {/* Main Hero Image Frame */}
-                <div className="relative w-full bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 flex items-center justify-center border border-[var(--border)]/30 shadow-xs min-h-[220px] sm:min-h-[380px] overflow-hidden">
+                {/* Main Hero Image Frame & Slider */}
+                <div className="relative w-full bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 flex items-center justify-center border border-[var(--border)]/30 shadow-xs min-h-[220px] sm:min-h-[380px] overflow-hidden group">
                   <img
                     src={activeImage}
                     alt={currentProduct.name}
@@ -120,10 +131,32 @@ export const WholesaleBulkModal = () => {
                   />
                   
                   {/* Subtle Factory Badge */}
-                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-[var(--primary)] text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-2.5 sm:px-3 py-1 rounded-full shadow-xs flex items-center gap-1.5">
+                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-[var(--primary)] text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-2.5 sm:px-3 py-1 rounded-full shadow-xs flex items-center gap-1.5 z-10">
                     <Package size={11} />
                     <span>WHOLESALE • B2B DISPATCH</span>
                   </div>
+
+                  {/* Left / Right Carousel Slider Controls */}
+                  {currentProduct.images.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handlePrevImage}
+                        aria-label="Previous image"
+                        className="absolute left-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[var(--foreground)] shadow-md border border-[var(--border)]/20 flex items-center justify-center transition-all opacity-80 hover:opacity-100 hover:scale-105 cursor-pointer z-10"
+                      >
+                        <ChevronLeft size={18} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleNextImage}
+                        aria-label="Next image"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[var(--foreground)] shadow-md border border-[var(--border)]/20 flex items-center justify-center transition-all opacity-80 hover:opacity-100 hover:scale-105 cursor-pointer z-10"
+                      >
+                        <ChevronRight size={18} />
+                      </button>
+                    </>
+                  )}
                 </div>
 
                 {/* Horizontal Thumbnails Row (Clean, centered, not crowding the main image) */}
@@ -254,6 +287,30 @@ export const WholesaleBulkModal = () => {
                       <Plus size={18} />
                     </button>
                   </div>
+
+                  {/* Range Slider for Quantity */}
+                  <div className="mt-3 pt-3 border-t border-[var(--border)]/20">
+                    <div className="flex items-center justify-between text-[10px] font-bold text-[var(--foreground)]/60 mb-1.5">
+                      <span>Interactive Quantity Slider</span>
+                      <span className="font-black text-[var(--primary)]">{quantityKg} KG</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={50}
+                      max={2000}
+                      step={50}
+                      value={quantityKg}
+                      onChange={(e) => setQuantityKg(Number(e.target.value))}
+                      className="w-full h-2 bg-[var(--primary)]/15 rounded-lg appearance-none cursor-pointer accent-[var(--primary)]"
+                    />
+                    <div className="flex justify-between text-[9px] font-extrabold text-[var(--foreground)]/50 mt-1.5">
+                      <button type="button" onClick={() => setQuantityKg(50)} className="hover:text-[var(--primary)] cursor-pointer">50 KG</button>
+                      <button type="button" onClick={() => setQuantityKg(250)} className="hover:text-[var(--primary)] cursor-pointer">250 KG</button>
+                      <button type="button" onClick={() => setQuantityKg(500)} className="hover:text-[var(--primary)] cursor-pointer">500 KG</button>
+                      <button type="button" onClick={() => setQuantityKg(1000)} className="hover:text-[var(--primary)] cursor-pointer">1000 KG</button>
+                      <button type="button" onClick={() => setQuantityKg(2000)} className="hover:text-[var(--primary)] cursor-pointer">2000+ KG</button>
+                    </div>
+                  </div>
                 </div>
 
                 {/* GET QUOTE CTA (Opens Direct Quote Popup) */}
@@ -274,8 +331,8 @@ export const WholesaleBulkModal = () => {
                 {/* Trust & Logistics Compact Badges */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-[var(--border)]/30 text-center">
                   <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-white/60 border border-[var(--border)]/20">
-                    <Truck size={17} className="text-[var(--primary)]" />
-                    <span className="text-[10px] font-bold text-[var(--foreground)]/70">Pan-India</span>
+                    <Globe size={17} className="text-[var(--primary)]" />
+                    <span className="text-[10px] font-bold text-[var(--foreground)]/70">Worldwide</span>
                   </div>
                   <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-white/60 border border-[var(--border)]/20">
                     <ShieldCheck size={17} className="text-[var(--primary)]" />

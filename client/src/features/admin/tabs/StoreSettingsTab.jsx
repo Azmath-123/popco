@@ -1,7 +1,7 @@
 import React from 'react';
-import { Save } from 'lucide-react';
+import { Save, Loader2 } from 'lucide-react';
 
-export function StoreSettingsTab({ settAnnouncement, setSettAnnouncement, settWhatsapp, setSettWhatsapp, settEmail, setSettEmail, settThreshold, setSettThreshold, handleSaveSettings }) {
+export function StoreSettingsTab({ settAnnouncement, setSettAnnouncement, settWhatsapp, setSettWhatsapp, settEmail, setSettEmail, settThreshold, setSettThreshold, handleSaveSettings, isSavingSettings }) {
   return (
 <form onSubmit={handleSaveSettings} className="bg-white p-6 sm:p-8 rounded-3xl border border-[var(--border)]/15 shadow-sm space-y-6 max-w-2xl">
             <h2 className="text-lg font-black uppercase text-[var(--foreground)] border-b border-[var(--border)]/10 pb-4">
@@ -40,9 +40,22 @@ export function StoreSettingsTab({ settAnnouncement, setSettAnnouncement, settWh
               </div>
             </div>
 
-            <button type="submit" className="px-8 py-3 rounded-full bg-[var(--primary)] text-white text-xs font-black uppercase tracking-wider shadow-md hover:bg-[var(--primary)]/90 flex items-center gap-2">
-              <Save size={15}/>
-              <span>Save Configuration</span>
+            <button 
+              type="submit" 
+              disabled={isSavingSettings}
+              className="px-8 py-3 rounded-full bg-[var(--primary)] text-white text-xs font-black uppercase tracking-wider shadow-md hover:bg-[var(--primary)]/90 flex items-center gap-2 cursor-pointer disabled:opacity-60"
+            >
+              {isSavingSettings ? (
+                <>
+                  <Loader2 size={15} className="animate-spin" />
+                  <span>Saving Configuration...</span>
+                </>
+              ) : (
+                <>
+                  <Save size={15}/>
+                  <span>Save Configuration</span>
+                </>
+              )}
             </button>
           </form>
   );

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../context/StoreContext';
-import { X, Mail, User, AlertCircle } from 'lucide-react';
+import { X, Mail, User, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { PhoneInput } from './PhoneInput';
 import { validateEmail, validatePhone, validateName, formatFullPhone } from '../lib/validation';
 
@@ -8,11 +8,25 @@ export const AuthModal = () => {
     const { isAuthModalOpen, setIsAuthModalOpen, authModalMode, setAuthModalMode, login, signup } = useStore();
     const [emailOrPhone, setEmailOrPhone] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [countryCode, setCountryCode] = useState('+91');
     const [email, setEmail] = useState('');
     const [formError, setFormError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const loginPasswordRef = useRef(null);
+    const signupPasswordRef = useRef(null);
+
+    useEffect(() => {
+        if (!isAuthModalOpen) {
+            setPassword('');
+            setShowPassword(false);
+            setFormError('');
+            setIsSubmitting(false);
+        }
+    }, [isAuthModalOpen]);
 
     if (!isAuthModalOpen)
         return null;
@@ -35,7 +49,14 @@ export const AuthModal = () => {
                 setFormError('Please enter your password.');
                 return;
             }
-            login(clean, password);
+            setIsSubmitting(true);
+            try {
+                await login(clean, password);
+            } catch (err) {
+                setFormError(err.message || 'Login failed. Please verify your credentials.');
+            } finally {
+                setIsSubmitting(false);
+            }
         }
         else {
             if (!validateName(name)) {
@@ -57,7 +78,14 @@ export const AuthModal = () => {
                 return;
             }
             const fullPhone = formatFullPhone(phone, countryCode);
-            signup(name.trim(), email.trim().toLowerCase(), fullPhone, password);
+            setIsSubmitting(true);
+            try {
+                await signup(name.trim(), email.trim().toLowerCase(), fullPhone, password);
+            } catch (err) {
+                setFormError(err.message || 'Registration failed. Please try again.');
+            } finally {
+                setIsSubmitting(false);
+            }
         }
     };
     return (<div 
@@ -119,11 +147,50 @@ export const AuthModal = () => {
 
               <div>
                 <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">Password</label>
-                <input type="password" required minLength={6} value={password} onChange={(e) => { setPassword(e.target.value); setFormError(''); }} autoComplete="current-password" className="w-full px-3 py-2.5 text-xs bg-white border border-[var(--border)]/20 rounded-lg focus:outline-none focus:border-[var(--border)] font-bold"/>
+                <div className="relative">
+                  <input
+                    ref={loginPasswordRef}
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    minLength={6}
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); setFormError(''); }}
+                    autoComplete="current-password"
+                    className="w-full pl-3 pr-10 py-2.5 text-xs bg-white border border-[var(--border)]/20 rounded-lg focus:outline-none focus:border-[var(--border)] font-bold"
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowPassword((prev) => !prev);
+                      loginPasswordRef.current?.focus();
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--foreground)]/50 hover:text-[var(--foreground)] cursor-pointer p-1"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
 
-              <button type="submit" className="w-full py-3.5 rounded-full bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-98 cursor-pointer">
-                Sign In to Account
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3.5 rounded-full bg-[var(--primary)] hover:bg-[var(--primary)]/90 disabled:opacity-60 text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Signing In...</span>
+                  </>
+                ) : (
+                  <span>Sign In to Account</span>
+                )}
               </button>
             </div>) : (<div className="space-y-3">
               <div>
@@ -161,11 +228,50 @@ export const AuthModal = () => {
 
               <div>
                 <label className="block text-[10px] font-bold text-[var(--foreground)]/70 uppercase mb-1">Password * (at least 10 characters)</label>
-                <input type="password" required minLength={10} value={password} onChange={(e) => { setPassword(e.target.value); setFormError(''); }} autoComplete="new-password" className="w-full px-3 py-2 text-xs bg-white border border-[var(--border)]/20 rounded-lg focus:outline-none focus:border-[var(--border)] font-bold"/>
+                <div className="relative">
+                  <input
+                    ref={signupPasswordRef}
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    minLength={10}
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); setFormError(''); }}
+                    autoComplete="new-password"
+                    className="w-full pl-3 pr-10 py-2 text-xs bg-white border border-[var(--border)]/20 rounded-lg focus:outline-none focus:border-[var(--border)] font-bold"
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowPassword((prev) => !prev);
+                      signupPasswordRef.current?.focus();
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--foreground)]/50 hover:text-[var(--foreground)] cursor-pointer p-1"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
 
-              <button type="submit" className="w-full py-3.5 rounded-full bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-98 cursor-pointer">
-                Create Account
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3.5 rounded-full bg-[var(--primary)] hover:bg-[var(--primary)]/90 disabled:opacity-60 text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Creating Account...</span>
+                  </>
+                ) : (
+                  <span>Create Account</span>
+                )}
               </button>
             </div>)}
 

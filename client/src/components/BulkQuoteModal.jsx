@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Send, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+import { X, Send, CheckCircle2, AlertCircle, Sparkles, Loader2 } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useStore } from '../context/StoreContext';
 import { apiRequest } from '../lib/api';
@@ -86,7 +86,7 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
   };
 
   return (
-    <div className="fixed inset-0 z-60 overflow-y-auto flex items-center justify-center p-2.5 sm:p-4 overscroll-contain">
+    <div className="fixed inset-0 z-60 overflow-y-auto flex items-start sm:items-center justify-center p-3 pt-24 sm:pt-24 pb-10 overscroll-contain">
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity" 
@@ -184,9 +184,14 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
               </div>
 
               <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--foreground)]/70 mb-1.5">
-                  REQUIRED QUANTITY (KG)
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--foreground)]/70">
+                    REQUIRED QUANTITY (KG)
+                  </label>
+                  <span className="text-[10px] font-black text-[var(--primary)]">
+                    {qty} KG
+                  </span>
+                </div>
                 <input
                   type="number"
                   min={50}
@@ -200,7 +205,32 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
                   required
                   className="w-full px-4 py-3 rounded-xl bg-white text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] text-sm font-bold border border-[var(--border)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all shadow-xs"
                 />
-                <p className="text-[10px] text-[var(--foreground)]/50 mt-1 font-medium">
+                
+                {/* Interactive Slider */}
+                <div className="mt-2.5">
+                  <input
+                    type="range"
+                    min={50}
+                    max={2000}
+                    step={50}
+                    value={qty}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setQty(val);
+                      if (onQuantityChange) onQuantityChange(val);
+                    }}
+                    className="w-full h-2 bg-[var(--primary)]/15 rounded-lg appearance-none cursor-pointer accent-[var(--primary)]"
+                  />
+                  <div className="flex justify-between text-[9px] font-extrabold text-[var(--foreground)]/50 mt-1">
+                    <span>50 KG</span>
+                    <span>250 KG</span>
+                    <span>500 KG</span>
+                    <span>1000 KG</span>
+                    <span>2000+ KG</span>
+                  </div>
+                </div>
+
+                <p className="text-[10px] text-[var(--foreground)]/50 mt-1.5 font-medium">
                   Min 50 KG • Supplied in airtight 50 KG master sacks
                 </p>
               </div>
@@ -212,7 +242,10 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
                   className="w-full py-3.5 px-6 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary)]/90 active:scale-[0.98] text-white font-black uppercase tracking-widest text-xs shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (
-                    <span>PROCESSING...</span>
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      <span>PROCESSING...</span>
+                    </>
                   ) : (
                     <>
                       <FaWhatsapp size={16} />
@@ -223,7 +256,7 @@ export const BulkQuoteModal = ({ isOpen, onClose, selectedProduct, quantityKg, o
               </div>
 
               <p className="text-[10px] text-center text-[var(--foreground)]/50 font-medium">
-                ⚡ Direct factory quotation • Fast dispatch across India
+                ⚡ Direct factory quotation • Worldwide export & dispatch
               </p>
             </form>
           )}

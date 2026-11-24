@@ -1,5 +1,30 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Google Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Google Sans'), local('Product Sans'), url('https://fonts.cdnfonts.com/s/14955/ProductSans-Regular.woff') format('woff');
+}
+@font-face {
+  font-family: 'Google Sans';
+  font-style: normal;
+  font-weight: 500;
+  src: local('Google Sans Medium'), local('Product Sans Medium'), url('https://fonts.cdnfonts.com/s/14955/ProductSans-Medium.woff') format('woff');
+}
+@font-face {
+  font-family: 'Google Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Google Sans Bold'), local('Product Sans Bold'), url('https://fonts.cdnfonts.com/s/14955/ProductSans-Bold.woff') format('woff');
+}
+@font-face {
+  font-family: 'Google Sans';
+  font-style: normal;
+  font-weight: 900;
+  src: local('Google Sans Black'), local('Product Sans Black'), url('https://fonts.cdnfonts.com/s/14955/ProductSans-Black.woff') format('woff');
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -35,9 +60,10 @@
   --sidebar-accent-foreground: oklch(0.3958 0.1331 25.7230);
   --sidebar-border: oklch(0.9355 0.0324 80.9937);
   --sidebar-ring: oklch(0.4354 0.1779 27.9223);
-  --font-sans: Poppins, sans-serif;
-  --font-serif: Libre Baskerville, serif;
-  --font-mono: IBM Plex Mono, monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Google Sans', 'Product Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Google Sans', 'Product Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
   --radius: 0.375rem;
   --shadow-x: 1px;
   --shadow-y: 1px;
@@ -90,9 +116,10 @@
   --sidebar-accent-foreground: oklch(0.9619 0.0580 95.6174);
   --sidebar-border: oklch(0.3741 0.0087 67.5582);
   --sidebar-ring: oklch(0.5054 0.1905 27.5181);
-  --font-sans: Poppins, sans-serif;
-  --font-serif: Libre Baskerville, serif;
-  --font-mono: IBM Plex Mono, monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Google Sans', 'Product Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Google Sans', 'Product Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
   --radius: 0.375rem;
   --shadow-x: 1px;
   --shadow-y: 1px;
@@ -171,6 +198,17 @@
   html, body {
     overflow-x: hidden;
     max-width: 100vw;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* Headings: Google Sans */
+  h1, h2, h3, h4, h5, h6, .font-heading, .font-serif {
+    font-family: 'Google Sans', 'Product Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  }
+
+  /* Normal text: Inter */
+  body, p, span, a, button, input, textarea, select, label {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   html.modal-open,

@@ -7,18 +7,20 @@ import {
   ShieldCheck, 
   Truck, 
   RefreshCw, 
+  Leaf,
   Plus, 
   Minus, 
   ArrowRight, 
   MessageSquare,
   Heart,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
 
 export const ProductDetailPage = ({ onOpenCheckout }) => {
     const { slug } = useParams();
-    const { products, addToCart, reviews, addReview, currentUser, showToast } = useStore();
+    const { products, addToCart, reviews, addReview, currentUser, showToast, isBootstrapping } = useStore();
     const navigate = useNavigate();
     
     // Find product by slug or id
@@ -55,6 +57,11 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
     const [reviewRating, setReviewRating] = useState(5);
     const [reviewTitle, setReviewTitle] = useState('');
     const [reviewComment, setReviewComment] = useState('');
+
+    // Loading states for buttons
+    const [isAdding, setIsAdding] = useState(false);
+    const [isBuying, setIsBuying] = useState(false);
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
     // Update selected image and pack when product changes
     useEffect(() => {
@@ -109,15 +116,22 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
       </div>);
     }
 
-    // Calculate current unit price from selected pack
-    const currentPrice = selectedPack.price || product.numericPrice;
-    const originalPackPrice = Math.round(currentPrice * 1.25);
+    // Product-specific pricing
+    // Makhana: Prepaid = ₹379, COD = ₹399
+    // Edamame: Prepaid = ₹245, COD = ₹260
+    const isEdamame = product.id === 11 || product.slug?.includes('edamame') || product.name?.toLowerCase().includes('edamame');
+    const codPrice = isEdamame ? 260 : 399;
+    const prepaidPrice = isEdamame ? 245 : 379;
+    const currentPrice = codPrice;
+    const originalPackPrice = isEdamame ? 349 : 499;
     const savings = originalPackPrice - currentPrice;
 
-    // Prepaid offer calculation (Instant ~8% discount for online prepaid order)
-    const prepaidDiscount = Math.round(currentPrice * 0.08);
-    const prepaidPrice = currentPrice - prepaidDiscount;
-    const codPrice = currentPrice;
+    const effectivePack = {
+      count: 1,
+      label: isEdamame ? '150gm Jar' : '200gm Pack',
+      price: codPrice,
+      mrp: originalPackPrice
+    };
 
     // Filter product specific reviews
     const productReviews = reviews.filter((r) => r.productId === product.id);
@@ -127,14 +141,41 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
         .filter((p) => p.id !== product.id && p.category === product.category)
         .slice(0, 4);
 
-    const handleAddToCart = () => {
-        addToCart(product, selectedPack, quantity);
+    const handleAddToCart = async () => {
+        setIsAdding(true);
+        try {
+            await addToCart(product, effectivePack, quantity);
+        } finally {
+            setTimeout(() => setIsAdding(false), 300);
+        }
     };
 
     const handleBuyNow = async () => {
-        if (await addToCart(product, selectedPack, quantity)) onOpenCheckout();
+        setIsBuying(true);
+        try {
+            if (await addToCart(product, effectivePack, quantity)) onOpenCheckout();
+        } finally {
+            setIsBuying(false);
+        }
     };
-    const handleReviewSubmit = (e) => {
+
+    const handlePrepaidClick = () => {
+        setSelectedPaymentMode('prepaid');
+        showToast('Online prepaid via Razorpay is coming soon! Please click "ON COD" to place your order now.', 'info');
+    };
+
+    const handleCodClick = async () => {
+        setSelectedPaymentMode('cod');
+        setIsBuying(true);
+        try {
+            if (await addToCart(product, effectivePack, quantity)) {
+                onOpenCheckout();
+            }
+        } finally {
+            setIsBuying(false);
+        }
+    };
+    const handleReviewSubmit = async (e) => {
         e.preventDefault();
         const authorClean = (reviewAuthor || '').trim();
         const commentClean = (reviewComment || '').trim();
@@ -146,20 +187,37 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
             showToast('Please enter your review (at least 5 characters).', 'error');
             return;
         }
-        addReview({
-            productId: product.id,
-            author: authorClean,
-            rating: reviewRating,
-            title: (reviewTitle || '').trim() || 'Crunchy and fresh!',
-            comment: commentClean,
-            verified: true,
-            location: 'India',
-        });
-        setReviewComment('');
-        setReviewTitle('');
-        setShowReviewForm(false);
-        showToast('Thank you! Your verified review has been published.', 'success');
+        setIsSubmittingReview(true);
+        try {
+            await addReview({
+                productId: product.id,
+                author: authorClean,
+                rating: reviewRating,
+                title: (reviewTitle || '').trim() || 'Crunchy and fresh!',
+                comment: commentClean,
+                verified: true,
+                location: 'India',
+            });
+            setReviewComment('');
+            setReviewTitle('');
+            setShowReviewForm(false);
+            showToast('Thank you! Your verified review has been published.', 'success');
+        } finally {
+            setIsSubmittingReview(false);
+        }
     };
+
+    if (!product && isBootstrapping) {
+        return (
+            <div className="flex-1 flex flex-col items-center justify-center min-h-[50vh] p-8 space-y-4">
+                <Loader2 size={36} className="animate-spin text-[var(--primary)]" />
+                <p className="text-xs font-bold uppercase tracking-wider text-[var(--foreground)]/60">
+                    Loading Product Details...
+                </p>
+            </div>
+        );
+    }
+
     return (<div className="flex-1 bg-[var(--background)] pb-16">
       {/* Breadcrumb */}
       <div className="bg-white border-b border-[var(--border)]/10 py-3">
@@ -256,9 +314,9 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
               </div>
 
               <div className="p-2 sm:p-3 bg-white rounded-xl border border-[var(--border)]/10 text-center space-y-1">
-                <RefreshCw size={16} className="mx-auto text-[var(--foreground)]"/>
-                <h5 className="text-[9px] sm:text-[10px] font-extrabold uppercase text-[var(--foreground)] truncate">Fresh Harvest</h5>
-                <p className="text-[8px] sm:text-[9px] text-[var(--foreground)]/60 font-sans truncate">Airtight Pouch</p>
+                <Leaf size={16} className="mx-auto text-[var(--foreground)]"/>
+                <h5 className="text-[9px] sm:text-[10px] font-extrabold uppercase text-[var(--foreground)] truncate">Plant-based protein</h5>
+                <p className="text-[8px] sm:text-[9px] text-[var(--foreground)]/60 font-sans truncate">100% Pure & Vegan</p>
               </div>
             </div>
           </div>
@@ -313,67 +371,61 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
                 )}
               </div>
 
-              {/* On Prepaid (Green) vs On COD (Black) Cards */}
-              <div className="grid grid-cols-2 gap-3 max-w-md">
-                {/* Green On Prepaid Card */}
-                <div 
-                  onClick={() => setSelectedPaymentMode('prepaid')}
-                  className={`p-3.5 sm:p-4 rounded-xl text-center cursor-pointer transition-all border-2 ${
-                    selectedPaymentMode === 'prepaid'
-                      ? 'bg-[#16a34a] text-white border-[#16a34a] shadow-md shadow-[#16a34a]/25 scale-102'
-                      : 'bg-[#16a34a]/90 text-white border-transparent hover:bg-[#16a34a]'
-                  }`}
+              {/* On Prepaid (Green) vs On COD (Black) Compact Professional Action Buttons */}
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3 max-w-md pt-1">
+                {/* Green On Prepaid Button (Razorpay - Coming Soon) */}
+                <button
+                  type="button"
+                  onClick={handlePrepaidClick}
+                  className="p-2.5 sm:p-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500/40 shadow-sm hover:shadow-md transition-all text-center flex flex-col items-center justify-between cursor-pointer group active:scale-[0.98]"
+                  title="Online Prepaid via Razorpay - Coming Soon"
                 >
-                  <div className="text-xs sm:text-sm font-bold tracking-wide">On Prepaid</div>
-                  <div className="text-xl sm:text-2xl font-black mt-0.5 tracking-tight">₹{prepaidPrice}</div>
-                </div>
+                  <div className="flex items-center justify-between w-full mb-1">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-100">
+                      On Prepaid
+                    </span>
+                    <span className="text-[9px] font-black uppercase tracking-wider bg-white/25 text-white px-1.5 py-0.5 rounded-full">
+                      Coming Soon
+                    </span>
+                  </div>
+                  <div className="text-xl sm:text-2xl font-black tracking-tight text-white my-0.5">
+                    ₹{prepaidPrice}
+                  </div>
+                  <span className="text-[9px] text-emerald-100/90 font-medium">
+                    Razorpay Online Pay
+                  </span>
+                </button>
 
-                {/* Black On COD Card */}
-                <div 
-                  onClick={() => setSelectedPaymentMode('cod')}
-                  className={`p-3.5 sm:p-4 rounded-xl text-center cursor-pointer transition-all border-2 ${
-                    selectedPaymentMode === 'cod'
-                      ? 'bg-black text-white border-black shadow-md scale-102'
-                      : 'bg-[#18181b] text-white border-transparent hover:bg-black'
-                  }`}
+                {/* Black On COD Button (Click to Order / Next Page) */}
+                <button
+                  type="button"
+                  onClick={handleCodClick}
+                  disabled={isBuying}
+                  className="p-2.5 sm:p-3 rounded-2xl bg-zinc-900 hover:bg-black text-white border border-zinc-700/50 shadow-sm hover:shadow-md transition-all text-center flex flex-col items-center justify-between cursor-pointer group active:scale-[0.98]"
+                  title="Order with Cash on Delivery"
                 >
-                  <div className="text-xs sm:text-sm font-bold tracking-wide">On COD</div>
-                  <div className="text-xl sm:text-2xl font-black mt-0.5 tracking-tight">₹{codPrice}</div>
-                </div>
-              </div>
-
-              {/* Black Pill Banner (from Image 2) */}
-              <div className="w-full max-w-md bg-black text-white py-2 px-4 rounded-full text-center text-[11px] sm:text-xs font-bold tracking-wide shadow-sm flex items-center justify-center gap-2">
-                <span>Click on Buy It Now Button to avail this offer</span>
+                  <div className="flex items-center justify-between w-full mb-1">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-zinc-300">
+                      On COD
+                    </span>
+                    <span className="text-[9px] font-black uppercase tracking-wider bg-amber-400 text-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                      Order Now
+                    </span>
+                  </div>
+                  <div className="text-xl sm:text-2xl font-black tracking-tight text-white my-0.5">
+                    ₹{codPrice}
+                  </div>
+                  <span className="text-[9px] text-zinc-300 font-medium flex items-center gap-1 group-hover:text-amber-400 transition-colors">
+                    <span>Proceed to Order</span>
+                    <ArrowRight size={10} className="group-hover:translate-x-0.5 transition-transform" />
+                  </span>
+                </button>
               </div>
 
               <span className="text-[10px] text-[var(--foreground)]/70 font-bold uppercase tracking-wider block pt-1">
                 Inclusive of all taxes • Free Shipping on orders over ₹599
               </span>
             </div>
-
-            {/* Pack Selector (Single, 2, 3, 4 packs) */}
-            {product.packs && product.packs.length > 0 && (<div className="space-y-2">
-                <div className="flex justify-between items-center text-xs font-extrabold uppercase text-[var(--foreground)]">
-                  <span>Select Packaging Size</span>
-                  <span className="text-[var(--secondary-foreground)]">Best Value for Bundles</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {product.packs.map((pack) => {
-                const isSelected = selectedPack.count === pack.count;
-                return (<button key={pack.count} type="button" onClick={() => setSelectedPack(pack)} className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${isSelected
-                        ? 'border-[var(--border)] bg-[var(--primary)] text-white shadow-md shadow-[var(--primary)]/20 scale-102'
-                        : 'border-[var(--border)]/20 bg-[var(--background)] text-[var(--foreground)] hover:border-[var(--border)]'}`}>
-                        <span className="block text-[11px] font-black uppercase tracking-wider">
-                          {pack.label}
-                        </span>
-                        <span className="block text-xs font-extrabold mt-1">
-                          ₹{pack.price}
-                        </span>
-                      </button>);
-            })}
-                </div>
-              </div>)}
 
             {/* Quantity Stepper & Buttons */}
             <div className="space-y-4 pt-2">
@@ -397,14 +449,40 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
 
               {/* Add to Cart & Buy Now */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button onClick={handleAddToCart} className="py-3.5 px-6 rounded-full border-2 border-[var(--border)] text-[var(--foreground)] font-black text-xs uppercase tracking-widest hover:bg-[var(--primary)] hover:text-white transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer shadow-xs">
-                  <ShoppingBag size={16}/>
-                  <span>Add to Cart</span>
+                <button 
+                  onClick={handleAddToCart} 
+                  disabled={isAdding}
+                  className="py-3.5 px-6 rounded-full border-2 border-[var(--border)] text-[var(--foreground)] font-black text-xs uppercase tracking-widest hover:bg-[var(--primary)] hover:text-white transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer shadow-xs disabled:opacity-60"
+                >
+                  {isAdding ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      <span>Adding to Cart...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag size={16}/>
+                      <span>Add to Cart</span>
+                    </>
+                  )}
                 </button>
 
-                <button onClick={handleBuyNow} className="py-3.5 px-6 rounded-full bg-[var(--primary)] text-white font-black text-xs uppercase tracking-widest hover:bg-[var(--primary)]/90 transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer shadow-lg shadow-[var(--primary)]/25">
-                  <span>Buy Now (Instant)</span>
-                  <ArrowRight size={16}/>
+                <button 
+                  onClick={handleBuyNow} 
+                  disabled={isBuying}
+                  className="py-3.5 px-6 rounded-full bg-[var(--primary)] text-white font-black text-xs uppercase tracking-widest hover:bg-[var(--primary)]/90 transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer shadow-lg shadow-[var(--primary)]/25 disabled:opacity-60"
+                >
+                  {isBuying ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      <span>Processing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Buy Now (Instant)</span>
+                      <ArrowRight size={16}/>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -539,8 +617,19 @@ export const ProductDetailPage = ({ onOpenCheckout }) => {
                 <textarea rows={3} required value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} placeholder="Tell us what you liked about the size, roasting, packaging and crunch..." className="w-full px-3 py-2 text-xs bg-white border border-[var(--border)]/20 rounded-lg font-medium"/>
               </div>
 
-              <button type="submit" className="px-6 py-2.5 rounded-full bg-[var(--primary)] text-white text-xs font-black uppercase tracking-widest shadow-md hover:bg-[var(--primary)]/90">
-                Post Review
+              <button 
+                type="submit" 
+                disabled={isSubmittingReview}
+                className="px-6 py-2.5 rounded-full bg-[var(--primary)] text-white text-xs font-black uppercase tracking-widest shadow-md hover:bg-[var(--primary)]/90 flex items-center gap-2 cursor-pointer disabled:opacity-60"
+              >
+                {isSubmittingReview ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    <span>Posting Review...</span>
+                  </>
+                ) : (
+                  <span>Post Review</span>
+                )}
               </button>
             </form>)}
 

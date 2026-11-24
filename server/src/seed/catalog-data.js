@@ -71,7 +71,7 @@ export const INITIAL_PRODUCTS = [
         "id": 11,
         "slug": "popco-roasted-salted-edamame-beans-150g",
         "name": "Roasted and Salted Edamame Beans",
-        "price": "₹299",
+        "price": "₹260",
         "rating": 5,
         "badge": "46% Protein",
         "image": "/products/popco-roasted-edamame-150g-front.jpg",
@@ -151,8 +151,8 @@ export const INITIAL_PRODUCTS = [
             {
                 "count": 1,
                 "label": "150gm Jar",
-                "mrp": 399,
-                "price": 299
+                "mrp": 349,
+                "price": 260
             },
             {
                 "count": 2,
@@ -167,8 +167,8 @@ export const INITIAL_PRODUCTS = [
                 "price": 999
             }
         ],
-        "numericPrice": 299,
-        "originalPrice": 399,
+        "numericPrice": 260,
+        "originalPrice": 349,
         "reviewCount": 28,
         "category": "snacks",
         "inStock": true,

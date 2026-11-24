@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { apiRequest } from '../lib/api';
+import { apiRequest, setAuthToken, removeAuthToken } from '../lib/api';
 import { INITIAL_PRODUCTS, INITIAL_REVIEWS } from '../data/fallbackCatalog';
 
 const StoreContext = createContext(undefined);
@@ -295,6 +295,9 @@ export const StoreProvider = ({ children }) => {
     try {
       const user = await apiRequest('/auth/login', { method: 'POST', body: { email, password } });
       if (user) {
+        if (user.token) {
+          setAuthToken(user.token);
+        }
         setCurrentUser(user);
         try {
           localStorage.setItem('popco_current_user', JSON.stringify(user));
@@ -317,6 +320,9 @@ export const StoreProvider = ({ children }) => {
     try {
       const user = await apiRequest('/auth/register', { method: 'POST', body: { name, email, phone, password } });
       if (user) {
+        if (user.token) {
+          setAuthToken(user.token);
+        }
         setCurrentUser(user);
         try {
           localStorage.setItem('popco_current_user', JSON.stringify(user));
@@ -339,6 +345,7 @@ export const StoreProvider = ({ children }) => {
     try { await apiRequest('/auth/logout', { method: 'POST' }); }
     catch (error) { showToast(error.message, 'error'); }
     try { localStorage.removeItem('popco_current_user'); } catch {}
+    removeAuthToken();
     setCurrentUser(null);
     setOrders([]);
     showToast('Logged out successfully.', 'info');

@@ -79,6 +79,7 @@ function userDto(row, addresses = []) {
     role: row.role === 'admin' ? 'super_admin' : 'customer',
     joinedDate: new Date(row.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
     addresses,
+    token: createAccessToken(row),
   };
 }
 

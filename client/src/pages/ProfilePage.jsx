@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { User, Package, MapPin, ShieldCheck, Plus, Trash2, Truck, LogOut } from 'lucide-react';
+import { User, Package, MapPin, ShieldCheck, Plus, Trash2, Truck, LogOut, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PhoneInput } from '../components/PhoneInput';
 import { validatePhone, validateName, validatePincode, formatFullPhone } from '../lib/validation';
@@ -11,6 +11,8 @@ export const ProfilePage = () => {
     const [activeTab, setActiveTab] = useState('orders');
     // New address form state
     const [showAddAddress, setShowAddAddress] = useState(false);
+    const [isSavingAddress, setIsSavingAddress] = useState(false);
+    const [deletingAddressId, setDeletingAddressId] = useState(null);
     const [newLabel, setNewLabel] = useState('Home');
     const [newName, setNewName] = useState(currentUser?.name || '');
     const [newPhone, setNewPhone] = useState(currentUser?.phone || '');
@@ -33,7 +35,7 @@ export const ProfilePage = () => {
         </button>
       </div>);
     }
-    const handleCreateAddress = (e) => {
+    const handleCreateAddress = async (e) => {
         e.preventDefault();
         const recipientName = (newName || currentUser.name || '').trim();
 
@@ -68,21 +70,28 @@ export const ProfilePage = () => {
 
         const fullPhone = newPhone ? formatFullPhone(newPhone, newCountryCode) : (currentUser.phone || '');
 
-        addAddress({
-            label: newLabel.trim() || 'Home',
-            name: recipientName,
-            phone: fullPhone,
-            addressLine1: newAddressLine.trim(),
-            city: newCity.trim(),
-            state: newState.trim() || 'Uttar Pradesh',
-            pincode: newPincode.trim(),
-            isDefault: currentUser.addresses.length === 0,
-        });
-        setNewAddressLine('');
-        setNewCity('');
-        setNewPincode('');
-        setShowAddAddress(false);
-        showToast('New delivery address saved!', 'success');
+        setIsSavingAddress(true);
+        try {
+            await addAddress({
+                label: newLabel.trim() || 'Home',
+                name: recipientName,
+                phone: fullPhone,
+                addressLine1: newAddressLine.trim(),
+                city: newCity.trim(),
+                state: newState.trim() || 'Uttar Pradesh',
+                pincode: newPincode.trim(),
+                isDefault: currentUser.addresses.length === 0,
+            });
+            setNewAddressLine('');
+            setNewCity('');
+            setNewPincode('');
+            setShowAddAddress(false);
+            showToast('New delivery address saved!', 'success');
+        } catch (err) {
+            showToast(err.message || 'Failed to save address', 'error');
+        } finally {
+            setIsSavingAddress(false);
+        }
     };
     return (<div className="flex-1 bg-[var(--background)] py-6 sm:py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
@@ -303,8 +312,19 @@ export const ProfilePage = () => {
                   </div>
                 </div>
 
-                <button type="submit" className="px-6 py-2.5 rounded-full bg-[var(--primary)] text-white text-xs font-black uppercase tracking-wider">
-                  Save Address
+                <button 
+                  type="submit" 
+                  disabled={isSavingAddress}
+                  className="px-6 py-2.5 rounded-full bg-[var(--primary)] text-white text-xs font-black uppercase tracking-wider flex items-center gap-2 cursor-pointer disabled:opacity-60"
+                >
+                  {isSavingAddress ? (
+                    <>
+                      <Loader2 size={13} className="animate-spin" />
+                      <span>Saving Address...</span>
+                    </>
+                  ) : (
+                    <span>Save Address</span>
+                  )}
                 </button>
               </form>)}
 
@@ -333,8 +353,23 @@ export const ProfilePage = () => {
                     {!addr.isDefault && (<button onClick={() => setDefaultAddress(addr.id)} className="text-[var(--secondary-foreground)] hover:text-[var(--foreground)] uppercase tracking-wider">
                         Set as Default
                       </button>)}
-                    <button onClick={() => deleteAddress(addr.id)} className="text-red-600 hover:text-red-800 ml-auto flex items-center gap-1 uppercase">
-                      <Trash2 size={13}/>
+                    <button 
+                      onClick={async () => {
+                        setDeletingAddressId(addr.id);
+                        try {
+                          await deleteAddress(addr.id);
+                        } finally {
+                          setDeletingAddressId(null);
+                        }
+                      }} 
+                      disabled={deletingAddressId === addr.id}
+                      className="text-red-600 hover:text-red-800 ml-auto flex items-center gap-1 uppercase cursor-pointer disabled:opacity-50"
+                    >
+                      {deletingAddressId === addr.id ? (
+                        <Loader2 size={13} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={13}/>
+                      )}
                       <span>Delete</span>
                     </button>
                   </div>
